@@ -16,6 +16,16 @@
 
 package org.syyllab.broke;
 
+import io.netty.bootstrap.ServerBootstrap;
+
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+
+import org.syyllab.broke.channel.PipelineInitializer;
+
 /**
  * The Server class used as an entry instance.
  * An example creation,
@@ -42,10 +52,32 @@ public class Server {
     /**
      * Run the server.
      * @throws Exception
-     * @return Server for chaining methods.
      */
-    public Server run() throws Exception {
-        return this;
+    public void run() throws Exception {
+        // TODO: May move these codebase into another class for scalability.
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        try {
+            ServerBootstrap boots = new ServerBootstrap();
+
+            boots.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new PipelineInitializer())
+                    .option(ChannelOption.SO_BACKLOG, 128)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+            ChannelFuture after = boots.bind(port).sync();
+            after.channel().closeFuture().sync();
+        } finally {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
+        }
     }
 
+    public static void main(String[] args) throws Exception {
+        System.out.println("Server is running at 0.0.0.0:8181");
+        // TODO: Blocking currently.
+        // TODO: Prefer to have a return binding for server as an interaction.
+        new Server(8181, new ServerContext()).run();
+    }
 }
