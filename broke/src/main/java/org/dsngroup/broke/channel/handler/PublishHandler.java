@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
-import org.dsngroup.broke.content.TopicPool;
+import org.dsngroup.broke.storage.InMemoryPool;
 import org.dsngroup.broke.protocol.Message;
 import org.dsngroup.broke.protocol.Method;
 
@@ -32,7 +32,7 @@ import org.dsngroup.broke.protocol.Method;
 public class PublishHandler extends ChannelInboundHandlerAdapter {
 
     /**
-     * Read the message from channel, parse and publish to {@link TopicPool}
+     * Read the message from channel, parse and publish to {@link InMemoryPool}
      * @param ctx {@see ChannelHandlerContext}
      * @param msg The message of the channel read.
      */
@@ -47,9 +47,9 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
             // TODO: Dealing with complex protocol parsing
             Message newMessage = new Message(packet.toString());
             if (newMessage.getMethod() == Method.GET) {
-                System.out.println(TopicPool.getContentFromTopic(newMessage.getTopic()));
+                System.out.println(InMemoryPool.getContentFromTopic(newMessage.getTopic()));
             } else {
-                TopicPool.putContentOnTopic(newMessage.getTopic(), newMessage.getPayload());
+                InMemoryPool.putContentOnTopic(newMessage.getTopic(), newMessage.getPayload());
                 System.out.println("Insert to topic: " + newMessage.getTopic());
             }
         } finally {

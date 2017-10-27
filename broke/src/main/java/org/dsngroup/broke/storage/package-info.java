@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with content.
+ * This package used for dealing with storage.
  */
 
-package org.dsngroup.broke.content;
+package org.dsngroup.broke.storage;
