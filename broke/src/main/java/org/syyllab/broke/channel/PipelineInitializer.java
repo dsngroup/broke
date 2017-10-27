@@ -19,7 +19,7 @@ package org.syyllab.broke.channel;
 import io.netty.channel.ChannelInitializer;
 
 import io.netty.channel.Channel;
-import org.syyllab.broke.channel.handler.ReadDropHandler;
+import org.syyllab.broke.channel.handler.PublishHandler;
 
 /**
  * The PipelineInitializer is a customized ChannelInitializer for desired pipeline of handlers.
@@ -30,13 +30,14 @@ import org.syyllab.broke.channel.handler.ReadDropHandler;
 public class PipelineInitializer extends ChannelInitializer<Channel> {
 
     // TODO: register the handler topologies here.
+
     /**
-     * Implement the channel, for the continuous pipeline of handlers.
-     * @param channel
+     * Implement the channel, for the pipeline of handler.
+     * @param channel The Netty {@see Channel}
      * @throws Exception
      */
     @Override
     public void initChannel(Channel channel) throws Exception {
-        channel.pipeline().addLast("ReadDropHandler", new ReadDropHandler());
+        channel.pipeline().addLast("PublishHandler", new PublishHandler());
     }
 }
