@@ -14,39 +14,39 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.content;
+package org.dsngroup.broke.storage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The Topicpool class, used as singleton class.
+ * The InMemoryPool class, used as singleton class.
  */
-public class TopicPool {
+public class InMemoryPool {
 
     // TODO: Assignable pool size
     // TODO: Extends this to be offset based data structure.
     // TODO: May consider to replace ConcurrentHashMap into more performant data structure.
-    private static Map<String, String> inMemoryTopicPool = new ConcurrentHashMap<>();
+    private static Map<String, String> inMemoryPool = new ConcurrentHashMap<>();
 
     /**
-     * Insert content on a specific topic.
+     * Insert storage on a specific topic.
      * @param topic the topic(key) of the broker.
-     * @param content the content of the associated topic.
+     * @param content the storage of the associated topic.
      */
     public static void putContentOnTopic(String topic, String content) {
         // Ignore the return value
-        inMemoryTopicPool.put(topic, content);
+        inMemoryPool.put(topic, content);
     }
 
     /**
-     * Get content from a specific topic.
+     * Get storage from a specific topic.
      * @param topic the topic(key) of the broker.
-     * @return the content of the associated topic.
+     * @return the storage of the associated topic.
      */
     public static String getContentFromTopic(String topic) {
-        return inMemoryTopicPool.get(topic);
+        return inMemoryPool.get(topic);
     }
 
-    private TopicPool() {}
+    private InMemoryPool() {}
 }
