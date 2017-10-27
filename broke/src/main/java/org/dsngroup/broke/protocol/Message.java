@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.syyllab.broke.protocol;
+package org.dsngroup.broke.protocol;
 
 /**
  * The Message class intialized an message which parsed from raw message (String).

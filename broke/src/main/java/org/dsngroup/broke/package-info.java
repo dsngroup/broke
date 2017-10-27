@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package org.syyllab.broke.protocol;
-
 /**
- * Records the qos semantics field of message.
+ * The main package used for broke.
  */
-public enum QoS {
-    AT_MOST_ONCE,
-    EXACTLY_ONCE,
-    AT_LEAST_ONCE;
-}
+
+package org.dsngroup.broke;

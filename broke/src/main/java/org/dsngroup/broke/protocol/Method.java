@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-/**
- * This package used for dealing with content.
- */
+package org.dsngroup.broke.protocol;
 
-package org.syyllab.broke.content;
+/**
+ * Records the request methods of message.
+ */
+public enum Method {
+    GET,
+    PUT
+}

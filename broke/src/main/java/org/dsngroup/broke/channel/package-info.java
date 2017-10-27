@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package org.syyllab.broke.protocol;
-
 /**
- * Records the request methods of message.
+ * This package used for dealing with channel, as a pipeline of processing.
  */
-public enum Method {
-    GET,
-    PUT
-}
+
+package org.dsngroup.broke.channel;

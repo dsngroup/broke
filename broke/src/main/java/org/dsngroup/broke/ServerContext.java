@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-/**
- * This package used for handler, for processing on channel.
- */
+package org.dsngroup.broke;
 
-package org.syyllab.broke.channel.handler;
+/**
+ * The ServerContext class records the associated information of a Server.
+ */
+public class ServerContext {
+
+    // TODO: The ServerContext constructs the associated information of a Server,
+    // will be used depends on what we need in the future.
+    public ServerContext() {}
+}
