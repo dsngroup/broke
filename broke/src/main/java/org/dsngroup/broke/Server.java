@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.syyllab.broke;
+package org.dsngroup.broke;
 
 import io.netty.bootstrap.ServerBootstrap;
 
@@ -24,7 +24,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-import org.syyllab.broke.channel.PipelineInitializer;
+import org.dsngroup.broke.channel.PipelineInitializer;
 
 /**
  * The Server class used as an entry instance.

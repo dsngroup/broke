@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-/**
- * This package used for dealing with channel, as a pipeline of processing.
- */
+package org.dsngroup.broke.protocol;
 
-package org.syyllab.broke.channel;
+/**
+ * Records the critical-option field of message.
+ */
+public enum CriticalOption {
+    BEST_EFFORT,
+    CRITICAL
+}

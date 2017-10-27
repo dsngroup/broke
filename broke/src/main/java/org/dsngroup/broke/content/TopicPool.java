@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.syyllab.broke.content;
+package org.dsngroup.broke.content;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

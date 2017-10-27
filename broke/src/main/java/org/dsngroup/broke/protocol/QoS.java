@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package org.syyllab.broke.protocol;
+package org.dsngroup.broke.protocol;
 
 /**
- * Records the critical-option field of message.
+ * Records the qos semantics field of message.
  */
-public enum CriticalOption {
-    BEST_EFFORT,
-    CRITICAL
+public enum QoS {
+    AT_MOST_ONCE,
+    EXACTLY_ONCE,
+    AT_LEAST_ONCE;
 }

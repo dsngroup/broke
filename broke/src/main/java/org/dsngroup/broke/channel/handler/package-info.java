@@ -15,10 +15,7 @@
  */
 
 /**
- * This package used for dealing with protocol,
- * e.g. qos settings, consumer group, critical options, etc.
- * The final result is to customized an protocol header (send),
- * and parse the protocol header (receive) to call the associate callback.
+ * This package used for handler, for processing on channel.
  */
 
-package org.syyllab.broke.protocol;
+package org.dsngroup.broke.channel.handler;
