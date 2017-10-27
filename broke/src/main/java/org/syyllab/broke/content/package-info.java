@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with topic.
+ * This package used for dealing with content.
  */
 
-package org.syyllab.broke.topic;
+package org.syyllab.broke.content;

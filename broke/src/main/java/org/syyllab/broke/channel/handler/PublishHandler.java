@@ -17,29 +17,40 @@
 package org.syyllab.broke.channel.handler;
 
 import io.netty.buffer.ByteBuf;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
+
+import org.syyllab.broke.content.TopicPool;
+import org.syyllab.broke.protocol.Message;
+import org.syyllab.broke.protocol.Method;
 
 /**
  * This ReadDropHandler is the example class from netty userguide.
  * Use this for testing the channel pipeline and server.
  */
-public class ReadDropHandler extends ChannelInboundHandlerAdapter {
+public class PublishHandler extends ChannelInboundHandlerAdapter {
 
     /**
-     * Read and print the msg from channel.
+     * Read the message from channel, parse and publish to {@link TopicPool}
      * @param ctx {@see ChannelHandlerContext}
      * @param msg The message of the channel read.
      */
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf incoming = (ByteBuf) msg;
+        StringBuilder packet = new StringBuilder();
         try {
             while (incoming.isReadable()) {
-                System.out.print((char) incoming.readByte());
-                System.out.flush();
+                packet.append((char) incoming.readByte());
+            }
+            // TODO: Dealing with complex protocol parsing
+            Message newMessage = new Message(packet.toString());
+            if (newMessage.getMethod() == Method.GET) {
+                System.out.println(TopicPool.getContentFromTopic(newMessage.getTopic()));
+            } else {
+                TopicPool.putContentOnTopic(newMessage.getTopic(), newMessage.getPayload());
+                System.out.println("Insert to topic: " + newMessage.getTopic());
             }
         } finally {
             // The msg object is an reference counting object.
