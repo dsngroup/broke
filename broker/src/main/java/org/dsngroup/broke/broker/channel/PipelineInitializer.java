@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.channel;
+package org.dsngroup.broke.broker.channel;
 
 import io.netty.channel.ChannelInitializer;
 
 import io.netty.channel.Channel;
-import org.dsngroup.broke.channel.handler.PublishHandler;
+import org.dsngroup.broke.broker.channel.handler.PublishHandler;
 
 /**
  * The PipelineInitializer is a customized ChannelInitializer for desired pipeline of handlers.

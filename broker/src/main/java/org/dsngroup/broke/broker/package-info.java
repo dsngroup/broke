@@ -15,7 +15,7 @@
  */
 
 /**
- * The main package used for broke.
+ * The main package used for broker.
  */
 
-package org.dsngroup.broke;
+package org.dsngroup.broke.broker;

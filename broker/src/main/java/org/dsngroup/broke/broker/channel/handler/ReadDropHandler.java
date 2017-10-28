@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.channel.handler;
+package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.buffer.ByteBuf;
 

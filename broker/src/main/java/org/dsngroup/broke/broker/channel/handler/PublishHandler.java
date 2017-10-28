@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.channel.handler;
+package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
-import org.dsngroup.broke.storage.InMemoryPool;
+import org.dsngroup.broke.broker.storage.InMemoryPool;
 import org.dsngroup.broke.protocol.Message;
 import org.dsngroup.broke.protocol.Method;
 
