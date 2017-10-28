@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.storage;
+package org.dsngroup.broke.broker.storage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

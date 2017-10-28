@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with storage.
+ * The standalone client-side implementation.
  */
 
-package org.dsngroup.broke.storage;
+package org.dsngroup.broke.client;

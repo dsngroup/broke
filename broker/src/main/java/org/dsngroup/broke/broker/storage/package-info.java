@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke;
-
 /**
- * The ServerContext class records the associated information of a Server.
+ * This package used for dealing with storage.
  */
-public class ServerContext {
 
-    // TODO: The ServerContext constructs the associated information of a Server,
-    // will be used depends on what we need in the future.
-    public ServerContext() {}
-}
+package org.dsngroup.broke.broker.storage;
