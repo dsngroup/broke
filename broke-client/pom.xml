@@ -4,8 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.dsngroup.broke</groupId>
-    <artifactId>client</artifactId>
+    <parent>
+        <groupId>org.dsngroup</groupId>
+        <artifactId>broke-parent</artifactId>
+        <version>0.1</version>
+    </parent>
+    <artifactId>broke-client</artifactId>
+    <packaging>jar</packaging>
+
     <version>0.1</version>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -19,11 +25,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.dsngroup.broke</groupId>
-            <artifactId>protocol</artifactId>
+            <groupId>org.dsngroup</groupId>
+            <artifactId>broke-protocol</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>
-
 
 </project>
