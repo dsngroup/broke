@@ -24,3 +24,6 @@ hs_err_pid*
 # Ignore Intelligent Idea
 .idea/
 *.iml
+
+# Maven files
+*/target/**
