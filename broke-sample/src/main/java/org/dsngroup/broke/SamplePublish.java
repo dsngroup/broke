@@ -29,11 +29,20 @@ public class SamplePublish {
         // TODO: better parsed from one string.
         try {
             BlockClient blockClient = new BlockClient(args[0], Integer.parseInt(args[1]));
-            blockClient.publish("Foo", 0, 0, "bar");
+            // blockClient.publish("Foo", 0, 0, "bar");
+            while (true) {
+                if (System.in.read()!=0){
+                    blockClient.publish("Foo", 0, 0, "bar");
+                }
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
+            // TODO: We'll log System.out and System.err in the future
             System.out.println("Not enough arguments");
             System.exit(1);
         } catch (Exception e) {
+            // TODO: use log instead of printStackTrace()
+            e.printStackTrace();
+            // TODO: We'll log System.out and System.err in the future
             System.out.println("Wrong settings of message options");
             System.exit(1);
         }

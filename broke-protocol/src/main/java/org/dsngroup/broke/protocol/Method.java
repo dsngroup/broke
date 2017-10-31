@@ -20,6 +20,15 @@ package org.dsngroup.broke.protocol;
  * Records the request methods of message.
  */
 public enum Method {
+    CONNECT,
+    CONNACK,
+    DISCONNECT,
+    PUBLISH,
+    PUBACK,
+    SUBSCRIBE,
+    SUBACK,
+    UNSUBSCRIBE,
+    UNSUBACK,
     GET,
     PUT
 }

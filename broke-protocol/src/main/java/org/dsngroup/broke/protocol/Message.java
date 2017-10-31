@@ -20,12 +20,15 @@ package org.dsngroup.broke.protocol;
  * The Message class intialized an message which parsed from raw message (String).
  * <p>
  *     The message is used in this format.
+ *     method\r\n
+ *     header\r\n
+ *     payload\r\n
  *     e.g.
  *     GET\r\n
- *     topic:Hello\r\n
- *     qos:0\r\n
- *     critical-option:0\r\n
- *     world
+ *     topic:Hello,qos:0,critical-option:0\r\n
+ *     world\r\n
+ *
+ *     Fields of a header is separated by a comma.
  * </p>
  */
 public class Message {
@@ -33,102 +36,21 @@ public class Message {
     // Message fields
     // TODO: may let this message to release the burden of construction
     // and destruction.
-    private Method method;
-    private String topic;
-    private QoS qos;
-    private CriticalOption criticalOption;
-    private String payload;
+    protected Method method;
+    protected MessageHeader header;
+    protected Object payload;
 
     /**
-     * The constructor, construct the message class which parsed from rawMessage.
-     * @param rawMessage The String rawMessage.
+     * The constructor, construct the message by method, header and payload
+     * @param method The method of the messaage
+     * @param header The header of the message
+     * @param payload The payload of the message
      * @throws Exception Parsing failed.
      */
-    public Message(String rawMessage) throws Exception {
-        parseToMessage(rawMessage);
-    }
-
-    /**
-     * The constructor, for create a Message from attributes.
-     */
-    public Message(String topic, int qos, int criticalOption, String payload) throws Exception {
-        this.method = Method.PUT;
-        this.topic = topic;
-        // TODO: A better way?
-        for (QoS qosEnum: QoS.values()) {
-           if (qos == qosEnum.value) {
-              this.qos = qosEnum;
-           }
-        }
-        for (CriticalOption criticalOptionEnum: CriticalOption.values()) {
-            if (criticalOption == criticalOptionEnum.value) {
-                this.criticalOption = criticalOptionEnum;
-            }
-        }
+    public Message(Method method, MessageHeader header, Object payload) {
+        this.method = method;
+        this.header = header;
         this.payload = payload;
-    }
-
-    /**
-     * Parse a rawMessage into a Message.
-     * @param rawMessage the rawMessage accepted from handler.
-     */
-    private void parseToMessage(String rawMessage) throws Exception {
-
-        // TODO: Safely deal with the wrong format of message.
-        // Use CLRT to split for the fields
-        String[] fields = rawMessage.split("\r\n");
-
-        // Parse the request line
-        parseMethod(fields[0]);
-
-        // Parse the options
-        parseOptionsFields(fields);
-
-        // Payload
-        payload = fields[fields.length - 1];
-    }
-
-    /**
-     * Parse the message request method.
-     * @param requestField the first line of the message field.
-     * @throws Exception the message parsing failed.
-     */
-    private void parseMethod(String requestField) throws Exception {
-        // Parse the method field
-        switch (requestField) {
-            case "GET":
-                method = Method.GET;
-                break;
-            case "PUT":
-                method = Method.PUT;
-                break;
-            default:
-                throw new RuntimeException("Wrong request method");
-        }
-    }
-
-    /**
-     * Parse the message option fields
-     * @param fields the message options fields, split from raw string.
-     * @throws Exception the parse failed runtime exception.
-     */
-    private void parseOptionsFields(String[] fields) throws Exception {
-         for (int i = 1; i < fields.length - 1; i++) {
-            String[] optionSplit = fields[i].split(":", 2);
-            switch (optionSplit[0].toUpperCase()) {
-                case "TOPIC":
-                    topic = optionSplit[1];
-                    break;
-                case "QOS":
-                    qos = QoS.values()[Integer.parseInt(optionSplit[1])];
-                    break;
-                case "CRITICAL-OPTION":
-                    criticalOption = CriticalOption.values()[Integer.parseInt(optionSplit[1])];
-                    break;
-                default:
-                    throw new RuntimeException("Wrong option fields.");
-            }
-        }
     }
 
     /**
@@ -138,20 +60,13 @@ public class Message {
     public Method getMethod() {
         return method;
     }
-    /**
-     * Get the topic from this message.
-     * @return topic
-     */
-    public String getTopic() {
-        return topic;
-    }
 
     /**
      * Get the QoS from this message.
      * @return qos
      */
     public QoS getQos() {
-        return qos;
+        return header.getQos();
     }
 
     /**
@@ -159,7 +74,15 @@ public class Message {
      * @return crticalOption
      */
     public CriticalOption getCriticalOption() {
-        return criticalOption;
+        return header.getCriticalOption();
+    }
+
+    /**
+     * Get the header from this message.
+     * @return header
+     */
+    public MessageHeader getHeader() {
+        return header;
     }
 
     /**
@@ -167,6 +90,6 @@ public class Message {
      * @return payload
      */
     public String getPayload() {
-        return payload;
+        return (String)payload;
     }
 }

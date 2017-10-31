@@ -22,8 +22,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
 import org.dsngroup.broke.broker.storage.InMemoryPool;
-import org.dsngroup.broke.protocol.Message;
-import org.dsngroup.broke.protocol.Method;
+import org.dsngroup.broke.protocol.*;
 
 /**
  * This ReadDropHandler is the example class from netty userguide.
@@ -45,12 +44,22 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
                 packet.append((char) incoming.readByte());
             }
             // TODO: Dealing with complex protocol parsing
-            Message newMessage = new Message(packet.toString());
-            if (newMessage.getMethod() == Method.GET) {
-                System.out.println(InMemoryPool.getContentFromTopic(newMessage.getTopic()));
-            } else {
-                InMemoryPool.putContentOnTopic(newMessage.getTopic(), newMessage.getPayload());
-                System.out.println("Insert to topic: " + newMessage.getTopic());
+            Message newMessage = MessageBuilder.build(packet.toString());
+            if (newMessage.getMethod() == Method.PUBLISH) {
+                // TODO: write the payload to InMemoryPool
+                // TODO: Send PUBACK message to the client
+                PublishMessage newPublishMessage = (PublishMessage) newMessage;
+                // TODO: We'll log System.out and System.err in the future
+                System.out.println("New message published to topic: "+newPublishMessage.getTopic()+
+                        "with payload: "+newPublishMessage.getPayload());
+                // System.out.println(InMemoryPool.getContentFromTopic(newMessage.getTopic()));
+            } else if (newMessage.getMethod() == Method.CONNECT) {
+                // TODO: Send CONNACK message to the client.
+                ConnectMessage newConnectMessage = (ConnectMessage) newMessage;
+                // InMemoryPool.putContentOnTopic(newMessage.getTopic(), newMessage.getPayload());
+                System.out.println("New connection with QoS:" + newConnectMessage.getQos()
+                        + " and critical option: "+newConnectMessage.getCriticalOption());
+
             }
         } finally {
             // The msg object is an reference counting object.
