@@ -49,6 +49,26 @@ public class Message {
     }
 
     /**
+     * The constructor, for create a Message from attributes.
+     */
+    public Message(String topic, int qos, int criticalOption, String payload) throws Exception {
+        this.method = Method.PUT;
+        this.topic = topic;
+        // TODO: A better way?
+        for (QoS qosEnum: QoS.values()) {
+           if (qos == qosEnum.value) {
+              this.qos = qosEnum;
+           }
+        }
+        for (CriticalOption criticalOptionEnum: CriticalOption.values()) {
+            if (criticalOption == criticalOptionEnum.value) {
+                this.criticalOption = criticalOptionEnum;
+            }
+        }
+        this.payload = payload;
+    }
+
+    /**
      * Parse a rawMessage into a Message.
      * @param rawMessage the rawMessage accepted from handler.
      */

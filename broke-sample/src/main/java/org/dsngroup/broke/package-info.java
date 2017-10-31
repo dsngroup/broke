@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.protocol;
-
 /**
- * Records the qos semantics field of message.
+ * Sample programs for using broke in client side.
  */
-public enum QoS {
-    AT_MOST_ONCE(0),
-    EXACTLY_ONCE(1),
-    AT_LEAST_ONCE(2);
 
-    public final int value;
-    QoS(final int value) {
-        this.value = value;
-    }
-}
+package org.dsngroup.broke;
