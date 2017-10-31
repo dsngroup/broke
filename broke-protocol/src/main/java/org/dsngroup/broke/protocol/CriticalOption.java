@@ -20,6 +20,10 @@ package org.dsngroup.broke.protocol;
  * Records the critical-option field of message.
  */
 public enum CriticalOption {
-    BEST_EFFORT,
-    CRITICAL
+    BEST_EFFORT(0),
+    CRITICAL(1);
+    public final int value;
+    CriticalOption(final int value) {
+        this.value = value;
+    }
 }
