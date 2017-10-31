@@ -75,6 +75,7 @@ public class Server {
     }
 
     public static void main(String[] args) throws Exception {
+        // TODO: We'll log System.out and System.err in the future
         System.out.println("Server is running at 0.0.0.0:8181");
         // TODO: Blocking currently.
         // TODO: Prefer to have a return binding for server as an interaction.

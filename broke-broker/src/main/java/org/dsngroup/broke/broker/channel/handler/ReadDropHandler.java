@@ -38,6 +38,7 @@ public class ReadDropHandler extends ChannelInboundHandlerAdapter {
         ByteBuf incoming = (ByteBuf) msg;
         try {
             while (incoming.isReadable()) {
+                // TODO: We'll log System.out and System.err in the future.
                 System.out.print((char) incoming.readByte());
                 System.out.flush();
             }
