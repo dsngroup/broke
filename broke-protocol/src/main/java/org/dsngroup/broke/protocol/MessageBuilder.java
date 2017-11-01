@@ -14,6 +14,7 @@ public class MessageBuilder {
 
     /**
      * Static Message build method
+     * TODO: this build function may be useless.
      * @param rawMessage raw message string
      * @return An instance of one of the Message's child class
      * */
@@ -37,6 +38,18 @@ public class MessageBuilder {
         return parseFields(fields[0], fields[1], fields[2]);
     }
 
+
+    /**
+     * Static Message build method
+     * @param requestField raw request field string
+     * @param headerField raw header field string
+     * @param payload raw payload field string
+     * @return An instance of one of the Message's child class
+     * */
+    public static Message build(String requestField, String headerField, String payload) throws Exception {
+        return parseFields(requestField, headerField, payload);
+    }
+
     /**
      * Parse the message fields.
      * @param requestField the first line of the message field.
@@ -55,9 +68,9 @@ public class MessageBuilder {
                 return new PublishMessage(headerField, payload);
             case "PUBACK":
                 return new PubAckMessage(headerField, payload);
-            /* TODO: More types of message methods
             case "SUBSCRIBE":
-                return Method.SUBSCRIBE;
+                return new SubscribeMessage(headerField, payload);
+            /* TODO: More types of message methods
             case "SUBACK":
                 return Method.SUBACK;
             case "UNSUBSCRIBE":
@@ -68,5 +81,13 @@ public class MessageBuilder {
             default:
                 throw new RuntimeException("Wrong request method");
         }
+    }
+
+    public static boolean isRequestField(String msg) {
+        for (Method method: Method.values() ) {
+            if ( method.toString().equals( msg.toUpperCase() ) )
+                return true;
+        }
+        return false;
     }
 }

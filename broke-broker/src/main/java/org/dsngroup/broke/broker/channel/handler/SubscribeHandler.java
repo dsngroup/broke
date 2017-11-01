@@ -2,18 +2,17 @@ package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-
 import io.netty.util.ReferenceCountUtil;
-import org.dsngroup.broke.broker.storage.InMemoryPool;
+
 import org.dsngroup.broke.broker.storage.SubscriberPool;
 import org.dsngroup.broke.protocol.Message;
 import org.dsngroup.broke.protocol.Method;
-import org.dsngroup.broke.protocol.PublishMessage;
+import org.dsngroup.broke.protocol.SubscribeMessage;
 
-public class PublishHandler extends ChannelInboundHandlerAdapter {
+public class SubscribeHandler extends ChannelInboundHandlerAdapter {
 
     /**
-     * Read the message from channel and publish to {@link InMemoryPool}
+     * Read the message from channel and register the subscriber to {@see SubscriberPool}
      * @param ctx {@see ChannelHandlerContext}
      * @param msg The message of the channel read.
      */
@@ -22,30 +21,21 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
 
         Message newMessage = (Message) msg;
         try {
-            if (newMessage.getMethod() == Method.PUBLISH) {
-
-                PublishMessage publishMessage = (PublishMessage) msg;
+            if (newMessage.getMethod() == Method.SUBSCRIBE) {
+                SubscribeMessage subscribeMessage = (SubscribeMessage)newMessage;
 
                 // TODO: We'll log System.out and System.err in the future
-                System.out.println("[Publish] Topic: " + publishMessage.getTopic() +
-                        " Payload: " + publishMessage.getPayload());
+                System.out.println("[Subscribe] Topic: " + subscribeMessage.getTopic() +
+                        " Group ID: " + subscribeMessage.getGroupId());
 
-                ctx.writeAndFlush("publish ack");
-
-                // Put the message to InMemoryPool
-                InMemoryPool.putContentOnTopic(publishMessage.getTopic(), publishMessage.getPayload());
-
-                // TODO: Not really sent back to subscriber currently
-                SubscriberPool.sendToSubscribers(publishMessage);
-
-            } else {
-                throw new RuntimeException("Unknown message");
+                // Register the subscriber and ignore the returned subscriber instance
+                SubscriberPool.register(subscribeMessage.getTopic(), subscribeMessage.getGroupId(), ctx);
             }
+
         } finally {
-            // The msg object is an reference counting object.
+            // The message object is a reference counting object
             ReferenceCountUtil.release(msg);
         }
-
     }
 
     /**
@@ -59,4 +49,5 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
         cause.printStackTrace();
         ctx.close();
     }
+
 }

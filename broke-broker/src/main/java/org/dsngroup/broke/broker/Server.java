@@ -51,7 +51,7 @@ public class Server {
 
     /**
      * Run the server.
-     * @throws Exception
+     * @throws Exception connection error
      */
     public void run() throws Exception {
         // TODO: May move these codebase into another class for scalability.

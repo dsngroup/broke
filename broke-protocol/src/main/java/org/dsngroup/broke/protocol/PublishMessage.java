@@ -2,7 +2,6 @@ package org.dsngroup.broke.protocol;
 
 /**
  * The PUBLISH message class
- *
  * */
 public class PublishMessage extends Message{
 
