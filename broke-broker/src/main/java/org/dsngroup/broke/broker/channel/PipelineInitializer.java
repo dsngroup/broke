@@ -19,6 +19,8 @@ package org.dsngroup.broke.broker.channel;
 import io.netty.channel.ChannelInitializer;
 
 import io.netty.channel.Channel;
+import org.dsngroup.broke.broker.channel.handler.ConnectHandler;
+import org.dsngroup.broke.broker.channel.handler.MessageParseHandler;
 import org.dsngroup.broke.broker.channel.handler.PublishHandler;
 
 /**
@@ -38,6 +40,7 @@ public class PipelineInitializer extends ChannelInitializer<Channel> {
      */
     @Override
     public void initChannel(Channel channel) throws Exception {
-        channel.pipeline().addLast("PublishHandler", new PublishHandler());
+        channel.pipeline().addLast("MessageParseHandler", new MessageParseHandler());
+        channel.pipeline().addLast("ConnectHandler", new ConnectHandler());
     }
 }

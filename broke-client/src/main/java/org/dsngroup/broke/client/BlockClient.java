@@ -37,6 +37,7 @@ public class BlockClient {
     private Socket clientSocket;
 
     private OutputStream clientOutputStream;
+    private InputStream clientInputStream;
 
     /**
      * @param topic topic to publish
@@ -50,7 +51,14 @@ public class BlockClient {
                 .getBytes(Charset.forName("UTF-8")));
         // clientOutputStream.write(msg.toString().getBytes(Charset.forName("UTF-8")));
         // TODO: We'll log System.out and System.err in the future
-        System.out.println("Publish to topic: " + topic + "\nPayload: " + payload );
+        System.out.println("[Publish] Topic: " + topic + " Payload: " + payload );
+    }
+
+    public void subscribe(String topic, int qos, int criticalOption, String groupId, String payload) throws Exception {
+        clientOutputStream.write(("SUBSCRIBE\r\nQoS:"+qos+",Topic:"+topic+",critical-option:"+criticalOption+",group-id:"+groupId+"\r\n"+payload+"\r\n")
+                .getBytes(Charset.forName("UTF-8")));
+        // TODO: We'll log System.out and System.err in the future
+        System.out.println("[Subscribe] Topic: " + topic+" Payload: " + payload );
     }
 
     /**
@@ -73,9 +81,10 @@ public class BlockClient {
         // TODO: Connect to the Broker Server, a.k.a. Send CONNECTION message
         try {
             clientSocket = new Socket();
-            clientSocket.setKeepAlive(true);
+            // clientSocket.setKeepAlive(true);
             clientSocket.connect(new InetSocketAddress(this.targetBrokerAddress, this.targetBrokerPort));
             clientOutputStream = clientSocket.getOutputStream();
+            clientInputStream = clientSocket.getInputStream();
 
             clientOutputStream.write( "CONNECT\r\nQoS:0\r\nnothing\r\n".getBytes(Charset.forName("UTF-8")) );
 

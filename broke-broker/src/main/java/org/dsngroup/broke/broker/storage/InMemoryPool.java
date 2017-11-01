@@ -17,6 +17,7 @@
 package org.dsngroup.broke.broker.storage;
 
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -27,7 +28,7 @@ public class InMemoryPool {
     // TODO: Assignable pool size
     // TODO: Extends this to be offset based data structure.
     // TODO: May consider to replace ConcurrentHashMap into more performant data structure.
-    private static Map<String, String> inMemoryPool = new ConcurrentHashMap<>();
+    private static Map<String, ArrayList<String>> inMemoryPool = new ConcurrentHashMap<>();
 
     /**
      * Insert storage on a specific topic.
@@ -35,8 +36,16 @@ public class InMemoryPool {
      * @param content the storage of the associated topic.
      */
     public static void putContentOnTopic(String topic, String content) {
+
+        // Initialize the array list for the first-time topic
+        if (inMemoryPool.get(topic) == null)
+            inMemoryPool.put(topic, new ArrayList());
+
         // Ignore the return value
-        inMemoryPool.put(topic, content);
+        inMemoryPool.get(topic).add(content);
+
+        // TODO: remove this test
+        // System.out.println( "Add message:\ntopic"+topic+"payload: "+inMemoryPool.get(topic).get( inMemoryPool.get(topic).size()-1 ) );
     }
 
     /**
@@ -45,7 +54,8 @@ public class InMemoryPool {
      * @return the storage of the associated topic.
      */
     public static String getContentFromTopic(String topic) {
-        return inMemoryPool.get(topic);
+        // return the last one by default
+        return inMemoryPool.get(topic).get( inMemoryPool.get(topic).size()-1 );
     }
 
     private InMemoryPool() {}

@@ -29,6 +29,4 @@ public enum Method {
     SUBACK,
     UNSUBSCRIBE,
     UNSUBACK,
-    GET,
-    PUT
 }
