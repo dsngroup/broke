@@ -1,5 +1,6 @@
 package org.dsngroup.broke.broker.channel.handler;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -30,6 +31,14 @@ public class SubscribeHandler extends ChannelInboundHandlerAdapter {
 
                 // Register the subscriber and ignore the returned subscriber instance
                 SubscriberPool.register(subscribeMessage.getTopic(), subscribeMessage.getGroupId(), ctx);
+
+                // Send PUBACK to the client
+                // TODO: header definition & Encapsulation
+                ctx.writeAndFlush(Unpooled.wrappedBuffer(("SUBACK\r\nQoS:"+subscribeMessage.getQos()
+                        +",Critical-Option:"+newMessage.getCriticalOption()
+                        +",Topic:"+subscribeMessage.getTopic()
+                        +"\r\nSubscribe Successfully\r\n").getBytes())).sync();
+
             }
 
         } finally {

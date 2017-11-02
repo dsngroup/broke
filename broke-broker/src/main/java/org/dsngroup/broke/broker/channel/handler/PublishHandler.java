@@ -1,5 +1,6 @@
 package org.dsngroup.broke.broker.channel.handler;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -30,13 +31,18 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("[Publish] Topic: " + publishMessage.getTopic() +
                         " Payload: " + publishMessage.getPayload());
 
-                ctx.writeAndFlush("publish ack");
-
                 // Put the message to InMemoryPool
                 InMemoryPool.putContentOnTopic(publishMessage.getTopic(), publishMessage.getPayload());
 
                 // TODO: Not really sent back to subscriber currently
                 SubscriberPool.sendToSubscribers(publishMessage);
+
+                // Send PUBACK to the client
+                // TODO: header definition & Encapsulation
+                ctx.writeAndFlush(Unpooled.wrappedBuffer(("PUBACK\r\nQoS:"+publishMessage.getQos()
+                        +",Critical-Option:"+publishMessage.getCriticalOption()
+                        +",Topic:"+publishMessage.getTopic()
+                        +"\r\nPublish Successfully\r\n").getBytes())).sync();
 
             } else {
                 throw new RuntimeException("Unknown message");

@@ -9,6 +9,7 @@ public class SampleSubscribe {
         // TODO: better parsed from one string.
         try {
             BlockClient blockClient = new BlockClient(args[0], Integer.parseInt(args[1]));
+            blockClient.connect(0, 0,"connect from a subscriber");
             blockClient.subscribe("Foo", 0, 0, "group0", "bar");
             for (int i = 1; ; i++) {
                 if (System.in.read()!=0){

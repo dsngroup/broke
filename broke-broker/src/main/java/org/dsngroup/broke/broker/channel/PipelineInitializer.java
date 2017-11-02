@@ -21,7 +21,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.Channel;
 import org.dsngroup.broke.broker.channel.handler.ConnectHandler;
 import org.dsngroup.broke.broker.channel.handler.MessageParseHandler;
-import org.dsngroup.broke.broker.channel.handler.PublishHandler;
 
 /**
  * The PipelineInitializer is a customized ChannelInitializer for desired pipeline of handlers.
