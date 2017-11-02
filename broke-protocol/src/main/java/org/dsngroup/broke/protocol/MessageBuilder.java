@@ -70,9 +70,9 @@ public class MessageBuilder {
                 return new PubAckMessage(headerField, payload);
             case "SUBSCRIBE":
                 return new SubscribeMessage(headerField, payload);
-            /* TODO: More types of message methods
             case "SUBACK":
-                return Method.SUBACK;
+                return new SubAckMessage(headerField, payload);
+            /* TODO: More types of message methods
             case "UNSUBSCRIBE":
                 return Method.UNSUBSCRIBE;
             case "UNSUBACK":

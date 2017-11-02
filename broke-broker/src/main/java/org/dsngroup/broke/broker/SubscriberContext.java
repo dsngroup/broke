@@ -1,6 +1,8 @@
 package org.dsngroup.broke.broker;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.dsngroup.broke.protocol.CriticalOption;
+import org.dsngroup.broke.protocol.QoS;
 
 import java.util.Objects;
 

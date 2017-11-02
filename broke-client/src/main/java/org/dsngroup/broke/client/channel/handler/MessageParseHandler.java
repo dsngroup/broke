@@ -1,4 +1,4 @@
-package org.dsngroup.broke.broker.channel.handler;
+package org.dsngroup.broke.client.channel.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

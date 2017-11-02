@@ -42,7 +42,7 @@ public class Server {
     /**
      * The Server constructor construct a basic information of a Server.
      * @param port the binding port.
-     * @param ctx the {@link SeverContext} instance for associated information.
+     * @param ctx the {@see SeverContext} instance for associated information.
      */
     public Server(int port, ServerContext ctx) {
         this.port = port;

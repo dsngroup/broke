@@ -1,5 +1,6 @@
 package org.dsngroup.broke.broker.storage;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import org.dsngroup.broke.broker.SubscriberContext;
 import org.dsngroup.broke.protocol.PublishMessage;
@@ -49,16 +50,33 @@ public class SubscriberPool {
      * @Exception no such topic or subscriber
      * */
     public static void unRegister(String topic, ChannelHandlerContext subscriberChannelCxt) throws Exception{
+        // TODO: How to remove a closed subscriber channel context?
+        // TODO: e.g. on channel close, call unRegister(channelHandlerContext);
+        // TODO: Currently, message sending to inactive subscribers is
+        // TODO: avoided by explicitly checking by channel().isActive() method
         subscriberPool.get(topic).remove(subscriberChannelCxt);
     }
 
-    public static void sendToSubscribers(PublishMessage publishMessage) {
+    public static void sendToSubscribers(PublishMessage publishMessage) throws Exception {
 
-        for (Map.Entry<ChannelHandlerContext, SubscriberContext> subscriberEntry : subscriberPool.get(publishMessage.getTopic()).entrySet() ) {
-            // TODO: this is a test message sent to the subscriber
-            subscriberEntry.getKey().writeAndFlush(publishMessage.getPayload());
-            // TODO: this is a test message that prints out the subscriber information
-            System.out.println( "[publish to subscribers] Hashcode: "+subscriberEntry.getKey().hashCode() );
+        Map<ChannelHandlerContext,SubscriberContext> subscriberMap
+                = subscriberPool.get(publishMessage.getTopic());
+        if(subscriberMap != null) {
+            for (Map.Entry<ChannelHandlerContext, SubscriberContext> subscriberEntry : subscriberMap.entrySet()) {
+                // TODO: this is a test message that prints out the subscriber information
+                System.out.println("[publish to subscribers] Hashcode: " + subscriberEntry.getKey().hashCode());
+
+                ChannelHandlerContext subscriberChannelHandlerContext = subscriberEntry.getKey();
+                // Send SUBACK to active clients
+                if (subscriberChannelHandlerContext.channel().isActive()) {
+                    // TODO: header definition & Encapsulation
+                    subscriberChannelHandlerContext.writeAndFlush(Unpooled.wrappedBuffer(("SUBACK\r\nQoS:0"
+                            + ",Critical-Option:0"
+                            + ",Topic:"+publishMessage.getTopic()
+                            + "\r\n"+publishMessage.getPayload()
+                            + "\r\n").getBytes())).sync();
+                }
+            }
         }
     }
 

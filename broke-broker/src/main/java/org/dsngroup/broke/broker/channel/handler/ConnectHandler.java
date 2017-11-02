@@ -53,12 +53,18 @@ public class ConnectHandler extends ChannelInboundHandlerAdapter {
             Message newMessage = (Message) msg;
 
             if (newMessage.getMethod() == Method.CONNECT) {
-                // TODO: Send CONNACK message to the client.
                 ConnectMessage newConnectMessage = (ConnectMessage) newMessage;
                 // InMemoryPool.putContentOnTopic(newMessage.getTopic(), newMessage.getPayload());
                 // TODO: We'll log System.out and System.err in the future
                 System.out.println("[Connection] QoS: " + newConnectMessage.getQos()
                         + " critical option: " + newConnectMessage.getCriticalOption());
+
+                // Send CONNACK to the client
+                // TODO: header definition & Encapsulation
+                ctx.writeAndFlush(Unpooled.wrappedBuffer(("CONNACK\r\nQoS:"+newConnectMessage.getQos()
+                        +",Critical-Option:"+newMessage.getCriticalOption()
+                        +"\r\nConnect Successfully\r\n").getBytes())).sync();
+
             } else if (newMessage.getMethod() == Method.PUBLISH) {
                 // TODO: write the payload to InMemoryPool
                 // TODO: Send PUBACK message to the client
