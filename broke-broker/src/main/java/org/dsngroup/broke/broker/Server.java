@@ -25,6 +25,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import org.dsngroup.broke.broker.channel.PipelineInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Server class used as an entry instance.
@@ -38,6 +40,8 @@ public class Server {
     private int port;
 
     private final ServerContext ctx;
+
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     /**
      * The Server constructor construct a basic information of a Server.
@@ -75,8 +79,7 @@ public class Server {
     }
 
     public static void main(String[] args) throws Exception {
-        // TODO: We'll log System.out and System.err in the future
-        System.out.println("Server is running at 0.0.0.0:8181");
+        logger.info("Server is running at 0.0.0.0:8181");
         // TODO: Blocking currently.
         // TODO: Prefer to have a return binding for server as an interaction.
         new Server(8181, new ServerContext()).run();
