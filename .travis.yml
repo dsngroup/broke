@@ -1,0 +1,8 @@
+language: java
+
+# Only 8 is suitable
+jdk:
+  - oraclejdk8
+
+# Default maven settings and testing is enough currently.
+
