@@ -4,5 +4,5 @@ language: java
 jdk:
   - oraclejdk8
 
-# Default maven settings and testing is enough currently.
+# Default maven settings and testing is enough, currently.
 
