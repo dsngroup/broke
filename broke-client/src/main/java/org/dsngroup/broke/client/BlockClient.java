@@ -22,11 +22,15 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.dsngroup.broke.client.channel.handler.AckHandler;
+import io.netty.handler.codec.mqtt.*;
+import org.dsngroup.broke.client.channel.handler.MqttMessageHandler;
+import org.dsngroup.broke.protocol.MqttEncoder;
+import org.dsngroup.broke.protocol.MqttDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
-
-import org.dsngroup.broke.client.channel.handler.MessageParseHandler;
+import java.util.Random;
 
 /**
  * The BlockClient should be deprecated after the asynchronous client is implemented.
@@ -42,6 +46,12 @@ public class BlockClient {
 
     private EventLoopGroup workerGroup;
 
+    private static Random rand = new Random();
+
+    private String clientId;
+
+    private final static Logger logger = LoggerFactory.getLogger(BlockClient.class);
+
     /**
      * Send CONNECT to server
      * TODO: the CONNECT message may contain user and authentication information
@@ -52,11 +62,49 @@ public class BlockClient {
 
         // Connect only when the channel is active
         if(targetServerChannel.isActive()) {
-            System.out.println("[Client] Make connection");
-            targetServerChannel.pipeline().writeAndFlush(Unpooled.wrappedBuffer(("CONNECT\r\nQoS:"+qos+",Critical-Option:"+criticalOption+"\r\n"+payload+"\r\n")
-                    .getBytes(Charset.forName("UTF-8")))).sync();
+            logger.info("[Client] Make connection");
+
+            // TODO: how to set the remaining length correctly
+            MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(
+                    MqttMessageType.CONNECT,
+                    false,
+                    MqttQoS.AT_LEAST_ONCE,
+                    true,
+                    0);
+
+            MqttConnectVariableHeader mqttConnectVariableHeader = new MqttConnectVariableHeader(
+                    "MQTT",
+                    4,
+                    false,
+                    false,
+                    true,
+                    1,
+                    true,
+                    false,
+                    10);
+
+            MqttConnectPayload mqttConnectPayload = new MqttConnectPayload(
+                    clientId,
+                    "Foo",
+                    "Bar".getBytes(),
+                    null,
+                    null
+            );
+
+            ChannelFuture future = targetServerChannel.pipeline().writeAndFlush(
+                    new MqttConnectMessage(mqttFixedHeader, mqttConnectVariableHeader, mqttConnectPayload));
+            future.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (future.cause()!=null) {
+                        logger.error("[Connect] Write CONNECT failed: "+future.cause());
+                        System.exit(1);
+                    }
+                }
+            });
+
         } else {
-            System.out.println("[Client] Channel is not active");
+            logger.error("[Client] Channel is not active");
         }
 
     }
@@ -75,11 +123,9 @@ public class BlockClient {
                     ("PUBLISH\r\nQoS:"+qos+",Topic:"+topic+",Critical-Option:"+criticalOption+"\r\n"+payload+"\r\n")
                     .getBytes(Charset.forName("UTF-8")))).sync();
             // clientOutputStream.write(msg.toString().getBytes(Charset.forName("UTF-8")));
-            // TODO: We'll log System.out and System.err in the future
-            System.out.println("[Publish] Topic: " + topic + " Payload: " + payload);
+            logger.info("[Publish] Topic: " + topic + " Payload: " + payload);
         } else {
-            // TODO: log this
-            System.out.println("[Publish] Channel closed, cannot publish");
+            logger.error("[Publish] Channel closed, cannot publish");
         }
     }
 
@@ -94,8 +140,7 @@ public class BlockClient {
         targetServerChannel.pipeline().writeAndFlush(Unpooled.wrappedBuffer(
                 ("SUBSCRIBE\r\nQoS:"+qos+",Topic:"+topic+",critical-option:"+criticalOption+",group-id:"+groupId+"\r\n"+payload+"\r\n")
                 .getBytes(Charset.forName("UTF-8")))).sync();
-        // TODO: We'll log System.out and System.err in the future
-        System.out.println("[Subscribe] Topic: " + topic+" Payload: " + payload );
+        logger.info("[Subscribe] Topic: " + topic+" Payload: " + payload );
     }
 
     /**
@@ -116,6 +161,9 @@ public class BlockClient {
         this.targetBrokerAddress = targetBrokerAddress;
         this.targetBrokerPort = targetBrokerPort;
 
+        // Generate a random client id
+        this.clientId = "client_"+(rand.nextInt(10000) + 1);
+
         workerGroup = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
@@ -125,8 +173,9 @@ public class BlockClient {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new MessageParseHandler());
-                            ch.pipeline().addLast(new AckHandler());
+                            ch.pipeline().addLast(MqttEncoder.INSTANCE);
+                            ch.pipeline().addLast(new MqttDecoder());
+                            ch.pipeline().addLast(new MqttMessageHandler());
                         }
                     });
 
@@ -147,6 +196,7 @@ public class BlockClient {
     public void close() throws Exception {
         // Request to close this Channel and notify the ChannelFuture once the operation completes
         ChannelFuture future = targetServerChannel.close();
+        // Block until the channel closed.
         // Block until the channel closed.
         future.channel().closeFuture().sync();
         workerGroup.shutdownGracefully();

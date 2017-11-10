@@ -2,7 +2,6 @@ package org.dsngroup.broke.broker.storage;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import org.dsngroup.broke.broker.SubscriberContext;
 import org.dsngroup.broke.protocol.PublishMessage;
 
 import java.util.*;
@@ -11,6 +10,7 @@ import java.util.*;
  * Subscriber pool class that stores a map.
  * The map maps the topic to its subscriber set.
  * This can be a singleton.
+ * TODO: change to singleton pattern
  * */
 public class SubscriberPool {
 

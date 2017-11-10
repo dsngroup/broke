@@ -18,6 +18,7 @@ package org.dsngroup.broke.broker;
 
 import io.netty.bootstrap.ServerBootstrap;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -42,6 +43,8 @@ public class Server {
     private final ServerContext ctx;
 
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
+
+    private Channel serverChannel;
 
     /**
      * The Server constructor construct a basic information of a Server.
@@ -72,11 +75,17 @@ public class Server {
 
             ChannelFuture after = boots.bind(port).sync();
             after.channel().closeFuture().sync();
+
+            serverChannel = after.channel();
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
     }
+
+    // TODO: close the server channel gracefully.
+    // TODO: 1. Close all children channels. 2. close server channel.
+    public void close() {}
 
     public static void main(String[] args) throws Exception {
         logger.info("Server is running at 0.0.0.0:8181");

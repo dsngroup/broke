@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import io.netty.util.ReferenceCountUtil;
-import org.dsngroup.broke.broker.storage.InMemoryPool;
+import org.dsngroup.broke.broker.storage.MessagePool;
 import org.dsngroup.broke.broker.storage.SubscriberPool;
 import org.dsngroup.broke.protocol.Message;
 import org.dsngroup.broke.protocol.Method;
@@ -14,7 +14,7 @@ import org.dsngroup.broke.protocol.PublishMessage;
 public class PublishHandler extends ChannelInboundHandlerAdapter {
 
     /**
-     * Read the message from channel and publish to {@link InMemoryPool}
+     * Read the message from channel and publish to {@link MessagePool}
      * @param ctx {@see ChannelHandlerContext}
      * @param msg The message of the channel read.
      */
@@ -31,8 +31,8 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("[Publish] Topic: " + publishMessage.getTopic() +
                         " Payload: " + publishMessage.getPayload());
 
-                // Put the message to InMemoryPool
-                InMemoryPool.putContentOnTopic(publishMessage.getTopic(), publishMessage.getPayload());
+                // Put the message to MessagePool
+                MessagePool.putContentOnTopic(publishMessage.getTopic(), publishMessage.getPayload());
 
                 // TODO: Not really sent back to subscriber currently
                 SubscriberPool.sendToSubscribers(publishMessage);

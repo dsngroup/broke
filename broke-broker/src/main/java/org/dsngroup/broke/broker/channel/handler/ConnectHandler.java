@@ -16,16 +16,12 @@
 
 package org.dsngroup.broke.broker.channel.handler;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
-import org.dsngroup.broke.broker.storage.InMemoryPool;
 import org.dsngroup.broke.protocol.*;
-
-import java.util.ArrayDeque;
 
 /**
  * Handle Client connections
@@ -54,7 +50,7 @@ public class ConnectHandler extends ChannelInboundHandlerAdapter {
 
             if (newMessage.getMethod() == Method.CONNECT) {
                 ConnectMessage newConnectMessage = (ConnectMessage) newMessage;
-                // InMemoryPool.putContentOnTopic(newMessage.getTopic(), newMessage.getPayload());
+                // MessagePool.putContentOnTopic(newMessage.getTopic(), newMessage.getPayload());
                 // TODO: We'll log System.out and System.err in the future
                 System.out.println("[Connection] QoS: " + newConnectMessage.getQos()
                         + " critical option: " + newConnectMessage.getCriticalOption());
@@ -66,7 +62,7 @@ public class ConnectHandler extends ChannelInboundHandlerAdapter {
                         +"\r\nConnect Successfully\r\n").getBytes())).sync();
 
             } else if (newMessage.getMethod() == Method.PUBLISH) {
-                // TODO: write the payload to InMemoryPool
+                // TODO: write the payload to MessagePool
                 // TODO: Send PUBACK message to the client
 
                 // Add PublishHandler at last of pipeline and redirect message to it
@@ -77,7 +73,7 @@ public class ConnectHandler extends ChannelInboundHandlerAdapter {
                 ctx.fireChannelRead(newMessage);
 
             } else if (newMessage.getMethod() == Method.SUBSCRIBE ) {
-                // TODO: write the payload to InMemoryPool
+                // TODO: write the payload to MessagePool
                 // TODO: Send PUBACK message to the client
 
                 // Add SubscribeHandler at last of pipeline and redirect message to it

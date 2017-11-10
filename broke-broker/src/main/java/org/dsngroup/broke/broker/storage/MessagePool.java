@@ -21,14 +21,15 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The InMemoryPool class, used as singleton class.
+ * The MessagePool class, used as singleton class.
+ * TODO: change to singleton pattern
  */
-public class InMemoryPool {
+public class MessagePool {
 
     // TODO: Assignable pool size
     // TODO: Extends this to be offset based data structure.
     // TODO: May consider to replace ConcurrentHashMap into more performant data structure.
-    private static Map<String, ArrayList<String>> inMemoryPool = new ConcurrentHashMap<>();
+    private static Map<String, ArrayList<String>> messagePool = new ConcurrentHashMap<>();
 
     /**
      * Insert storage on a specific topic.
@@ -38,14 +39,14 @@ public class InMemoryPool {
     public static void putContentOnTopic(String topic, String content) {
 
         // Initialize the array list for the first-time topic
-        if (inMemoryPool.get(topic) == null)
-            inMemoryPool.put(topic, new ArrayList());
+        if (messagePool.get(topic) == null)
+            messagePool.put(topic, new ArrayList());
 
         // Ignore the return value
-        inMemoryPool.get(topic).add(content);
+        messagePool.get(topic).add(content);
 
         // TODO: remove this test
-        // System.out.println( "Add message:\ntopic"+topic+"payload: "+inMemoryPool.get(topic).get( inMemoryPool.get(topic).size()-1 ) );
+        // System.out.println( "Add message:\ntopic"+topic+"payload: "+messagePool.get(topic).get( messagePool.get(topic).size()-1 ) );
     }
 
     /**
@@ -55,8 +56,9 @@ public class InMemoryPool {
      */
     public static String getContentFromTopic(String topic) {
         // return the last one by default
-        return inMemoryPool.get(topic).get( inMemoryPool.get(topic).size()-1 );
+        return messagePool.get(topic).get( messagePool.get(topic).size()-1 );
     }
 
-    private InMemoryPool() {}
+    private MessagePool() {}
+
 }

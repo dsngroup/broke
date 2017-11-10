@@ -20,6 +20,11 @@
             <artifactId>broke-client</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.dsngroup</groupId>
+            <artifactId>broke-broker</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
 </project>
