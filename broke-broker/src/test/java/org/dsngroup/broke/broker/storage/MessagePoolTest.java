@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.broker;
+package org.dsngroup.broke.broker.storage;
 
-/**
- * The ServerContext class records the associated information of a Server.
- * TODO: integrate MessagePool, ServerSessionCollection and SubscriberPool in this
- */
-public class ServerContext {
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    // TODO: The ServerContext constructs the associated information of a Server,
-    // will be used depends on what we need in the future.
-    public ServerContext() {
+public class MessagePoolTest {
+
+    @Test
+    public void testTopicPutAndGet() {
+        MessagePool.putContentOnTopic("foo", "bar");
+        assertEquals("bar", MessagePool.getContentFromTopic("foo"));
     }
 }

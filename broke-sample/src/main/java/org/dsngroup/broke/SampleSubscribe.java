@@ -1,8 +1,12 @@
 package org.dsngroup.broke;
 
 import org.dsngroup.broke.client.BlockClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SampleSubscribe {
+
+    private static final Logger logger = LoggerFactory.getLogger(SampleSubscribe.class);
 
     public static void main(String[] args) {
         // The args[0] = address, args[1] = port
@@ -17,14 +21,11 @@ public class SampleSubscribe {
                 }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            // TODO: We'll log System.out and System.err in the future
-            System.out.println("Not enough arguments");
+            logger.error("Not enough arguments");
             System.exit(1);
         } catch (Exception e) {
-            // TODO: use log instead of printStackTrace()
-            e.printStackTrace();
-            // TODO: We'll log System.out and System.err in the future
-            System.out.println("Wrong settings of message options");
+            logger.error(e.getMessage());
+            logger.error("Wrong settings of message options");
             System.exit(1);
         }
     }

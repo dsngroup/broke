@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.broker.storage;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-public class InMemoryPoolTest {
-
-    @Test
-    public void testTopicPutAndGet() {
-        InMemoryPool.putContentOnTopic("foo", "bar");
-        assertEquals("bar", InMemoryPool.getContentFromTopic("foo"));
-    }
-}
+/**
+ * This package used for dealing with channel, as a pipeline of processing.
+ */
+package org.dsngroup.broke.client.channel.storage;
