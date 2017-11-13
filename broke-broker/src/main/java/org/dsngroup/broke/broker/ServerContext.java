@@ -16,14 +16,53 @@
 
 package org.dsngroup.broke.broker;
 
+import org.dsngroup.broke.broker.storage.MessagePool;
+import org.dsngroup.broke.broker.storage.ServerSessionPool;
+import org.dsngroup.broke.broker.storage.SubscriberPool;
+
 /**
  * The ServerContext class records the associated information of a Server.
- * TODO: integrate MessagePool, ServerSessionCollection and SubscriberPool in this
+ * Server Session Pool: The pool that stores all server sessions
+ * Subscriber Pool: The pool that stores all the subscriber sets by topic
+ * Message Pool: The pool that stores all the PUBLISH messages
  */
 public class ServerContext {
 
-    // TODO: The ServerContext constructs the associated information of a Server,
-    // will be used depends on what we need in the future.
+    private ServerSessionPool serverSessionPool;
+
+    private SubscriberPool subscriberPool;
+
+    private MessagePool messagePool;
+
+    /**
+     * Getter method for server session pool
+     * */
+    public ServerSessionPool getServerSessionPool() {
+        return serverSessionPool;
+    }
+
+    /**
+     * Getter method for subscriber pool
+     * */
+    public SubscriberPool getSubscriberPool() {
+        return subscriberPool;
+    }
+
+    /**
+     * Getter method for message pool
+     * */
+    public MessagePool getMessagePool() {
+        return messagePool;
+    }
+
+    /**
+     * Constructor of the server context
+     * TODO: The ServerContext constructs the associated information of a Server,
+     * TODO: will be used depends on what we need in the future.
+     * */
     public ServerContext() {
+        serverSessionPool = new ServerSessionPool();
+        subscriberPool = new SubscriberPool();
+        messagePool = new MessagePool();
     }
 }

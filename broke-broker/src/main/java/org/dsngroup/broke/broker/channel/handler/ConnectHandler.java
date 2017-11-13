@@ -21,6 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
+import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.protocol.*;
 
 /**
@@ -29,6 +30,8 @@ import org.dsngroup.broke.protocol.*;
 public class ConnectHandler extends ChannelInboundHandlerAdapter {
 
     private boolean pubsubHandlerSet;
+
+    private ServerContext serverContext;
 
     public ConnectHandler() {
         super();
@@ -67,7 +70,7 @@ public class ConnectHandler extends ChannelInboundHandlerAdapter {
 
                 // Add PublishHandler at last of pipeline and redirect message to it
                 if (!pubsubHandlerSet) {
-                    ctx.pipeline().addLast(new PublishHandler());
+                    ctx.pipeline().addLast(new PublishHandler(serverContext));
                     pubsubHandlerSet = true;
                 }
                 ctx.fireChannelRead(newMessage);
@@ -78,7 +81,7 @@ public class ConnectHandler extends ChannelInboundHandlerAdapter {
 
                 // Add SubscribeHandler at last of pipeline and redirect message to it
                 if (!pubsubHandlerSet) {
-                    ctx.pipeline().addLast(new SubscribeHandler());
+                    ctx.pipeline().addLast(new SubscribeHandler(serverContext));
                     pubsubHandlerSet = true;
                 }
                 ctx.fireChannelRead(newMessage);
@@ -100,5 +103,9 @@ public class ConnectHandler extends ChannelInboundHandlerAdapter {
         // TODO: log this, instead of printStackTrace()
         cause.printStackTrace();
         ctx.close();
+    }
+
+    public ConnectHandler(ServerContext serverContext) {
+        this.serverContext = serverContext;
     }
 }

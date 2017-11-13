@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import org.dsngroup.broke.protocol.PublishMessage;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Subscriber pool class that stores a map.
@@ -20,7 +22,7 @@ public class SubscriberPool {
      * The map of subscribers maps the ChannelHandlerContext instance to a subscriber context.
      * (Because the ChannelHandlerContext of each subscriber is unique).
      * */
-    private static Map<String, Map<ChannelHandlerContext, SubscriberContext>> subscriberPool = new HashMap();
+    private Map<String, Map<ChannelHandlerContext, SubscriberContext>> subscriberPool;
 
     /**
      * Register the subscriber to an interested topic
@@ -29,10 +31,10 @@ public class SubscriberPool {
      * @param channelCxt subscriber's ChannelHandlerContext {@see ChannelHandlerContext}
      * @return the subscriber's instance
      * */
-    public static SubscriberContext register(String topic, String groupId, ChannelHandlerContext channelCxt) throws Exception{
+    public SubscriberContext register(String topic, String groupId, ChannelHandlerContext channelCxt) throws Exception{
 
         if (subscriberPool.get(topic)==null)
-            subscriberPool.put(topic, new TreeMap<>( new ChannelHandlerComparator()));
+            subscriberPool.put(topic, new ConcurrentHashMap<>());
 
         SubscriberContext subscriber = new SubscriberContext(topic, groupId, channelCxt);
 
@@ -49,7 +51,7 @@ public class SubscriberPool {
      * @param subscriberChannelCxt the subscriber's ChannelHandlerContext
      * @Exception no such topic or subscriber
      * */
-    public static void unRegister(String topic, ChannelHandlerContext subscriberChannelCxt) throws Exception{
+    public void unRegister(String topic, ChannelHandlerContext subscriberChannelCxt) throws Exception{
         // TODO: How to remove a closed subscriber channel context?
         // TODO: e.g. on channel close, call unRegister(channelHandlerContext);
         // TODO: Currently, message sending to inactive subscribers is
@@ -57,7 +59,7 @@ public class SubscriberPool {
         subscriberPool.get(topic).remove(subscriberChannelCxt);
     }
 
-    public static void sendToSubscribers(PublishMessage publishMessage) throws Exception {
+    public void sendToSubscribers(PublishMessage publishMessage) throws Exception {
 
         Map<ChannelHandlerContext,SubscriberContext> subscriberMap
                 = subscriberPool.get(publishMessage.getTopic());
@@ -83,12 +85,16 @@ public class SubscriberPool {
     /**
      * Not allowed to construct
      * */
-    private SubscriberPool() {}
+    public SubscriberPool() {
+        subscriberPool = new ConcurrentHashMap<>();
+    }
 
 }
 
 /**
  * The comparator for comparing ChannelHandlerContext in HashMap
+ * TODO: remove this comparator because hashmap doesn't need this.
+ * TODO: but observer how does the hashmap deals channel handler context as the key.
  * */
 class ChannelHandlerComparator implements Comparator<ChannelHandlerContext> {
     @Override

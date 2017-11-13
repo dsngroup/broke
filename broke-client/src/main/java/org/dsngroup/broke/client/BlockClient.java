@@ -42,6 +42,8 @@ public class BlockClient {
 
     private int targetBrokerPort;
 
+    private ClientContext clientContext;
+
     private Channel targetServerChannel;
 
     private EventLoopGroup workerGroup;
@@ -151,18 +153,24 @@ public class BlockClient {
     }
 
     /**
+     * The constructor without specifying clientId
+     * */
+    public BlockClient(String targetBrokerAddress, int targetBrokerPort) throws Exception {
+        this(targetBrokerAddress, targetBrokerPort, "client_"+(rand.nextInt(10000) + 1));
+    }
+
+    /**
      * The constructor for creating a BlockClient
      * 1. Build a connection to client
      * 2. Send a CONNECT message to server.
      * @param targetBrokerAddress The address of broker server.
      * @param targetBrokerPort The port of broker server.
      */
-    public BlockClient(String targetBrokerAddress, int targetBrokerPort) throws Exception {
+    public BlockClient(String targetBrokerAddress, int targetBrokerPort, String clientId) throws Exception {
         this.targetBrokerAddress = targetBrokerAddress;
         this.targetBrokerPort = targetBrokerPort;
-
-        // Generate a random client id
-        this.clientId = "client_"+(rand.nextInt(10000) + 1);
+        this.clientId = clientId;
+        this.clientContext = new ClientContext(clientId);
 
         workerGroup = new NioEventLoopGroup();
         try {
@@ -184,8 +192,7 @@ public class BlockClient {
             targetServerChannel = future.channel();
 
         } catch (Exception e) {
-            // TODO: log this
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 

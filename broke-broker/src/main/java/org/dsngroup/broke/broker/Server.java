@@ -40,7 +40,7 @@ public class Server {
 
     private int port;
 
-    private final ServerContext ctx;
+    private final ServerContext serverContext;
 
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
@@ -49,11 +49,11 @@ public class Server {
     /**
      * The Server constructor construct a basic information of a Server.
      * @param port the binding port.
-     * @param ctx the {@see SeverContext} instance for associated information.
+     * @param serverContext the {@see SeverContext} instance for associated information.
      */
-    public Server(int port, ServerContext ctx) {
+    public Server(int port, ServerContext serverContext) {
         this.port = port;
-        this.ctx = ctx;
+        this.serverContext = serverContext;
     }
 
     /**
@@ -69,7 +69,7 @@ public class Server {
 
             boots.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new PipelineInitializer())
+                    .childHandler(new PipelineInitializer(serverContext))
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 

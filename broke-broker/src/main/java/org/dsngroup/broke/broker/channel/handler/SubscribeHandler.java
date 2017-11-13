@@ -5,12 +5,15 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
+import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.SubscriberPool;
 import org.dsngroup.broke.protocol.Message;
 import org.dsngroup.broke.protocol.Method;
 import org.dsngroup.broke.protocol.SubscribeMessage;
 
 public class SubscribeHandler extends ChannelInboundHandlerAdapter {
+
+    private SubscriberPool subscriberPool;
 
     /**
      * Read the message from channel and register the subscriber to {@see SubscriberPool}
@@ -30,7 +33,7 @@ public class SubscribeHandler extends ChannelInboundHandlerAdapter {
                         " Group ID: " + subscribeMessage.getGroupId());
 
                 // Register the subscriber and ignore the returned subscriber instance
-                SubscriberPool.register(subscribeMessage.getTopic(), subscribeMessage.getGroupId(), ctx);
+                subscriberPool.register(subscribeMessage.getTopic(), subscribeMessage.getGroupId(), ctx);
 
                 // Send PUBACK to the client
                 // TODO: header definition & Encapsulation
@@ -57,6 +60,10 @@ public class SubscribeHandler extends ChannelInboundHandlerAdapter {
         // TODO: log this, instead of printStackTrace()
         cause.printStackTrace();
         ctx.close();
+    }
+
+    public SubscribeHandler(ServerContext serverContext) {
+        this.subscriberPool = serverContext.getSubscriberPool();
     }
 
 }
