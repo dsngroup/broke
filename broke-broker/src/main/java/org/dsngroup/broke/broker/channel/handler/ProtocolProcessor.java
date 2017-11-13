@@ -2,8 +2,9 @@ package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
+import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.ServerSession;
-import org.dsngroup.broke.broker.storage.ServerSessionCollection;
+import org.dsngroup.broke.broker.storage.ServerSessionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,10 @@ public class ProtocolProcessor {
 
     private final static Logger logger = LoggerFactory.getLogger(ProtocolProcessor.class);
 
+    // Initialized at the construction of protocol processor
+    private ServerSessionPool serverSessionPool;
+
+    // Initialized if CONNECT is accepted.
     private ServerSession serverSession;
 
     /**
@@ -33,17 +38,16 @@ public class ProtocolProcessor {
             // Get session
             String clientId = mqttConnectMessage.payload().clientIdentifier();
             boolean cleanSession = mqttConnectMessage.variableHeader().isCleanSession();
-            // TODO: evaluate again either use single pattern or static methods
-            ServerSessionCollection serverSessionCollection = ServerSessionCollection.getServerSessionCollection();
 
             // For a session, accept one client only (specified using clientId)
             // TODO: How to gracefully sets the isActive status when the connection closed,
             // TODO: no matter when a normal or abnormal termination occurred.
             synchronized (ProtocolProcessor.class) {
-                if (!serverSessionCollection.isSessionActive(clientId)) {
-                    serverSession = serverSessionCollection.getSession(clientId, cleanSession);
+                if (!serverSessionPool.isSessionActive(clientId)) {
+                    // Accept the connection: initialize the server session
+                    serverSession = serverSessionPool.getSession(clientId, cleanSession);
                     serverSession.isActive = true;
-                    // Accept the connection
+                    // Response the client a CONNACK with return code CONNECTION_ACCEPTED
                     MqttConnAckMessage mqttConnAckMessage = connAck(
                             MqttConnectReturnCode.CONNECTION_ACCEPTED,
                             mqttConnectMessage
@@ -51,6 +55,7 @@ public class ProtocolProcessor {
                     ctx.channel().writeAndFlush(mqttConnAckMessage);
                 } else {
                     // Reject the connection
+                    // Response the client a CONNACK with return code CONNECTION_REJECTED
                     MqttConnAckMessage mqttConnAckMessage = connAck(
                             MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED,
                             mqttConnectMessage
@@ -76,7 +81,8 @@ public class ProtocolProcessor {
         return new MqttConnAckMessage(mqttFixedHeader, mqttConnAckVariableHeader);
     }
 
-    public ProtocolProcessor() {
+    public ProtocolProcessor(ServerContext serverContext) {
         this.isConnected = false;
+        serverSessionPool = serverContext.getServerSessionPool();
     }
 }

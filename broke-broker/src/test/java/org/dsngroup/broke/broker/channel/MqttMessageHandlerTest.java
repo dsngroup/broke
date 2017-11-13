@@ -2,6 +2,7 @@ package org.dsngroup.broke.broker.channel;
 
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.mqtt.*;
+import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.channel.handler.MqttMessageHandler;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.logging.Logger;
@@ -19,8 +20,11 @@ public class MqttMessageHandlerTest {
      * */
     @Test
     public void mqttMessageHandlerSendConnectTest() {
+
+        ServerContext serverContext = new ServerContext();
+
         try {
-            EmbeddedChannel channel = new EmbeddedChannel(new MqttMessageHandler());
+            EmbeddedChannel channel = new EmbeddedChannel(new MqttMessageHandler(serverContext));
 
             MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(
                     MqttMessageType.CONNECT,
@@ -74,8 +78,11 @@ public class MqttMessageHandlerTest {
      * */
     @Test
     public void twoClientsSendsSameClientIdTest() {
-        EmbeddedChannel channel1 = new EmbeddedChannel(new MqttMessageHandler());
-        EmbeddedChannel channel2 = new EmbeddedChannel(new MqttMessageHandler());
+
+        ServerContext serverContext = new ServerContext();
+
+        EmbeddedChannel channel1 = new EmbeddedChannel(new MqttMessageHandler(serverContext));
+        EmbeddedChannel channel2 = new EmbeddedChannel(new MqttMessageHandler(serverContext));
         // Channel 1 and 2 connects to the same "embedded" server
         // TODO: are they really the same "embedded" server?
         assertEquals(channel1.remoteAddress(), channel2.remoteAddress());

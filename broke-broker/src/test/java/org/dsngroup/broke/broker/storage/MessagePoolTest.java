@@ -16,6 +16,7 @@
 
 package org.dsngroup.broke.broker.storage;
 
+import org.dsngroup.broke.broker.ServerContext;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,7 +24,10 @@ public class MessagePoolTest {
 
     @Test
     public void testTopicPutAndGet() {
-        MessagePool.putContentOnTopic("foo", "bar");
-        assertEquals("bar", MessagePool.getContentFromTopic("foo"));
+        ServerContext serverContext = new ServerContext();
+
+        MessagePool messagePool = serverContext.getMessagePool();
+        messagePool.putContentOnTopic("foo", "bar");
+        assertEquals("bar", messagePool.getContentFromTopic("foo"));
     }
 }

@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import io.netty.util.ReferenceCountUtil;
+import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.MessagePool;
 import org.dsngroup.broke.broker.storage.SubscriberPool;
 import org.dsngroup.broke.protocol.Message;
@@ -12,6 +13,12 @@ import org.dsngroup.broke.protocol.Method;
 import org.dsngroup.broke.protocol.PublishMessage;
 
 public class PublishHandler extends ChannelInboundHandlerAdapter {
+
+    private ServerContext serverContext;
+
+    private MessagePool messagePool;
+
+    private SubscriberPool subscriberPool;
 
     /**
      * Read the message from channel and publish to {@link MessagePool}
@@ -32,10 +39,10 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
                         " Payload: " + publishMessage.getPayload());
 
                 // Put the message to MessagePool
-                MessagePool.putContentOnTopic(publishMessage.getTopic(), publishMessage.getPayload());
+                messagePool.putContentOnTopic(publishMessage.getTopic(), publishMessage.getPayload());
 
                 // TODO: Not really sent back to subscriber currently
-                SubscriberPool.sendToSubscribers(publishMessage);
+                subscriberPool.sendToSubscribers(publishMessage);
 
                 // Send PUBACK to the client
                 // TODO: header definition & Encapsulation
@@ -64,5 +71,11 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
         // TODO: log this, instead of printStackTrace()
         cause.printStackTrace();
         ctx.close();
+    }
+
+    public PublishHandler(ServerContext serverContext) {
+        this.serverContext = serverContext;
+        this.messagePool = serverContext.getMessagePool();
+        this.subscriberPool = serverContext.getSubscriberPool();
     }
 }
