@@ -22,7 +22,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
 import org.dsngroup.broke.broker.ServerContext;
-import org.dsngroup.broke.protocol.*;
+import org.dsngroup.broke.protocol.deprecated.ConnectMessage;
+import org.dsngroup.broke.protocol.deprecated.Message;
+import org.dsngroup.broke.protocol.deprecated.Method;
 
 /**
  * Handle Client connections

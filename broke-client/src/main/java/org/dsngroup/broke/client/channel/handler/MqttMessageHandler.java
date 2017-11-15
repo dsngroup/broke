@@ -1,13 +1,11 @@
 package org.dsngroup.broke.client.channel.handler;
 
 import io.netty.channel.*;
-import io.netty.handler.codec.mqtt.MqttConnAckMessage;
-import io.netty.handler.codec.mqtt.MqttMessage;
+import org.dsngroup.broke.protocol.MqttConnAckMessage;
+import org.dsngroup.broke.protocol.MqttMessage;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.channels.Channel;
 
 public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
@@ -22,7 +20,7 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
         try {
             switch (mqttMessage.fixedHeader().messageType()) {
                 case CONNACK:
-                    protocolProcessor.processConnAck(ctx, (MqttConnAckMessage)mqttMessage);
+                    // protocolProcessor.processConnAck(ctx, (MqttConnAckMessage)mqttMessage);
                     break;
             }
 

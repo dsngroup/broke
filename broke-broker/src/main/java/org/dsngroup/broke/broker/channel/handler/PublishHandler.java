@@ -8,9 +8,9 @@ import io.netty.util.ReferenceCountUtil;
 import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.MessagePool;
 import org.dsngroup.broke.broker.storage.SubscriberPool;
-import org.dsngroup.broke.protocol.Message;
-import org.dsngroup.broke.protocol.Method;
-import org.dsngroup.broke.protocol.PublishMessage;
+import org.dsngroup.broke.protocol.deprecated.Message;
+import org.dsngroup.broke.protocol.deprecated.Method;
+import org.dsngroup.broke.protocol.deprecated.PublishMessage;
 
 public class PublishHandler extends ChannelInboundHandlerAdapter {
 

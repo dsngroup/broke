@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
 /**
  * Records the request methods of message.

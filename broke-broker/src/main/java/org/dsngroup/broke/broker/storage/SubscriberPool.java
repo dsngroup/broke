@@ -2,11 +2,10 @@ package org.dsngroup.broke.broker.storage;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import org.dsngroup.broke.protocol.PublishMessage;
+import org.dsngroup.broke.protocol.deprecated.PublishMessage;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Subscriber pool class that stores a map.

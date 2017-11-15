@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
 /**
  * The Message class intialized an message which parsed from raw message (String).

@@ -1,38 +1,25 @@
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
 /**
- * The header class of the PUBACK message
+ * The header class of the CONNECT message
  * The class has an addition topic attribute than the basic message.
  * */
-public class PubAckMessageHeader extends MessageHeader {
-
-    private String topic;
+public class ConnectMessageHeader extends MessageHeader {
 
     /**
      * The constructor, construct the message header by a raw header string
      * @param rawHeader raw header string
      * @throws RuntimeException Wrong option fields.
      * */
-    public PubAckMessageHeader(String rawHeader) throws Exception {
+    public ConnectMessageHeader(String rawHeader) throws Exception {
         String[] fields = rawHeader.split(",");
         for (int i = 0; i < fields.length; i++) {
             String[] optionSplit = fields[i].split(":", 2);
             // TODO: There may be more options
             switch (optionSplit[0].toUpperCase()) {
-                case "TOPIC":
-                    topic = optionSplit[1];
-                    break;
                 default:
                     setOptions(optionSplit);
             }
         }
-    }
-
-    /**
-     * Get the topic from this message.
-     * @return topic
-     */
-    public String getTopic() {
-        return topic;
     }
 }
