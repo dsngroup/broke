@@ -1,6 +1,10 @@
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
-public class SubAckMessageHeader extends MessageHeader {
+/**
+ * The header class of the PUBLISH message
+ * The class has an addition topic attribute than the basic message.
+ * */
+public class SubscribeMessageHeader extends MessageHeader{
 
     private String topic;
     private String groupId;
@@ -10,7 +14,7 @@ public class SubAckMessageHeader extends MessageHeader {
      * @param rawHeader raw header string
      * @throws RuntimeException Wrong option fields.
      * */
-    public SubAckMessageHeader(String rawHeader) throws Exception {
+    public SubscribeMessageHeader(String rawHeader) throws Exception{
         String[] fields = rawHeader.split(",");
         for (int i = 0; i < fields.length; i++) {
             String[] optionSplit = fields[i].split(":", 2);
@@ -20,12 +24,13 @@ public class SubAckMessageHeader extends MessageHeader {
                     topic = optionSplit[1];
                     break;
                 case "GROUP-ID":
-                    topic = optionSplit[1];
+                    groupId = optionSplit[1];
                     break;
                 default:
                     setOptions(optionSplit);
             }
         }
+
     }
 
     /**
@@ -43,4 +48,5 @@ public class SubAckMessageHeader extends MessageHeader {
     public String getGroupId() {
         return groupId;
     }
+
 }

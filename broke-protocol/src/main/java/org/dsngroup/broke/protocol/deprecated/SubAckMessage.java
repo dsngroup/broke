@@ -1,18 +1,14 @@
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
-/**
- * The PUBACK message class
- * */
-public class PubAckMessage extends Message {
-
+public class SubAckMessage extends Message{
     /**
      * The constructor, construct the message by header and payload
      * @param header The pre-built header of the message
      * @param payload The payload of the message
      * @throws Exception Parsing failed.
      * */
-    public PubAckMessage(PubAckMessageHeader header, Object payload) throws Exception {
-        super(Method.PUBACK, header, payload);
+    public SubAckMessage(SubAckMessageHeader header, Object payload) throws Exception {
+        super(Method.SUBACK, header, payload);
     }
 
     /**
@@ -21,7 +17,7 @@ public class PubAckMessage extends Message {
      * @param payload The payload of the message
      * @throws Exception Parsing failed.
      * */
-    public PubAckMessage(String rawHeader, Object payload) throws Exception {
-        super(Method.PUBACK, new PubAckMessageHeader(rawHeader), payload);
+    public SubAckMessage(String rawHeader, Object payload) throws Exception {
+        super(Method.SUBACK, new SubAckMessageHeader(rawHeader), payload);
     }
 }

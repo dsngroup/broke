@@ -22,7 +22,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.mqtt.*;
+import org.dsngroup.broke.protocol.*;
 import org.dsngroup.broke.client.channel.handler.MqttMessageHandler;
 import org.dsngroup.broke.protocol.MqttEncoder;
 import org.dsngroup.broke.protocol.MqttDecoder;

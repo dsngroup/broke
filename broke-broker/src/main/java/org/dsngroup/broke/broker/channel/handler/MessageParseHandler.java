@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
-import org.dsngroup.broke.protocol.Message;
-import org.dsngroup.broke.protocol.MessageBuilder;
+import org.dsngroup.broke.protocol.deprecated.Message;
+import org.dsngroup.broke.protocol.deprecated.MessageBuilder;
 
 import java.util.ArrayDeque;
 

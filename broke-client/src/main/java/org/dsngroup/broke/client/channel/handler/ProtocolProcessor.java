@@ -1,8 +1,8 @@
 package org.dsngroup.broke.client.channel.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.mqtt.MqttConnAckMessage;
-import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
+import org.dsngroup.broke.protocol.MqttConnAckMessage;
+import org.dsngroup.broke.protocol.MqttConnectReturnCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

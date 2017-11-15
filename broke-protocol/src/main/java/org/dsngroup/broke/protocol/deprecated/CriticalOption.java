@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
 /**
- * Records the qos semantics field of message.
+ * Records the critical-option field of message.
  */
-public enum QoS {
-    AT_MOST_ONCE(0),
-    EXACTLY_ONCE(1),
-    AT_LEAST_ONCE(2);
-
+public enum CriticalOption {
+    BEST_EFFORT(0),
+    CRITICAL(1);
     public final int value;
-    QoS(final int value) {
+    CriticalOption(final int value) {
         this.value = value;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.valueOf(this.value);
     }
 }

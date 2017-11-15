@@ -1,4 +1,4 @@
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
 /**
  * The root class of all message headers

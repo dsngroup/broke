@@ -1,4 +1,4 @@
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
 /**
  * The PUBLISH message class

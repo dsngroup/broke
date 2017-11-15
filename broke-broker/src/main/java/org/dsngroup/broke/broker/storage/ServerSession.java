@@ -1,6 +1,6 @@
 package org.dsngroup.broke.broker.storage;
 
-import io.netty.handler.codec.mqtt.MqttMessage;
+import org.dsngroup.broke.protocol.MqttMessage;
 
 import java.util.concurrent.ConcurrentHashMap;
 

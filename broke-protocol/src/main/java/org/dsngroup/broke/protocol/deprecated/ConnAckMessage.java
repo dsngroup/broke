@@ -1,14 +1,18 @@
-package org.dsngroup.broke.protocol;
+package org.dsngroup.broke.protocol.deprecated;
 
-public class SubAckMessage extends Message{
+/**
+ * The CONNACK message class
+ * */
+public class ConnAckMessage extends Message {
+
     /**
      * The constructor, construct the message by header and payload
      * @param header The pre-built header of the message
      * @param payload The payload of the message
      * @throws Exception Parsing failed.
      * */
-    public SubAckMessage(SubAckMessageHeader header, Object payload) throws Exception {
-        super(Method.SUBACK, header, payload);
+    public ConnAckMessage(ConnAckMessageHeader header, Object payload) throws Exception {
+        super(Method.CONNACK, header, payload);
     }
 
     /**
@@ -17,7 +21,7 @@ public class SubAckMessage extends Message{
      * @param payload The payload of the message
      * @throws Exception Parsing failed.
      * */
-    public SubAckMessage(String rawHeader, Object payload) throws Exception {
-        super(Method.SUBACK, new SubAckMessageHeader(rawHeader), payload);
+    public ConnAckMessage(String rawHeader, Object payload) throws Exception {
+        super(Method.CONNACK, new ConnAckMessageHeader(rawHeader), payload);
     }
 }
