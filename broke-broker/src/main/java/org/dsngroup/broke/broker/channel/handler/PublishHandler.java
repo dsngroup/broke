@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2017 original authors and authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.buffer.Unpooled;
@@ -7,10 +23,10 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.MessagePool;
-import org.dsngroup.broke.broker.storage.SubscriberPool;
-import org.dsngroup.broke.protocol.Message;
-import org.dsngroup.broke.protocol.Method;
-import org.dsngroup.broke.protocol.PublishMessage;
+import org.dsngroup.broke.broker.storage.SubscriptionPool;
+import org.dsngroup.broke.protocol.deprecated.Message;
+import org.dsngroup.broke.protocol.deprecated.Method;
+import org.dsngroup.broke.protocol.deprecated.PublishMessage;
 
 public class PublishHandler extends ChannelInboundHandlerAdapter {
 
@@ -18,7 +34,7 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
 
     private MessagePool messagePool;
 
-    private SubscriberPool subscriberPool;
+    private SubscriptionPool subscriptionPool;
 
     /**
      * Read the message from channel and publish to {@link MessagePool}
@@ -39,10 +55,10 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
                         " Payload: " + publishMessage.getPayload());
 
                 // Put the message to MessagePool
-                messagePool.putContentOnTopic(publishMessage.getTopic(), publishMessage.getPayload());
+                // messagePool.putContentOnTopic(publishMessage.getTopic(), publishMessage.getPayload());
 
                 // TODO: Not really sent back to subscriber currently
-                subscriberPool.sendToSubscribers(publishMessage);
+                // subscriptionPool.sendToSubscribers(publishMessage);
 
                 // Send PUBACK to the client
                 // TODO: header definition & Encapsulation
@@ -76,6 +92,6 @@ public class PublishHandler extends ChannelInboundHandlerAdapter {
     public PublishHandler(ServerContext serverContext) {
         this.serverContext = serverContext;
         this.messagePool = serverContext.getMessagePool();
-        this.subscriberPool = serverContext.getSubscriberPool();
+        // this.subscriptionPool = serverContext.getSubscriptionPool();
     }
 }

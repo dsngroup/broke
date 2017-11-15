@@ -20,9 +20,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToMessageEncoder;
-import io.netty.handler.codec.mqtt.*;
+
+
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.EmptyArrays;
 
@@ -223,6 +225,7 @@ public final class MqttEncoder extends MessageToMessageEncoder<MqttMessage> {
             byte[] topicNameBytes = encodeStringUtf8(topicName);
             payloadBufferSize += 2 + topicNameBytes.length;
             payloadBufferSize += 1;
+            payloadBufferSize += 2;     // 2-byte group ID
         }
 
         int variablePartSize = variableHeaderBufferSize + payloadBufferSize;
@@ -243,6 +246,9 @@ public final class MqttEncoder extends MessageToMessageEncoder<MqttMessage> {
             buf.writeShort(topicNameBytes.length);
             buf.writeBytes(topicNameBytes, 0, topicNameBytes.length);
             buf.writeByte(topic.qualityOfService().value());
+            buf.writeShort(topic.groupId());    // Write 2-byte group ID
+            // TODO: delete this
+            System.out.println("Encoded group ID: "+topic.groupId());
         }
 
         return buf;

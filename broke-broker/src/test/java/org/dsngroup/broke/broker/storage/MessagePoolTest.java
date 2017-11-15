@@ -16,6 +16,7 @@
 
 package org.dsngroup.broke.broker.storage;
 
+import io.netty.buffer.Unpooled;
 import org.dsngroup.broke.broker.ServerContext;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +28,7 @@ public class MessagePoolTest {
         ServerContext serverContext = new ServerContext();
 
         MessagePool messagePool = serverContext.getMessagePool();
-        messagePool.putContentOnTopic("foo", "bar");
-        assertEquals("bar", messagePool.getContentFromTopic("foo"));
+        messagePool.putContentOnTopic("foo", Unpooled.wrappedBuffer("bar".getBytes()));
+        assertEquals(Unpooled.wrappedBuffer("bar".getBytes()), messagePool.getContentFromTopic("foo"));
     }
 }

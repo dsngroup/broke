@@ -18,7 +18,7 @@ package org.dsngroup.broke.broker;
 
 import org.dsngroup.broke.broker.storage.MessagePool;
 import org.dsngroup.broke.broker.storage.ServerSessionPool;
-import org.dsngroup.broke.broker.storage.SubscriberPool;
+import org.dsngroup.broke.broker.storage.SubscriptionPool;
 
 /**
  * The ServerContext class records the associated information of a Server.
@@ -30,8 +30,6 @@ public class ServerContext {
 
     private ServerSessionPool serverSessionPool;
 
-    private SubscriberPool subscriberPool;
-
     private MessagePool messagePool;
 
     /**
@@ -39,13 +37,6 @@ public class ServerContext {
      * */
     public ServerSessionPool getServerSessionPool() {
         return serverSessionPool;
-    }
-
-    /**
-     * Getter method for subscriber pool
-     * */
-    public SubscriberPool getSubscriberPool() {
-        return subscriberPool;
     }
 
     /**
@@ -62,7 +53,6 @@ public class ServerContext {
      * */
     public ServerContext() {
         serverSessionPool = new ServerSessionPool();
-        subscriberPool = new SubscriberPool();
         messagePool = new MessagePool();
     }
 }

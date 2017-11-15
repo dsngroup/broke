@@ -20,7 +20,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.ReplayingDecoder;
-import io.netty.handler.codec.mqtt.*;
 import org.dsngroup.broke.protocol.MqttDecoder.DecoderState;
 import io.netty.util.CharsetUtil;
 
@@ -378,7 +377,10 @@ public final class MqttDecoder extends ReplayingDecoder<DecoderState> {
             numberOfBytesConsumed += decodedTopicName.numberOfBytesConsumed;
             int qos = buffer.readUnsignedByte() & 0x03;
             numberOfBytesConsumed++;
-            subscribeTopics.add(new MqttTopicSubscription(decodedTopicName.value, MqttQoS.valueOf(qos)));
+            int groupId = buffer.readShort();   // Read 2-byte group Id
+            // TODO: delete this
+            System.out.println("Decoded group ID: "+groupId);
+            subscribeTopics.add(new MqttTopicSubscription(decodedTopicName.value, MqttQoS.valueOf(qos), groupId));
         }
         return new Result<MqttSubscribePayload>(new MqttSubscribePayload(subscribeTopics), numberOfBytesConsumed);
     }
