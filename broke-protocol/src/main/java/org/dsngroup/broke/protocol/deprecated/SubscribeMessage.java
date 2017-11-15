@@ -3,7 +3,7 @@ package org.dsngroup.broke.protocol.deprecated;
 /**
  * The PUBLISH message class
  * */
-public class SubscribeMessage extends Message{
+public class SubscribeMessage extends Message {
 
     /**
      * The constructor, construct the message by header and payload

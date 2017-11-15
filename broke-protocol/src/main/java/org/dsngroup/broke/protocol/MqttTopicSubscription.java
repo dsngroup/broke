@@ -26,10 +26,12 @@ public final class MqttTopicSubscription {
 
     private final String topicFilter;
     private final MqttQoS qualityOfService;
+    private final int groupId;
 
-    public MqttTopicSubscription(String topicFilter, MqttQoS qualityOfService) {
+    public MqttTopicSubscription(String topicFilter, MqttQoS qualityOfService, int groupId) {
         this.topicFilter = topicFilter;
         this.qualityOfService = qualityOfService;
+        this.groupId = groupId;
     }
 
     public String topicName() {
@@ -40,12 +42,17 @@ public final class MqttTopicSubscription {
         return qualityOfService;
     }
 
+    public int groupId() {
+        return groupId;
+    }
+
     @Override
     public String toString() {
         return new StringBuilder(StringUtil.simpleClassName(this))
             .append('[')
             .append("topicFilter=").append(topicFilter)
             .append(", qualityOfService=").append(qualityOfService)
+            .append(", groupId=").append(groupId)
             .append(']')
             .toString();
     }

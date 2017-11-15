@@ -1,5 +1,7 @@
 package org.dsngroup.broke.protocol.deprecated;
 
+import org.dsngroup.broke.protocol.deprecated.MessageHeader;
+
 /**
  * The header class of the PUBACK message
  * The class has an addition topic attribute than the basic message.

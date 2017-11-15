@@ -1,6 +1,6 @@
 package org.dsngroup.broke.protocol.deprecated;
 
-public class SubAckMessage extends Message{
+public class SubAckMessage extends Message {
     /**
      * The constructor, construct the message by header and payload
      * @param header The pre-built header of the message

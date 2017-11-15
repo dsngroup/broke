@@ -1,5 +1,7 @@
 package org.dsngroup.broke.protocol.deprecated;
 
+import org.dsngroup.broke.protocol.deprecated.MessageHeader;
+
 public class SubAckMessageHeader extends MessageHeader {
 
     private String topic;

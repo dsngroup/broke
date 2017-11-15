@@ -198,11 +198,11 @@ public final class MqttMessageBuilders {
         SubscribeBuilder() {
         }
 
-        public SubscribeBuilder addSubscription(MqttQoS qos, String topic) {
+        public SubscribeBuilder addSubscription(MqttQoS qos, String topic, int groupId) {
             if (subscriptions == null) {
                 subscriptions = new ArrayList<MqttTopicSubscription>(5);
             }
-            subscriptions.add(new MqttTopicSubscription(topic, qos));
+            subscriptions.add(new MqttTopicSubscription(topic, qos, groupId));
             return this;
         }
 

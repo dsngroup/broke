@@ -1,10 +1,12 @@
 package org.dsngroup.broke.protocol.deprecated;
 
+import org.dsngroup.broke.protocol.deprecated.MessageHeader;
+
 /**
  * The header class of the PUBLISH message
  * The class has an addition topic attribute than the basic message.
  * */
-public class SubscribeMessageHeader extends MessageHeader{
+public class SubscribeMessageHeader extends MessageHeader {
 
     private String topic;
     private String groupId;
