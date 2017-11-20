@@ -72,7 +72,7 @@ public class Subscription {
     }
 
     /**
-     * Overrride equals() for Set comparator
+     * Override equals() for Set comparator
      * Compare using the reference of subscriberChannelHandlerContext
      * @param obj Other object
      * */
@@ -83,7 +83,9 @@ public class Subscription {
         if (getClass() != obj.getClass())
             return false;
         final Subscription other = (Subscription) obj;
-        if(this.subscriberChannel != other.subscriberChannel)
+        if(this.getSubscriberChannel() != other.getSubscriberChannel())
+            return false;
+        if(this.getTopic()!=other.getTopic())
             return false;
         return true;
     }

@@ -17,7 +17,10 @@
 package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.MessagePool;
 import org.dsngroup.broke.broker.storage.ServerSession;
@@ -25,23 +28,28 @@ import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
+
 public class MessagePublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 
-    public void processQos0Publish(Channel channel, ServerContext ctx, MqttPublishMessage mqttPublishMessage) {
+    public void processQos0Publish(ChannelHandlerContext ctx, ServerContext serverContext, MqttPublishMessage mqttPublishMessage) {
         // TODO
     }
 
-    public void processQos1Publish(Channel channel, ServerContext serverContext, MqttPublishMessage mqttPublishMessage) {
+    public void processQos1Publish(ChannelHandlerContext ctx, ServerContext serverContext, MqttPublishMessage mqttPublishMessage) {
 
         try {
-            if(channel.isActive()) {
+            if(ctx.channel().isActive()) {
+                Channel channel = ctx.channel();
                 MessagePool messagePool = serverContext.getMessagePool();
 
                 String topic = mqttPublishMessage.variableHeader().topicName();
                 int packetId = mqttPublishMessage.variableHeader().packetId();
-                ByteBuf appMessage = mqttPublishMessage.payload();
+                // Deep copy
+                ByteBuf appMessage = Unpooled.copiedBuffer( mqttPublishMessage.payload() );
 
                 if (appMessage.isReadable()) {
                     messagePool.putContentOnTopic(topic, appMessage);
@@ -49,7 +57,8 @@ public class MessagePublisher {
                     // TODO: handle unreadable payload
                 }
 
-                publishToSubscriptions(serverContext, mqttPublishMessage);
+                // Forward to next handler for publishing to subscribers
+                ctx.fireChannelRead(mqttPublishMessage);
 
                 MqttPubAckMessage mqttPubAckMessage = pubAck(channel, MqttQoS.AT_LEAST_ONCE, packetId);
                 channel.writeAndFlush(mqttPubAckMessage);
@@ -58,23 +67,12 @@ public class MessagePublisher {
                 logger.error("Inactive channel");
             }
         } catch (Exception e) {
+
             logger.error(e.getMessage());
         }
 
     }
 
-    private void publishToSubscriptions(ServerContext serverContext,
-                                      MqttPublishMessage mqttPublishMessage) {
-        // TODO: publish messages to the subscriptions in every server session
-        // Iterate through all sessions, publishing to every sessions' subscriptions
-        for (ServerSession serverSession: serverContext.getServerSessionPool().asCollection()) {
-            // Only publish to active sessions
-            if(serverSession.getIsActive()) {
-                // Whether the mqttPublish Message matches the subscription is performed in "sendToSubscribers"
-                serverSession.getSubscriptionPool().sendToSubscribers(mqttPublishMessage);
-            }
-        }
-    }
 
     private MqttPubAckMessage pubAck(Channel channel, MqttQoS qos, int packetId) {
         MqttFixedHeader mqttFixedHeader =

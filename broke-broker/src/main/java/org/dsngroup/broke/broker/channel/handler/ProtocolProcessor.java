@@ -17,6 +17,7 @@
 package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import org.dsngroup.broke.protocol.*;
 import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.ServerSession;
@@ -109,19 +110,19 @@ public class ProtocolProcessor {
 
     /**
      * process PUBLISH message using messagePublisher
-     * @param channel {@see Channel}
+     * @param ctx {@see ChannelHandlerContext}
      * @param mqttPublishMessage PUBLISH message from the client
      * */
-    public void processPublish(Channel channel, MqttPublishMessage mqttPublishMessage) {
+    public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) {
 
         if (isConnected) {
             MqttQoS qos = mqttPublishMessage.fixedHeader().qosLevel();
             switch (qos) {
                 case AT_MOST_ONCE:
-                    messagePublisher.processQos0Publish(channel, serverContext, mqttPublishMessage);
+                    messagePublisher.processQos0Publish(ctx, serverContext, mqttPublishMessage);
                     break;
                 case AT_LEAST_ONCE:
-                    messagePublisher.processQos1Publish(channel, serverContext, mqttPublishMessage);
+                    messagePublisher.processQos1Publish(ctx, serverContext, mqttPublishMessage);
                     break;
             }
         } else {
@@ -129,7 +130,6 @@ public class ProtocolProcessor {
         }
 
     }
-
 
     /**
      * Process SUBSCRIBE
@@ -140,22 +140,27 @@ public class ProtocolProcessor {
      * */
     public void processSubscribe(Channel channel, MqttSubscribeMessage mqttSubscribeMessage) {
 
-        SubscriptionPool subscriptionPool = serverSession.getSubscriptionPool();
+        if(isConnected) {
+            SubscriptionPool subscriptionPool = serverSession.getSubscriptionPool();
 
-        List<MqttQoS> grantedQosList = new ArrayList<>();
-        for(MqttTopicSubscription mqttTopicSubscription: mqttSubscribeMessage.payload().topicSubscriptions()) {
-            mqttTopicSubscription.topicName();
-            subscriptionPool.register(mqttTopicSubscription.topicName(),
-                    mqttTopicSubscription.qualityOfService(),
-                    mqttTopicSubscription.groupId(),
-                    channel);
-            grantedQosList.add(mqttTopicSubscription.qualityOfService());
+            List<MqttQoS> grantedQosList = new ArrayList<>();
+            for (MqttTopicSubscription mqttTopicSubscription : mqttSubscribeMessage.payload().topicSubscriptions()) {
+                mqttTopicSubscription.topicName();
+                subscriptionPool.register(mqttTopicSubscription.topicName(),
+                        mqttTopicSubscription.qualityOfService(),
+                        mqttTopicSubscription.groupId(),
+                        channel);
+                grantedQosList.add(mqttTopicSubscription.qualityOfService());
+            }
+
+            MqttSubAckMessage mqttSubAckMessage = subAck(mqttSubscribeMessage.fixedHeader().qosLevel(),
+                    mqttSubscribeMessage.variableHeader().messageId(),
+                    grantedQosList);
+            channel.writeAndFlush(mqttSubAckMessage);
+
+        } else {
+            logger.error("[Protocol Processor] Not connected, cannot process subscribe");
         }
-
-        MqttSubAckMessage mqttSubAckMessage = subAck(mqttSubscribeMessage.fixedHeader().qosLevel(),
-                mqttSubscribeMessage.variableHeader().messageId(),
-                grantedQosList);
-        channel.writeAndFlush(mqttSubAckMessage);
 
     }
 
@@ -177,6 +182,19 @@ public class ProtocolProcessor {
         }
         MqttSubAckPayload mqttSubAckPayload = new MqttSubAckPayload(grantedQoSInteger);
         return new MqttSubAckMessage(mqttFixedHeader, mqttMessageIdVariableHeader, mqttSubAckPayload);
+    }
+
+
+    /**
+     * process DISCONNECT message from the client
+     * If the session is used by this channel, set the session's isActive to false
+     * */
+    public void processDisconnect() {
+        if(isConnected) {
+            synchronized (this) {
+                serverSession.setIsActive(false);
+            }
+        }
     }
 
     /**

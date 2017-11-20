@@ -247,8 +247,6 @@ public final class MqttEncoder extends MessageToMessageEncoder<MqttMessage> {
             buf.writeBytes(topicNameBytes, 0, topicNameBytes.length);
             buf.writeByte(topic.qualityOfService().value());
             buf.writeShort(topic.groupId());    // Write 2-byte group ID
-            // TODO: delete this
-            System.out.println("Encoded group ID: "+topic.groupId());
         }
 
         return buf;

@@ -23,6 +23,8 @@ import org.dsngroup.broke.broker.ServerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
 public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
 
     private final static Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
@@ -34,26 +36,52 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
+            ctx.channel().eventLoop().schedule(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            MqttMessage mqttMessage = (MqttMessage) msg;
+                            switch (mqttMessage.fixedHeader().messageType()) {
+                                case CONNECT:
+                                    protocolProcessor.processConnect(ctx.channel(), (MqttConnectMessage) mqttMessage);
+                                    logger.debug("[MqttMessageHandler] CONNECT");
+                                    break;
+                                case PUBLISH:
+                                    protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
+                                    logger.debug("[MqttMessageHandler] PUBLISH");
+                                    break;
+                                case SUBSCRIBE:
+                                    protocolProcessor.processSubscribe(ctx.channel(), (MqttSubscribeMessage) mqttMessage);
+                                    logger.debug("[MqttMessageHandler] SUBSCRIBE");
+                                    break;
+                            }
+                        }
+                    }, 60, TimeUnit.SECONDS);
             MqttMessage mqttMessage = (MqttMessage) msg;
             switch (mqttMessage.fixedHeader().messageType()) {
                 case CONNECT:
                     protocolProcessor.processConnect(ctx.channel(), (MqttConnectMessage) mqttMessage);
-                    logger.debug("[MqttMessageHandler] CONNECT");
+                    logger.info("[MqttMessageHandler] CONNECT");
                     break;
                 case PUBLISH:
-                    protocolProcessor.processPublish(ctx.channel(), (MqttPublishMessage) mqttMessage);
-                    logger.debug("[MqttMessageHandler] PUBLISH");
+                    protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
+                    logger.info("[MqttMessageHandler] PUBLISH");
                     break;
                 case SUBSCRIBE:
+                    logger.info("[MqttMessageHandler] SUBSCRIBE");
                     protocolProcessor.processSubscribe(ctx.channel(), (MqttSubscribeMessage) mqttMessage);
-                    logger.debug("[MqttMessageHandler] SUBSCRIBE");
                     break;
+                case DISCONNECT:
+                    protocolProcessor.processDisconnect();
+                    logger.info("[MqttMessageHandler] DISCONNECT");
+                    ctx.close();
+                    break;
+                default:
+                    logger.error("invalid message: "+msg.toString());
             }
         } catch (NullPointerException e) {
-            logger.info(e.getMessage());
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
-
     }
 
     @Override

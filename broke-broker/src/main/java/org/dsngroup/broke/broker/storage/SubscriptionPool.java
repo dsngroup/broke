@@ -16,11 +16,14 @@
 
 package org.dsngroup.broke.broker.storage;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.dsngroup.broke.protocol.*;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Subscription pool that stores all subscriptions of a server session.
@@ -34,9 +37,9 @@ public class SubscriptionPool {
     private List<Subscription> subscriptionList;
 
     /**
-     *
+     * An incremental packet ID
      * */
-    private Random packetIdRandomGenerator = new Random();
+    private AtomicInteger packetIdGenerator;
 
     /**
      * Register the subscriber to an interested topic
@@ -75,6 +78,11 @@ public class SubscriptionPool {
         }
     }
 
+    /**
+     * For a PUBLISH message, check whether any subscription in the subscription pool matches its topic.
+     * If the topic is matched, create a PUBLISH and publish to the corresponding subscriber client.
+     * @param mqttPublishMessageIn The PUBLISH message from the publisher.
+     * */
     public void sendToSubscribers(MqttPublishMessage mqttPublishMessageIn) {
 
         String topic = mqttPublishMessageIn.variableHeader().topicName();
@@ -82,25 +90,40 @@ public class SubscriptionPool {
         for(Subscription subscription: subscriptionList) {
             // TODO: implement a match method that performs pattern matching between publish topic and subscribe topic filter
             if (subscription.getTopic().equals(topic)) {
-                int packetId = packetIdRandomGenerator.nextInt(10000);
+                int packetId = packetIdGenerator.getAndIncrement();
                 // TODO: perform QoS selection between publish QoS and subscription QoS
                 MqttFixedHeader mqttFixedHeader =
                         new MqttFixedHeader(MqttMessageType.PUBLISH, false, subscription.getQos(), false, 0);
                 MqttPublishVariableHeader mqttPublishVariableHeader
                         = new MqttPublishVariableHeader(subscription.getTopic(), packetId);
+                // TODO: figure out how to avoid being garbage collected.
+                ByteBuf payload = Unpooled.copiedBuffer(mqttPublishMessageIn.payload());
+                // TODO: figure out how to avoid being garbage collected.
+                payload.retain();
                 MqttPublishMessage mqttPublishMessageOut
-                        = new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, mqttPublishMessageIn.payload());
-                subscription.getSubscriberChannel().writeAndFlush(mqttPublishMessageOut);
+                        = new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, payload);
+                if(subscription.getSubscriberChannel().isActive()) {
+                    try {
+                        // TODO: try to remove sync()
+                        subscription.getSubscriberChannel().writeAndFlush(mqttPublishMessageOut).sync();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 
     }
 
     /**
-     * Not allowed to construct
+     * Constructor
      * */
     public SubscriptionPool() {
         subscriptionList = new LinkedList<>();
+        packetIdGenerator = new AtomicInteger();
+        // TODO: The valid packet id should between 1~65535
+        packetIdGenerator.getAndIncrement();
+
     }
 
 }

@@ -61,13 +61,12 @@ public class BlockClient {
      * Send CONNECT to server
      * TODO: the CONNECT message may contain user and authentication information
      * @param qos qos option
-     * @param payload payload
      * */
-    public void connect(int qos, int criticalOption, String payload) throws Exception {
+    public void connect(int qos, int criticalOption) throws Exception {
 
         // Connect only when the channel is active
         if(targetServerChannel.isActive()) {
-            logger.info("[Client] Make connection");
+            logger.info("[Client] Make connection, clientId: "+clientId);
 
             // Create CONNECT message
             MqttFixedHeader mqttFixedHeader =
@@ -105,11 +104,10 @@ public class BlockClient {
      * @param payload payload of the message
      */
     public void publish(String topic, MqttQoS qos, int criticalOption, String payload) throws Exception {
-        // TODO: Send this message
         if (targetServerChannel.isActive()) {
 
             MqttFixedHeader mqttFixedHeader =
-                    new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.AT_LEAST_ONCE,
+                    new MqttFixedHeader(MqttMessageType.PUBLISH, false, qos,
                             true, 0);
             MqttPublishVariableHeader mqttPublishVariableHeader =
                     new MqttPublishVariableHeader(topic, 666);
@@ -119,10 +117,6 @@ public class BlockClient {
                     new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, publisherPayload)
             );
 
-            // targetServerChannel.pipeline().writeAndFlush(Unpooled.wrappedBuffer(
-            //        ("PUBLISH\r\nQoS:"+qos+",Topic:"+topic+",Critical-Option:"+criticalOption+"\r\n"+payload+"\r\n")
-            //         .getBytes(Charset.forName("UTF-8")))).sync();
-            // clientOutputStream.write(msg.toString().getBytes(Charset.forName("UTF-8")));
             logger.info("[Publish] Topic: " + topic + " Payload: " + payload);
         } else {
             logger.error("[Publish] Channel closed, cannot publish");
@@ -134,28 +128,55 @@ public class BlockClient {
      * @param topic The topic to subscribe.
      * @param qos QoS of transmission.
      * @param groupId The user-defined consumer group id for data parallel
-     * @param payload payload
      * */
-    public void subscribe(String topic, int qos, int criticalOption, int groupId, String payload) throws Exception {
+    public void subscribe(String topic, MqttQoS qos, int criticalOption, int groupId) throws Exception {
 
-        MqttFixedHeader subscriberFixedHeader =
-                new MqttFixedHeader(MqttMessageType.SUBSCRIBE, false, MqttQoS.AT_LEAST_ONCE, true, 0);
-        MqttMessageIdVariableHeader subscriberVariableHeader = MqttMessageIdVariableHeader.from(666);
-        List<MqttTopicSubscription> mqttTopicSubscriptionList = new ArrayList<>();
-        mqttTopicSubscriptionList.add(new MqttTopicSubscription(topic, MqttQoS.AT_LEAST_ONCE, groupId));
-        MqttSubscribePayload subscriberSubscribePayload = new MqttSubscribePayload(mqttTopicSubscriptionList);
-        MqttSubscribeMessage mqttSubscribeMessage =
-                new MqttSubscribeMessage(subscriberFixedHeader, subscriberVariableHeader, subscriberSubscribePayload);
+        if (targetServerChannel.isActive()) {
+            MqttFixedHeader subscriberFixedHeader =
+                    new MqttFixedHeader(MqttMessageType.SUBSCRIBE, false, qos, true, 0);
+            MqttMessageIdVariableHeader subscriberVariableHeader = MqttMessageIdVariableHeader.from(666);
+            List<MqttTopicSubscription> mqttTopicSubscriptionList = new ArrayList<>();
+            mqttTopicSubscriptionList.add(new MqttTopicSubscription(topic, MqttQoS.AT_LEAST_ONCE, groupId));
+            MqttSubscribePayload subscriberSubscribePayload = new MqttSubscribePayload(mqttTopicSubscriptionList);
+            MqttSubscribeMessage mqttSubscribeMessage =
+                    new MqttSubscribeMessage(subscriberFixedHeader, subscriberVariableHeader, subscriberSubscribePayload);
 
-        targetServerChannel.writeAndFlush(mqttSubscribeMessage);
+            ChannelFuture future = targetServerChannel.writeAndFlush(mqttSubscribeMessage);
+            future.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if(!future.isSuccess()) {
+                        logger.error("Write subscribe failed");
+                    }
+                }
+            });
 
-        /*
-        targetServerChannel.pipeline().writeAndFlush(Unpooled.wrappedBuffer(
-                ("SUBSCRIBE\r\nQoS:"+qos+",Topic:"+topic+",critical-option:"+criticalOption+",group-id:"+groupId+"\r\n"+payload+"\r\n")
-                .getBytes(Charset.forName("UTF-8")))).sync();
-        */
-        logger.info("[Subscribe] Topic: " + topic+" Payload: " + payload );
+            logger.info("[Subscribe] Topic: " + topic);
+        } else {
+            logger.error("[Publish] Channel closed, cannot subscribe");
+        }
     }
+
+    /**
+     * Disconnect: send DISCONNECT to server and close the channel.
+     * */
+    public void disconnect() {
+        MqttFixedHeader mqttFixedHeader =
+                new MqttFixedHeader(MqttMessageType.DISCONNECT, false, MqttQoS.AT_LEAST_ONCE, false, 0 );
+        MqttMessage disconnectMessage = new MqttMessage(mqttFixedHeader);
+
+        targetServerChannel.writeAndFlush(disconnectMessage);
+        ChannelFuture future = targetServerChannel.closeFuture();
+        future.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if(future.isDone()) {
+                    workerGroup.shutdownGracefully();
+                }
+            }
+        });
+    }
+
 
     /**
      * The default constructor

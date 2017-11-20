@@ -46,6 +46,13 @@ public class ServerSession {
     }
 
     /**
+     * Getter for client Id
+     * */
+    public String getClientId() {
+        return clientId;
+    }
+
+    /**
      * Getter for subscription pool
      * */
     public SubscriptionPool getSubscriptionPool() {
