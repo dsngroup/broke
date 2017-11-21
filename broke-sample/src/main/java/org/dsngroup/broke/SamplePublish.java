@@ -17,6 +17,7 @@
 package org.dsngroup.broke;
 
 import org.dsngroup.broke.client.BlockClient;
+import org.dsngroup.broke.protocol.MqttQoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +35,12 @@ public class SamplePublish {
         try {
             BlockClient blockClient = new BlockClient(args[0], Integer.parseInt(args[1]));
 
-            blockClient.connect(0, 0,"connect from a publisher");
-            // TODO: publish
-            // blockClient.publish("Foo", 0, 0, "bar");
-            // while (true) {
-            //    if (System.in.read()!=0){
-            //        blockClient.publish("Foo", 0, 0, "bar");
-            //    }
-            //}
+            blockClient.connect(0, 0);
+            while(System.in.read()!=0) {
+                blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
+            }
+            // blockClient.disconnect();
+
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Not enough arguments");
             System.exit(1);

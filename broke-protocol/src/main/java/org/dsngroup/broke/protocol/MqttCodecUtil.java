@@ -17,9 +17,6 @@
 package org.dsngroup.broke.protocol;
 
 import io.netty.handler.codec.DecoderException;
-import org.dsngroup.broke.protocol.MqttFixedHeader;
-import org.dsngroup.broke.protocol.MqttQoS;
-import org.dsngroup.broke.protocol.MqttVersion;
 
 final class MqttCodecUtil {
 

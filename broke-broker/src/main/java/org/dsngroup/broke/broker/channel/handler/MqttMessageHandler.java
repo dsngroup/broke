@@ -1,19 +1,33 @@
+/*
+ * Copyright (c) 2017 original authors and authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.dsngroup.broke.protocol.*;
 import org.dsngroup.broke.broker.ServerContext;
-import org.dsngroup.broke.broker.storage.ServerSessionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
 
     private final static Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
-
-    // TODO: initialize properly
-    private ServerSessionPool serverSession;
 
     private ProtocolProcessor protocolProcessor;
 
@@ -22,16 +36,52 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
+            ctx.channel().eventLoop().schedule(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            MqttMessage mqttMessage = (MqttMessage) msg;
+                            switch (mqttMessage.fixedHeader().messageType()) {
+                                case CONNECT:
+                                    protocolProcessor.processConnect(ctx.channel(), (MqttConnectMessage) mqttMessage);
+                                    logger.debug("[MqttMessageHandler] CONNECT");
+                                    break;
+                                case PUBLISH:
+                                    protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
+                                    logger.debug("[MqttMessageHandler] PUBLISH");
+                                    break;
+                                case SUBSCRIBE:
+                                    protocolProcessor.processSubscribe(ctx.channel(), (MqttSubscribeMessage) mqttMessage);
+                                    logger.debug("[MqttMessageHandler] SUBSCRIBE");
+                                    break;
+                            }
+                        }
+                    }, 60, TimeUnit.SECONDS);
             MqttMessage mqttMessage = (MqttMessage) msg;
             switch (mqttMessage.fixedHeader().messageType()) {
                 case CONNECT:
-                    protocolProcessor.processConnect(ctx, (MqttConnectMessage) mqttMessage);
+                    protocolProcessor.processConnect(ctx.channel(), (MqttConnectMessage) mqttMessage);
+                    logger.info("[MqttMessageHandler] CONNECT");
                     break;
+                case PUBLISH:
+                    protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
+                    logger.info("[MqttMessageHandler] PUBLISH");
+                    break;
+                case SUBSCRIBE:
+                    logger.info("[MqttMessageHandler] SUBSCRIBE");
+                    protocolProcessor.processSubscribe(ctx.channel(), (MqttSubscribeMessage) mqttMessage);
+                    break;
+                case DISCONNECT:
+                    protocolProcessor.processDisconnect();
+                    logger.info("[MqttMessageHandler] DISCONNECT");
+                    ctx.close();
+                    break;
+                default:
+                    logger.error("invalid message: "+msg.toString());
             }
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
         }
-
     }
 
     @Override

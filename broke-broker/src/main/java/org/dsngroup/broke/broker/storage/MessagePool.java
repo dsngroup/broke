@@ -16,6 +16,9 @@
 
 package org.dsngroup.broke.broker.storage;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,14 +32,14 @@ public class MessagePool {
     // TODO: Assignable pool size
     // TODO: Extends this to be offset based data structure.
     // TODO: May consider to replace ConcurrentHashMap into more performant data structure.
-    private Map<String, ArrayList<String>> messagePool;
+    private Map<String, ArrayList<ByteBuf>> messagePool;
 
     /**
      * Insert storage on a specific topic.
      * @param topic the topic(key) of the broker.
      * @param content the storage of the associated topic.
      */
-    public void putContentOnTopic(String topic, String content) {
+    public void putContentOnTopic(String topic, ByteBuf content) {
 
         // Initialize the array list for the first-time topic
         if (messagePool.get(topic) == null)
@@ -54,7 +57,7 @@ public class MessagePool {
      * @param topic the topic(key) of the broker.
      * @return the storage of the associated topic.
      */
-    public String getContentFromTopic(String topic) {
+    public ByteBuf getContentFromTopic(String topic) {
         // return the last one by default
         return messagePool.get(topic).get( messagePool.get(topic).size()-1 );
     }

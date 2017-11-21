@@ -377,7 +377,9 @@ public final class MqttDecoder extends ReplayingDecoder<DecoderState> {
             numberOfBytesConsumed += decodedTopicName.numberOfBytesConsumed;
             int qos = buffer.readUnsignedByte() & 0x03;
             numberOfBytesConsumed++;
-            subscribeTopics.add(new MqttTopicSubscription(decodedTopicName.value, MqttQoS.valueOf(qos)));
+            int groupId = buffer.readShort();   // Read 2-byte group Id
+            numberOfBytesConsumed += 2;         // 2-byte group Id
+            subscribeTopics.add(new MqttTopicSubscription(decodedTopicName.value, MqttQoS.valueOf(qos), groupId));
         }
         return new Result<MqttSubscribePayload>(new MqttSubscribePayload(subscribeTopics), numberOfBytesConsumed);
     }
