@@ -82,10 +82,10 @@ public final class MqttEncoder extends MessageToMessageEncoder<MqttMessage> {
             case PUBREC:
             case PUBREL:
             case PUBCOMP:
-                return encodeMessageWithOnlySingleByteFixedHeaderAndMessageId(byteBufAllocator, message);
-
             case PINGREQ:
             case PINGRESP:
+                return encodeMessageWithOnlySingleByteFixedHeaderAndMessageId(byteBufAllocator, message);
+
             case DISCONNECT:
                 return encodeMessageWithOnlySingleByteFixedHeader(byteBufAllocator, message);
 

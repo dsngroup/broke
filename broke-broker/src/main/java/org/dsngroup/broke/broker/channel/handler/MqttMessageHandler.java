@@ -36,27 +36,6 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
-            ctx.channel().eventLoop().schedule(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            MqttMessage mqttMessage = (MqttMessage) msg;
-                            switch (mqttMessage.fixedHeader().messageType()) {
-                                case CONNECT:
-                                    protocolProcessor.processConnect(ctx.channel(), (MqttConnectMessage) mqttMessage);
-                                    logger.debug("[MqttMessageHandler] CONNECT");
-                                    break;
-                                case PUBLISH:
-                                    protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
-                                    logger.debug("[MqttMessageHandler] PUBLISH");
-                                    break;
-                                case SUBSCRIBE:
-                                    protocolProcessor.processSubscribe(ctx.channel(), (MqttSubscribeMessage) mqttMessage);
-                                    logger.debug("[MqttMessageHandler] SUBSCRIBE");
-                                    break;
-                            }
-                        }
-                    }, 60, TimeUnit.SECONDS);
             MqttMessage mqttMessage = (MqttMessage) msg;
             switch (mqttMessage.fixedHeader().messageType()) {
                 case CONNECT:
@@ -71,6 +50,10 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
                     logger.info("[MqttMessageHandler] SUBSCRIBE");
                     protocolProcessor.processSubscribe(ctx.channel(), (MqttSubscribeMessage) mqttMessage);
                     break;
+                case PINGRESP:
+                    logger.info("[MqttMessageHandler] PINGRESP");
+                    protocolProcessor.processPingResp(ctx.channel(), (MqttPingRespMessage) mqttMessage);
+                    break;
                 case DISCONNECT:
                     protocolProcessor.processDisconnect();
                     logger.info("[MqttMessageHandler] DISCONNECT");
@@ -82,6 +65,7 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
         }
+
     }
 
     @Override

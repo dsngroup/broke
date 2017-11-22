@@ -36,6 +36,13 @@ public class SamplePublish {
             BlockClient blockClient = new BlockClient(args[0], Integer.parseInt(args[1]));
 
             blockClient.connect(0, 0);
+
+            // Stress test
+            // for(int i=0; i<65535; i++) {
+            //    logger.info("Publish "+i);
+            //    blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
+            // }
+
             while(System.in.read()!=0) {
                 blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
             }

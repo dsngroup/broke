@@ -48,8 +48,6 @@ public class MessagePool {
         // Ignore the return value
         messagePool.get(topic).add(content);
 
-        // TODO: remove this test
-        // System.out.println( "Add message:\ntopic"+topic+"payload: "+messagePool.get(topic).get( messagePool.get(topic).size()-1 ) );
     }
 
     /**
