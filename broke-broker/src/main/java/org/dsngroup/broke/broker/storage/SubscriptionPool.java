@@ -39,7 +39,7 @@ public class SubscriptionPool {
     /**
      * An incremental packet ID
      * */
-    private AtomicInteger packetIdGenerator;
+    private PacketIdGenerator packetIdGenerator;
 
     /**
      * Register the subscriber to an interested topic
@@ -90,7 +90,7 @@ public class SubscriptionPool {
         for(Subscription subscription: subscriptionList) {
             // TODO: implement a match method that performs pattern matching between publish topic and subscribe topic filter
             if (subscription.getTopic().equals(topic)) {
-                int packetId = packetIdGenerator.getAndIncrement();
+                int packetId = packetIdGenerator.getPacketId();
                 // TODO: perform QoS selection between publish QoS and subscription QoS
                 MqttFixedHeader mqttFixedHeader =
                         new MqttFixedHeader(MqttMessageType.PUBLISH, false, subscription.getQos(), false, 0);
@@ -120,9 +120,7 @@ public class SubscriptionPool {
      * */
     public SubscriptionPool() {
         subscriptionList = new LinkedList<>();
-        packetIdGenerator = new AtomicInteger();
-        // TODO: The valid packet id should between 1~65535
-        packetIdGenerator.getAndIncrement();
+        packetIdGenerator = new PacketIdGenerator();
 
     }
 
@@ -141,4 +139,32 @@ class ChannelHandlerComparator implements Comparator<ChannelHandlerContext> {
         else
             return o1.hashCode()-o2.hashCode();
     }
+}
+
+/**
+ * Packet Id should between 1~65535
+ * */
+class PacketIdGenerator {
+
+    private AtomicInteger packetId;
+
+    int getPacketId() {
+        int retVal = packetId.getAndIncrement();
+        if(retVal > 65535) {
+            synchronized (this) {
+                if(packetId.get() > 65535) {
+                    packetId.set(1);
+                    retVal = packetId.getAndIncrement();
+                }
+            }
+        }
+        return retVal;
+
+    }
+
+    PacketIdGenerator() {
+        packetId = new AtomicInteger();
+        packetId.set(1);
+    }
+
 }

@@ -34,6 +34,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The BlockClient should be deprecated after the asynchronous client is implemented.
@@ -54,6 +55,8 @@ public class BlockClient {
     private static Random rand = new Random();
 
     private String clientId;
+
+    private PacketIdGenerator packetIdGenerator = new PacketIdGenerator();
 
     private final static Logger logger = LoggerFactory.getLogger(BlockClient.class);
 
@@ -106,11 +109,13 @@ public class BlockClient {
     public void publish(String topic, MqttQoS qos, int criticalOption, String payload) throws Exception {
         if (targetServerChannel.isActive()) {
 
+            int packetId = packetIdGenerator.getPacketId();
+
             MqttFixedHeader mqttFixedHeader =
                     new MqttFixedHeader(MqttMessageType.PUBLISH, false, qos,
                             true, 0);
             MqttPublishVariableHeader mqttPublishVariableHeader =
-                    new MqttPublishVariableHeader(topic, 666);
+                    new MqttPublishVariableHeader(topic, packetId);
             ByteBuf publisherPayload = Unpooled.wrappedBuffer(payload.getBytes());
 
             targetServerChannel.writeAndFlush(
@@ -236,10 +241,36 @@ public class BlockClient {
     public void close() throws Exception {
         // Request to close this Channel and notify the ChannelFuture once the operation completes
         ChannelFuture future = targetServerChannel.close();
-        // Block until the channel closed.
-        // Block until the channel closed.
         future.channel().closeFuture().sync();
         workerGroup.shutdownGracefully();
+    }
+
+}
+
+/**
+ * Packet Id should between 1~65535
+ * */
+class PacketIdGenerator {
+
+    private AtomicInteger packetId;
+
+    int getPacketId() {
+        int retVal = packetId.getAndIncrement();
+        if(retVal > 65535) {
+            synchronized (this) {
+                if(packetId.get() > 65535) {
+                    packetId.set(1);
+                    retVal = packetId.getAndIncrement();
+                }
+            }
+        }
+        return retVal;
+
+    }
+
+    PacketIdGenerator() {
+        packetId = new AtomicInteger();
+        packetId.set(1);
     }
 
 }

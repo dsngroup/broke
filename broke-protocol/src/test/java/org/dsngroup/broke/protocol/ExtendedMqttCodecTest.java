@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.broker.channel;
+package org.dsngroup.broke.protocol;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
-import io.netty.handler.codec.MessageToMessageDecoder;
-import org.dsngroup.broke.protocol.*;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -133,7 +131,93 @@ public class ExtendedMqttCodecTest {
         assertEquals(topicFilter, mqttSubscribeMessage.payload().topicSubscriptions().get(0).topicName());
         assertEquals(groupId, mqttSubscribeMessage.payload().topicSubscriptions().get(0).groupId());
         assertEquals(0, bufferCopy.readableBytes());
-
     }
 
+    @Test
+    public void mqttPingReqMsgCodecTest() {
+
+        int packetId = 1;
+
+        EmbeddedChannel serverChannel = new EmbeddedChannel(MqttEncoder.INSTANCE);
+
+        MqttFixedHeader mqttFixedHeader =
+                new MqttFixedHeader(MqttMessageType.PINGREQ, false, MqttQoS.AT_MOST_ONCE, false, 0);
+        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
+                MqttMessageIdVariableHeader.from(packetId);
+        MqttPingReqMessage pingMsg =
+                new MqttPingReqMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
+        serverChannel.writeOutbound(pingMsg);
+        ByteBuf pingReqMsgBuffer = serverChannel.readOutbound();
+
+        assertEquals(4, pingReqMsgBuffer.readableBytes());
+        if(pingReqMsgBuffer.isReadable()) {
+            byte byte1 = pingReqMsgBuffer.readByte();
+            String s1 = String.format("%8s", Integer.toBinaryString(byte1 & 0xFF)).replace(' ', '0');
+            assertEquals("11000000", s1);
+            byte byte2 = pingReqMsgBuffer.readByte();
+            String s2 = String.format("%8s", Integer.toBinaryString(byte2 & 0xFF)).replace(' ', '0');
+            assertEquals(2, byte2);
+            int packetIdActual = pingReqMsgBuffer.readShort();
+            assertEquals(packetId, packetIdActual);
+        }
+        assertEquals(0, pingReqMsgBuffer.readableBytes());
+        pingReqMsgBuffer.resetReaderIndex();
+        assertEquals(4, pingReqMsgBuffer.readableBytes());
+
+        EmbeddedChannel clientChannel = new EmbeddedChannel(new MqttDecoder());
+
+        try {
+            clientChannel.writeInbound(pingReqMsgBuffer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        MqttMessage msgRec = clientChannel.readInbound();
+        assertEquals(msgRec instanceof MqttPingReqMessage, true);
+        MqttPingReqMessage pingReqMsgRec = (MqttPingReqMessage) msgRec;
+        assertEquals(packetId, pingReqMsgRec.variableHeader().messageId());
+    }
+
+    @Test
+    public void mqttPingRespMsgCodecTest() {
+
+        int packetId = 1;
+
+        EmbeddedChannel serverChannel = new EmbeddedChannel(MqttEncoder.INSTANCE);
+
+        MqttFixedHeader mqttFixedHeader =
+                new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0);
+        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
+                MqttMessageIdVariableHeader.from(packetId);
+        MqttPingReqMessage pingMsg =
+                new MqttPingReqMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
+        serverChannel.writeOutbound(pingMsg);
+        ByteBuf pingRespMsgBuffer = serverChannel.readOutbound();
+
+        assertEquals(4, pingRespMsgBuffer.readableBytes());
+        if(pingRespMsgBuffer.isReadable()) {
+            byte byte1 = pingRespMsgBuffer.readByte();
+            String s1 = String.format("%8s", Integer.toBinaryString(byte1 & 0xFF)).replace(' ', '0');
+            assertEquals("11010000", s1);
+            byte byte2 = pingRespMsgBuffer.readByte();
+            String s2 = String.format("%8s", Integer.toBinaryString(byte2 & 0xFF)).replace(' ', '0');
+            assertEquals(2, byte2);
+            int packetIdActual = pingRespMsgBuffer.readShort();
+            assertEquals(packetId, packetIdActual);
+        }
+        assertEquals(0, pingRespMsgBuffer.readableBytes());
+        pingRespMsgBuffer.resetReaderIndex();
+        assertEquals(4, pingRespMsgBuffer.readableBytes());
+
+        EmbeddedChannel clientChannel = new EmbeddedChannel(new MqttDecoder());
+
+        try {
+            clientChannel.writeInbound(pingRespMsgBuffer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        MqttMessage msgRec = clientChannel.readInbound();
+        assertEquals(msgRec instanceof MqttPingRespMessage, true);
+        MqttPingRespMessage pingRespMsgRec = (MqttPingRespMessage) msgRec;
+        assertEquals(packetId, pingRespMsgRec.variableHeader().messageId());
+    }
 }

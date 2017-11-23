@@ -61,7 +61,7 @@ public class ProtocolProcessor {
      * */
     public void processPubAck(ChannelHandlerContext ctx, MqttPubAckMessage mqttPubAckMessage) throws Exception {
         // TODO: remove message in client session's unacked message queue
-        logger.info("[PUBACK] Packet ID"+mqttPubAckMessage.variableHeader().messageId());
+        logger.info("[PUBACK] Packet ID "+mqttPubAckMessage.variableHeader().messageId());
     }
 
     /**
@@ -72,6 +72,22 @@ public class ProtocolProcessor {
     public void processSubAck(ChannelHandlerContext ctx, MqttSubAckMessage mqttSubAckMessage) throws Exception {
         // TODO: logger.debug
         logger.info(mqttSubAckMessage.payload().grantedQoSLevels().get(0).toString());
+    }
+
+    /**
+     * Handle PINGREQ
+     * Respond with a PINGRESP back to broker server.
+     * @param ctx {@see ChannelHandlerContext}
+     * @param mqttPingReqMessage PINGREQ message from broker
+     * */
+    public void processPingReq(ChannelHandlerContext ctx, MqttPingReqMessage mqttPingReqMessage) throws Exception{
+        MqttFixedHeader mqttFixedHeader =
+                new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0);
+        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
+                MqttMessageIdVariableHeader.from(mqttPingReqMessage.variableHeader().messageId());
+        MqttPingRespMessage mqttPingRespMessage =
+                new MqttPingRespMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
+        ctx.channel().writeAndFlush(mqttPingRespMessage);
     }
 
 

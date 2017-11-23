@@ -18,6 +18,7 @@ package org.dsngroup.broke.broker.channel.handler;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.ScheduledFuture;
 import org.dsngroup.broke.protocol.*;
 import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.ServerSession;
@@ -28,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProtocolProcessor {
 
@@ -44,8 +47,13 @@ public class ProtocolProcessor {
 
     private MessagePublisher messagePublisher;
 
+    private AtomicInteger pingReqPacketIdGenerator;
+
+    private ScheduledFuture pingReqScheduleFuture;
+
     /**
      * The logic to deal with CONNECT message.
+     * TODO: remove throws exception
      * @param channel Channel the protocol processor belongs to
      * @param mqttConnectMessage Instance of MqttConnectMessage
      * */
@@ -65,7 +73,6 @@ public class ProtocolProcessor {
             // Get server session pool from the server context
             ServerSessionPool serverSessionPool = serverContext.getServerSessionPool();
 
-
             // For a session, accept one client only (specified using clientId)
             // TODO: How to gracefully sets the isActive status when the connection closed,
             // TODO: no matter when a normal or abnormal termination occurred.
@@ -80,6 +87,7 @@ public class ProtocolProcessor {
                             mqttConnectMessage
                     );
                     channel.writeAndFlush(mqttConnAckMessage);
+                    schedulePingReq(channel);
                 } else {
                     // Reject the connection
                     // Response the client a CONNACK with return code CONNECTION_REJECTED
@@ -184,13 +192,42 @@ public class ProtocolProcessor {
         return new MqttSubAckMessage(mqttFixedHeader, mqttMessageIdVariableHeader, mqttSubAckPayload);
     }
 
+    private void schedulePingReq(Channel channel) {
+        pingReqScheduleFuture = channel.eventLoop().scheduleAtFixedRate(
+                new Runnable(){
+                    @Override
+                    public void run(){
+
+                        int packetId = pingReqPacketIdGenerator.getAndIncrement();
+                        MqttFixedHeader mqttFixedHeader =
+                                new MqttFixedHeader(MqttMessageType.PINGREQ, false, MqttQoS.AT_MOST_ONCE, false, 0);
+                        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
+                                MqttMessageIdVariableHeader.from(packetId);
+                        MqttPingReqMessage mqttPingReqMessage =
+                                new MqttPingReqMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
+                        // Set the PINGREQ's sendTime
+                        serverSession.setPingReq(packetId);
+                        channel.writeAndFlush(mqttPingReqMessage);
+                    }
+                }, 0, 3, TimeUnit.SECONDS);
+    }
+
+    public void processPingResp(Channel channel, MqttPingRespMessage mqttPingRespMessage) {
+        int packetId = mqttPingRespMessage.variableHeader().messageId();
+        serverSession.setPingResp(packetId);
+        logger.info("[RTT] Round-trip time to client "+serverSession.getClientId()+" :"+serverSession.getCurrentRtt());
+    }
 
     /**
      * process DISCONNECT message from the client
-     * If the session is used by this channel, set the session's isActive to false
+     * If the session is used by this channel
+     * 1. Set the session's isActive to false
+     * 2. Close the PINGREQ schedule.
      * */
     public void processDisconnect() {
         if(isConnected) {
+            // Stop the PINGREQ schedule
+            pingReqScheduleFuture.cancel(false);
             synchronized (this) {
                 serverSession.setIsActive(false);
             }
@@ -207,6 +244,8 @@ public class ProtocolProcessor {
         this.isConnected = false;
         this.serverContext = serverContext;
         this.messagePublisher = new MessagePublisher();
+        this.pingReqPacketIdGenerator = new AtomicInteger();
+        this.pingReqPacketIdGenerator.getAndIncrement();
     }
 
 }

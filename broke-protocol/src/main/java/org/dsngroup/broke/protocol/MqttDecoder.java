@@ -188,13 +188,13 @@ public final class MqttDecoder extends ReplayingDecoder<DecoderState> {
             case PUBREC:
             case PUBCOMP:
             case PUBREL:
+            case PINGREQ:
+            case PINGRESP:
                 return decodeMessageIdVariableHeader(buffer);
 
             case PUBLISH:
                 return decodePublishVariableHeader(buffer, mqttFixedHeader);
 
-            case PINGREQ:
-            case PINGRESP:
             case DISCONNECT:
                 // Empty variable header
                 return new Result<Object>(null, 0);

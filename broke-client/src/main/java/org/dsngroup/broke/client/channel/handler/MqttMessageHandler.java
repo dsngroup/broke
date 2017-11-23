@@ -40,16 +40,19 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
         try {
             switch (mqttMessage.fixedHeader().messageType()) {
                 case CONNACK:
-                    protocolProcessor.processConnAck(ctx, (MqttConnAckMessage)mqttMessage);
+                    protocolProcessor.processConnAck(ctx, (MqttConnAckMessage) mqttMessage);
                     break;
                 case PUBLISH:
-                    protocolProcessor.processPublish(ctx, (MqttPublishMessage)mqttMessage);
+                    protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
                     break;
                 case PUBACK:
-                    protocolProcessor.processPubAck(ctx, (MqttPubAckMessage)mqttMessage);
+                    protocolProcessor.processPubAck(ctx, (MqttPubAckMessage) mqttMessage);
                     break;
                 case SUBACK:
-                    protocolProcessor.processSubAck(ctx, (MqttSubAckMessage)mqttMessage);
+                    protocolProcessor.processSubAck(ctx, (MqttSubAckMessage) mqttMessage);
+                    break;
+                case PINGREQ:
+                    protocolProcessor.processPingReq(ctx, (MqttPingReqMessage) mqttMessage);
                     break;
                 default:
                     logger.error("invalid message: "+msg.toString());
@@ -57,9 +60,8 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-        finally {
+            logger.error(e.getMessage());
+        } finally {
             // The msg object is an reference counting object.
             // ReferenceCountUtil.release(msg);
         }

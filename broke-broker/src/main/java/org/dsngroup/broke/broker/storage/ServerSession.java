@@ -31,6 +31,10 @@ public class ServerSession {
     // Unacked messages store: Key: packet idenfier, value: message
     final ConcurrentHashMap<String, MqttMessage> unackedMessages;
 
+    private PingRequests pingRequests;
+
+    private double currentRtt;
+
     /**
      * Getter for isActive
      * */
@@ -59,11 +63,30 @@ public class ServerSession {
         return subscriptionPool;
     }
 
+    /**
+     * Getter for current round-trip time
+     * */
+    public double getCurrentRtt() {
+        return currentRtt;
+    }
+
+    public void setPingReq(int packetId) {
+        pingRequests.setPingReq(packetId, System.nanoTime());
+    }
+
+    public void setPingResp(int packetId) {
+        long sendTime = pingRequests.getPingReq(packetId);
+        if (sendTime != -1) {
+            currentRtt = (System.nanoTime() - sendTime)/1e6;
+        }
+    }
+
     ServerSession(String clientId) {
         this.clientId = clientId;
         this.unackedMessages = new ConcurrentHashMap<>();
         this.isActive = false;
         this.subscriptionPool = new SubscriptionPool();
+        this.pingRequests = new PingRequests();
+        this.currentRtt = 10000000;
     }
-
 }
