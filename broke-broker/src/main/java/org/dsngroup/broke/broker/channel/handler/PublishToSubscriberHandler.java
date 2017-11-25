@@ -19,16 +19,20 @@ package org.dsngroup.broke.broker.channel.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+import io.netty.util.ReferenceCountUtil;
 import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.MessagePool;
-import org.dsngroup.broke.broker.storage.ServerSession;
 import org.dsngroup.broke.protocol.MqttMessage;
 import org.dsngroup.broke.protocol.MqttMessageType;
 import org.dsngroup.broke.protocol.MqttPublishMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PublishToSubscriberHandler extends ChannelInboundHandlerAdapter {
 
     private ServerContext serverContext;
+
+    private static final Logger logger = LoggerFactory.getLogger(PublishToSubscriberHandler.class);
 
     /**
      * Read the message from channel and publish to {@link MessagePool}
@@ -38,12 +42,19 @@ public class PublishToSubscriberHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        MqttMessage mqttMessage = (MqttMessage) msg;
-        if (mqttMessage.fixedHeader().messageType() == MqttMessageType.PUBLISH) {
-            MqttPublishMessage mqttPublishMessage = (MqttPublishMessage) msg;
-            publishToSubscriptions(serverContext, mqttPublishMessage);
-        } else {
-            // TODO: necessary exception handling or logic
+        try {
+            MqttMessage mqttMessage = (MqttMessage) msg;
+            if (mqttMessage.fixedHeader().messageType() == MqttMessageType.PUBLISH) {
+                MqttPublishMessage mqttPublishMessage = (MqttPublishMessage) msg;
+                publishToSubscriptions(serverContext, mqttPublishMessage);
+            } else {
+                // TODO: necessary exception handling or logic
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.error(e.getStackTrace().toString());
+        } finally {
+            ReferenceCountUtil.release(msg);
         }
 
     }
@@ -55,15 +66,8 @@ public class PublishToSubscriberHandler extends ChannelInboundHandlerAdapter {
      * */
     private void publishToSubscriptions(ServerContext serverContext,
                                         MqttPublishMessage mqttPublishMessage) {
-        // TODO: publish messages to the subscriptions in every server session
-        // Iterate through all sessions, publishing to every sessions' subscriptions
-        for (ServerSession serverSession: serverContext.getServerSessionPool().asCollection()) {
-            // Only publish to active sessions
-            if(serverSession.getIsActive()) {
-                // Whether the mqttPublish Message matches the subscription is performed in "sendToSubscribers"
-                serverSession.getSubscriptionPool().sendToSubscribers(mqttPublishMessage);
-            }
-        }
+        // serverContext.publishToSubscription(mqttPublishMessage);
+        serverContext.groupBasedPublishToSubscription(mqttPublishMessage);
     }
 
     /**

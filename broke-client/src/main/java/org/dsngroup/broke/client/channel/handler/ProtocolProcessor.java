@@ -34,7 +34,8 @@ public class ProtocolProcessor {
      * */
     public void processConnAck(ChannelHandlerContext ctx, MqttConnAckMessage mqttConnAckMessage) throws Exception {
         if (mqttConnAckMessage.variableHeader().connectReturnCode() == MqttConnectReturnCode.CONNECTION_ACCEPTED) {
-            logger.info("[Connect] Connect to broker"+ctx.channel().remoteAddress());
+            // TODO: delete this
+            logger.debug("[Connect] Connect to broker"+ctx.channel().remoteAddress());
         } else {
             logger.error("[Connect] Connection denied, close the channel.");
             ctx.channel().close();
@@ -47,8 +48,8 @@ public class ProtocolProcessor {
      * @param mqttPublishMessage PUBLISH message from broker
      * */
     public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) throws Exception {
-        // TODO: logger.debug
-        logger.info( "Topic: "+mqttPublishMessage.variableHeader().topicName()+
+        // TODO: delete this
+        logger.debug( "Topic: "+mqttPublishMessage.variableHeader().topicName()+
                 " Payload: "+mqttPublishMessage.payload().toString(StandardCharsets.UTF_8) );
         // TODO: return PUBACK
     }
@@ -61,7 +62,8 @@ public class ProtocolProcessor {
      * */
     public void processPubAck(ChannelHandlerContext ctx, MqttPubAckMessage mqttPubAckMessage) throws Exception {
         // TODO: remove message in client session's unacked message queue
-        logger.info("[PUBACK] Packet ID "+mqttPubAckMessage.variableHeader().messageId());
+        // TODO: delete this.
+        logger.debug("[PUBACK] Packet ID "+mqttPubAckMessage.variableHeader().messageId());
     }
 
     /**
@@ -70,8 +72,8 @@ public class ProtocolProcessor {
      * @param mqttSubAckMessage SUBACK message from broker
      * */
     public void processSubAck(ChannelHandlerContext ctx, MqttSubAckMessage mqttSubAckMessage) throws Exception {
-        // TODO: logger.debug
-        logger.info(mqttSubAckMessage.payload().grantedQoSLevels().get(0).toString());
+        // TODO: delete this.
+        logger.debug(mqttSubAckMessage.payload().grantedQoSLevels().get(0).toString());
     }
 
     /**

@@ -69,7 +69,8 @@ public class BlockClient {
 
         // Connect only when the channel is active
         if(targetServerChannel.isActive()) {
-            logger.info("[Client] Make connection, clientId: "+clientId);
+            // TODO: delete this
+            logger.debug("[Client] Make connection, clientId: "+clientId);
 
             // Create CONNECT message
             MqttFixedHeader mqttFixedHeader =
@@ -122,7 +123,8 @@ public class BlockClient {
                     new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, publisherPayload)
             );
 
-            logger.info("[Publish] Topic: " + topic + " Payload: " + payload);
+            // TODO: publish statistics.
+            logger.debug("[Publish] Topic: " + topic + " Payload: " + payload);
         } else {
             logger.error("[Publish] Channel closed, cannot publish");
         }
@@ -231,6 +233,8 @@ public class BlockClient {
 
         } catch (Exception e) {
             logger.error(e.getMessage());
+            // TODO: delete this
+            logger.error(e.getStackTrace().toString());
         }
     }
 

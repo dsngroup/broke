@@ -43,8 +43,9 @@ public class SamplePublish {
             //    blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
             // }
 
-            while(System.in.read()!=0) {
+            while(true) {
                 blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
+                Thread.sleep(500);
             }
             // blockClient.disconnect();
 

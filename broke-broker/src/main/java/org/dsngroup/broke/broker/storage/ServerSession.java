@@ -16,7 +16,10 @@
 
 package org.dsngroup.broke.broker.storage;
 
-import org.dsngroup.broke.protocol.MqttMessage;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.dsngroup.broke.broker.channel.handler.ClientProber;
+import org.dsngroup.broke.protocol.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,12 +31,16 @@ public class ServerSession {
 
     private SubscriptionPool subscriptionPool;
 
+    /**
+     * An incremental packet ID
+     * */
+    private PacketIdGenerator packetIdGenerator;
+
     // Unacked messages store: Key: packet idenfier, value: message
     final ConcurrentHashMap<String, MqttMessage> unackedMessages;
 
-    private PingRequests pingRequests;
+    private ClientProber clientProber;
 
-    private double currentRtt;
 
     /**
      * Getter for isActive
@@ -56,6 +63,7 @@ public class ServerSession {
         return clientId;
     }
 
+
     /**
      * Getter for subscription pool
      * */
@@ -64,21 +72,50 @@ public class ServerSession {
     }
 
     /**
-     * Getter for current round-trip time
+     * Setter for client prober
      * */
-    public double getCurrentRtt() {
-        return currentRtt;
+    public void setClientProber(ClientProber clientProber) {
+        this.clientProber = clientProber;
     }
 
-    public void setPingReq(int packetId) {
-        pingRequests.setPingReq(packetId, System.nanoTime());
-    }
+    /**
+     * For a PUBLISH message, check whether any subscription in the subscription pool matches its topic.
+     * If the topic is matched, create a PUBLISH and publish to the corresponding subscriber client.
+     * @param mqttPublishMessage The PUBLISH message from the publisher.
+     * */
+    public void publishToSubscription(MqttPublishMessage mqttPublishMessage) {
 
-    public void setPingResp(int packetId) {
-        long sendTime = pingRequests.getPingReq(packetId);
-        if (sendTime != -1) {
-            currentRtt = (System.nanoTime() - sendTime)/1e6;
+        String topic = mqttPublishMessage.variableHeader().topicName();
+
+        Subscription matchSubscription = subscriptionPool.getMatchSubscription(topic);
+
+        if(matchSubscription!=null) {
+            int packetId = packetIdGenerator.getPacketId();
+            // TODO: perform QoS selection between publish QoS and subscription QoS
+            MqttFixedHeader mqttFixedHeader =
+                    new MqttFixedHeader(MqttMessageType.PUBLISH, false, matchSubscription.getQos(), false, 0);
+            MqttPublishVariableHeader mqttPublishVariableHeader
+                    = new MqttPublishVariableHeader(matchSubscription.getTopic(), packetId);
+            // TODO: figure out how to avoid being garbage collected.
+            ByteBuf payload = Unpooled.copiedBuffer(mqttPublishMessage.payload());
+            // TODO: figure out how to avoid being garbage collected.
+            payload.retain();
+            MqttPublishMessage mqttPublishMessageOut
+                    = new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, payload);
+            if(matchSubscription.getSubscriberChannel().isActive()) {
+                try {
+                    // TODO: try to remove sync()
+                    matchSubscription.getSubscriberChannel().writeAndFlush(mqttPublishMessageOut).sync();
+                } catch (Exception e) {
+                    // TODO: remove this
+                    e.printStackTrace();
+                }
+            }
         }
+    }
+
+    public double getPublishScore() {
+        return 1/clientProber.getRttAvg();
     }
 
     ServerSession(String clientId) {
@@ -86,7 +123,6 @@ public class ServerSession {
         this.unackedMessages = new ConcurrentHashMap<>();
         this.isActive = false;
         this.subscriptionPool = new SubscriptionPool();
-        this.pingRequests = new PingRequests();
-        this.currentRtt = 10000000;
+        this.packetIdGenerator = new PacketIdGenerator();
     }
 }
