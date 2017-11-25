@@ -18,6 +18,7 @@ package org.dsngroup.broke.client.channel.handler;
 
 import io.netty.channel.*;
 
+import io.netty.util.ReferenceCountUtil;
 import org.dsngroup.broke.protocol.*;
 
 import org.slf4j.Logger;
@@ -61,9 +62,10 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
         } catch (Exception e) {
             logger.error(e.getMessage());
+            logger.error(e.getStackTrace().toString());
         } finally {
             // The msg object is an reference counting object.
-            // ReferenceCountUtil.release(msg);
+            ReferenceCountUtil.release(msg);
         }
     }
 

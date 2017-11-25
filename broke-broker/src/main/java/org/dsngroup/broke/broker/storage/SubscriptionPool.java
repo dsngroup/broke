@@ -37,11 +37,6 @@ public class SubscriptionPool {
     private List<Subscription> subscriptionList;
 
     /**
-     * An incremental packet ID
-     * */
-    private PacketIdGenerator packetIdGenerator;
-
-    /**
      * Register the subscriber to an interested topic
      * @param topic Interested topic
      * @param groupId consumer group id
@@ -78,50 +73,18 @@ public class SubscriptionPool {
         }
     }
 
-    /**
-     * For a PUBLISH message, check whether any subscription in the subscription pool matches its topic.
-     * If the topic is matched, create a PUBLISH and publish to the corresponding subscriber client.
-     * @param mqttPublishMessageIn The PUBLISH message from the publisher.
-     * */
-    public void sendToSubscribers(MqttPublishMessage mqttPublishMessageIn) {
-
-        String topic = mqttPublishMessageIn.variableHeader().topicName();
-
+    public Subscription getMatchSubscription(String topic) {
         for(Subscription subscription: subscriptionList) {
-            // TODO: implement a match method that performs pattern matching between publish topic and subscribe topic filter
-            if (subscription.getTopic().equals(topic)) {
-                int packetId = packetIdGenerator.getPacketId();
-                // TODO: perform QoS selection between publish QoS and subscription QoS
-                MqttFixedHeader mqttFixedHeader =
-                        new MqttFixedHeader(MqttMessageType.PUBLISH, false, subscription.getQos(), false, 0);
-                MqttPublishVariableHeader mqttPublishVariableHeader
-                        = new MqttPublishVariableHeader(subscription.getTopic(), packetId);
-                // TODO: figure out how to avoid being garbage collected.
-                ByteBuf payload = Unpooled.copiedBuffer(mqttPublishMessageIn.payload());
-                // TODO: figure out how to avoid being garbage collected.
-                payload.retain();
-                MqttPublishMessage mqttPublishMessageOut
-                        = new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, payload);
-                if(subscription.getSubscriberChannel().isActive()) {
-                    try {
-                        // TODO: try to remove sync()
-                        subscription.getSubscriberChannel().writeAndFlush(mqttPublishMessageOut).sync();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+            if(subscription.getTopic().equals(topic)) return subscription;
         }
-
+        return null;
     }
 
     /**
      * Constructor
      * */
-    public SubscriptionPool() {
+    SubscriptionPool() {
         subscriptionList = new LinkedList<>();
-        packetIdGenerator = new PacketIdGenerator();
-
     }
 
 }

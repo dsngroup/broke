@@ -67,8 +67,9 @@ public class MessagePublisher {
                 logger.error("Inactive channel");
             }
         } catch (Exception e) {
-
             logger.error(e.getMessage());
+            // TODO: delete this
+            logger.error(e.getStackTrace().toString());
         }
 
     }

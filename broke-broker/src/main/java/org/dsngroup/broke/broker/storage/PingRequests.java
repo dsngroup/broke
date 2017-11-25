@@ -53,8 +53,8 @@ public class PingRequests {
  * */
 class PingReq {
 
-    int packetId;
-    long sendTime;
+    private int packetId;
+    private long sendTime;
 
     synchronized long getPingReq(int packetId) {
         if(this.packetId == packetId)

@@ -34,9 +34,9 @@ public class SampleSubscribe {
             blockClient.connect(0, 0);
             blockClient.subscribe("Foo", MqttQoS.AT_LEAST_ONCE, 0, 555);
             // blockClient.disconnect();
-            for (int i = 1; ; i++) {
+            while(true) {
                 if (System.in.read()!=0){
-                    blockClient.subscribe("Foo", MqttQoS.AT_LEAST_ONCE, 0, i);
+                    // Block
                 }
             }
         } catch (ArrayIndexOutOfBoundsException e) {

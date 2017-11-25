@@ -47,9 +47,7 @@ public class ProtocolProcessor {
 
     private MessagePublisher messagePublisher;
 
-    private AtomicInteger pingReqPacketIdGenerator;
-
-    private ScheduledFuture pingReqScheduleFuture;
+    private ClientProber clientProber;
 
     /**
      * The logic to deal with CONNECT message.
@@ -87,7 +85,8 @@ public class ProtocolProcessor {
                             mqttConnectMessage
                     );
                     channel.writeAndFlush(mqttConnAckMessage);
-                    schedulePingReq(channel);
+                    clientProber.schedulePingReq(channel, serverSession);
+                    serverSession.setClientProber(clientProber);
                 } else {
                     // Reject the connection
                     // Response the client a CONNACK with return code CONNECTION_REJECTED
@@ -192,30 +191,10 @@ public class ProtocolProcessor {
         return new MqttSubAckMessage(mqttFixedHeader, mqttMessageIdVariableHeader, mqttSubAckPayload);
     }
 
-    private void schedulePingReq(Channel channel) {
-        pingReqScheduleFuture = channel.eventLoop().scheduleAtFixedRate(
-                new Runnable(){
-                    @Override
-                    public void run(){
-
-                        int packetId = pingReqPacketIdGenerator.getAndIncrement();
-                        MqttFixedHeader mqttFixedHeader =
-                                new MqttFixedHeader(MqttMessageType.PINGREQ, false, MqttQoS.AT_MOST_ONCE, false, 0);
-                        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
-                                MqttMessageIdVariableHeader.from(packetId);
-                        MqttPingReqMessage mqttPingReqMessage =
-                                new MqttPingReqMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
-                        // Set the PINGREQ's sendTime
-                        serverSession.setPingReq(packetId);
-                        channel.writeAndFlush(mqttPingReqMessage);
-                    }
-                }, 0, 3, TimeUnit.SECONDS);
-    }
 
     public void processPingResp(Channel channel, MqttPingRespMessage mqttPingRespMessage) {
         int packetId = mqttPingRespMessage.variableHeader().messageId();
-        serverSession.setPingResp(packetId);
-        logger.info("[RTT] Round-trip time to client "+serverSession.getClientId()+" :"+serverSession.getCurrentRtt());
+        clientProber.setPingResp(packetId);
     }
 
     /**
@@ -224,14 +203,14 @@ public class ProtocolProcessor {
      * 1. Set the session's isActive to false
      * 2. Close the PINGREQ schedule.
      * */
-    public void processDisconnect() {
+    public void processDisconnect(Channel channel) {
         if(isConnected) {
-            // Stop the PINGREQ schedule
-            pingReqScheduleFuture.cancel(false);
             synchronized (this) {
                 serverSession.setIsActive(false);
             }
+            clientProber.cancelPingReq();
         }
+        channel.close();
     }
 
     /**
@@ -244,8 +223,7 @@ public class ProtocolProcessor {
         this.isConnected = false;
         this.serverContext = serverContext;
         this.messagePublisher = new MessagePublisher();
-        this.pingReqPacketIdGenerator = new AtomicInteger();
-        this.pingReqPacketIdGenerator.getAndIncrement();
+        this.clientProber = new ClientProber();
     }
 
 }
