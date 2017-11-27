@@ -72,9 +72,9 @@ public final class MqttMessageFactory {
                 return new MqttMessage(mqttFixedHeader, variableHeader);
 
             case PINGREQ:
-                return new MqttPingReqMessage(mqttFixedHeader, (MqttMessageIdVariableHeader) variableHeader);
+                return new MqttPingReqMessage(mqttFixedHeader, (MqttPingReqVariableHeader) variableHeader);
             case PINGRESP:
-                return new MqttPingRespMessage(mqttFixedHeader, (MqttMessageIdVariableHeader) variableHeader);
+                return new MqttPingRespMessage(mqttFixedHeader, (MqttPingRespVariableHeader) variableHeader);
             case DISCONNECT:
                 return new MqttMessage(mqttFixedHeader);
 

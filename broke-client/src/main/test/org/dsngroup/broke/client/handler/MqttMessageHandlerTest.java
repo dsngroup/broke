@@ -19,6 +19,7 @@ package org.dsngroup.broke.client.handler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
+import org.dsngroup.broke.client.ClientContext;
 import org.dsngroup.broke.client.channel.handler.MqttMessageHandler;
 import org.dsngroup.broke.protocol.*;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class MqttMessageHandlerTest {
      * */
     @Test
     public void publishTest() {
-        EmbeddedChannel channel = new EmbeddedChannel(new MqttMessageHandler());
+        EmbeddedChannel channel = new EmbeddedChannel(new MqttMessageHandler(new ClientContext("client_01")));
 
         String topic = "Foo";
         int packetId = 123;
@@ -49,6 +50,7 @@ public class MqttMessageHandlerTest {
         MqttPublishVariableHeader mqttPublishVariableHeader = new MqttPublishVariableHeader(topic, packetId);
 
         ByteBuf payload = Unpooled.copiedBuffer(payloadString.getBytes());
+        payload.retain();
         MqttPublishMessage mqttPublishMessage = new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, payload);
 
         try {
@@ -97,7 +99,7 @@ public class MqttMessageHandlerTest {
         // MqttPublishMessage mqttPublishMessageOut = channel.readInbound();
 
         assertEquals(mqttPublishMessageOut.fixedHeader().messageType(), MqttMessageType.PUBLISH);
-        embeddedChannel.pipeline().addLast(new MqttMessageHandler());
+        embeddedChannel.pipeline().addLast(new MqttMessageHandler(new ClientContext("client_02")));
         embeddedChannel.writeInbound(mqttPublishMessageOut);
     }
 }

@@ -82,9 +82,11 @@ public final class MqttEncoder extends MessageToMessageEncoder<MqttMessage> {
             case PUBREC:
             case PUBREL:
             case PUBCOMP:
-            case PINGREQ:
-            case PINGRESP:
                 return encodeMessageWithOnlySingleByteFixedHeaderAndMessageId(byteBufAllocator, message);
+            case PINGREQ:
+                return encodePingReqMessage(byteBufAllocator, (MqttPingReqMessage) message);
+            case PINGRESP:
+                return encodePingRespMessage(byteBufAllocator, (MqttPingRespMessage) message);
 
             case DISCONNECT:
                 return encodeMessageWithOnlySingleByteFixedHeader(byteBufAllocator, message);
@@ -331,6 +333,44 @@ public final class MqttEncoder extends MessageToMessageEncoder<MqttMessage> {
             buf.writeShort(variableHeader.messageId());
         }
         buf.writeBytes(payload);
+
+        return buf;
+    }
+
+    private static ByteBuf encodePingReqMessage(
+            ByteBufAllocator byteBufAllocator,
+            MqttPingReqMessage message) {
+        MqttFixedHeader mqttFixedHeader = message.fixedHeader();
+        MqttPingReqVariableHeader variableHeader = message.variableHeader();
+        boolean isBackPressured = variableHeader.isBackPressured();
+        int msgId = variableHeader.packetId();
+
+        int variableHeaderBufferSize = 3; // 1-byte boolean & 2-byte message id
+        int fixedHeaderBufferSize = 1 + getVariableLengthInt(variableHeaderBufferSize);
+        ByteBuf buf = byteBufAllocator.buffer(fixedHeaderBufferSize + variableHeaderBufferSize);
+        buf.writeByte(getFixedHeaderByte1(mqttFixedHeader));
+        writeVariableLengthInt(buf, variableHeaderBufferSize);
+        buf.writeByte(isBackPressured?1:0);
+        buf.writeShort(msgId);
+
+        return buf;
+    }
+
+    private static ByteBuf encodePingRespMessage(
+            ByteBufAllocator byteBufAllocator,
+            MqttPingRespMessage message) {
+        MqttFixedHeader mqttFixedHeader = message.fixedHeader();
+        MqttPingRespVariableHeader variableHeader = message.variableHeader();
+        boolean isBackPressured = variableHeader.isBackPressured();
+        int msgId = variableHeader.packetId();
+
+        int variableHeaderBufferSize = 3; // 1-byte boolean & 2-byte message id
+        int fixedHeaderBufferSize = 1 + getVariableLengthInt(variableHeaderBufferSize);
+        ByteBuf buf = byteBufAllocator.buffer(fixedHeaderBufferSize + variableHeaderBufferSize);
+        buf.writeByte(getFixedHeaderByte1(mqttFixedHeader));
+        writeVariableLengthInt(buf, variableHeaderBufferSize);
+        buf.writeByte(isBackPressured?1:0);
+        buf.writeShort(msgId);
 
         return buf;
     }

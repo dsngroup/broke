@@ -90,21 +90,6 @@ public class SubscriptionPool {
 }
 
 /**
- * The comparator for comparing ChannelHandlerContext in HashMap
- * TODO: remove this comparator because hashmap doesn't need this.
- * TODO: but observer how does the hashmap deals channel handler context as the key.
- * */
-class ChannelHandlerComparator implements Comparator<ChannelHandlerContext> {
-    @Override
-    public int compare(ChannelHandlerContext o1, ChannelHandlerContext o2) {
-        if (o1 == o2)
-            return 0;
-        else
-            return o1.hashCode()-o2.hashCode();
-    }
-}
-
-/**
  * Packet Id should between 1~65535
  * */
 class PacketIdGenerator {

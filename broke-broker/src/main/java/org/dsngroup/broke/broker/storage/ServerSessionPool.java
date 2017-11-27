@@ -53,12 +53,18 @@ public class ServerSessionPool {
     public ServerSession getSession(String clientId, boolean cleanSession) {
 
         if (cleanSession) {
-            if(serverSessionPoolMap.containsKey(clientId))
-                serverSessionPoolMap.remove(clientId);
-            serverSessionPoolMap.put(clientId, new ServerSession(clientId));
-        } else {
-            if(!serverSessionPoolMap.containsKey(clientId))
+            // TODO: is the synchronized necessary?
+            synchronized (this) {
+                if (serverSessionPoolMap.containsKey(clientId))
+                    serverSessionPoolMap.remove(clientId);
                 serverSessionPoolMap.put(clientId, new ServerSession(clientId));
+            }
+        } else {
+            // TODO: is the synchronized necessary?
+            synchronized (this) {
+                if(!serverSessionPoolMap.containsKey(clientId))
+                    serverSessionPoolMap.put(clientId, new ServerSession(clientId));
+            }
         }
         return serverSessionPoolMap.get(clientId);
 

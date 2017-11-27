@@ -17,35 +17,44 @@
 package org.dsngroup.broke;
 
 import org.dsngroup.broke.client.BlockClient;
+import org.dsngroup.broke.client.ConnectDeniedException;
 import org.dsngroup.broke.protocol.MqttQoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MultiClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(MultiClient.class);
+
     public static void main(String args[]) {
 
-        String serverAddress = args[0];
-        int serverPort = Integer.parseInt(args[1]);
+        try {
+            String serverAddress = args[0];
+            int serverPort = Integer.parseInt(args[1]);
 
-        int numOfClients = 100;
+            int numOfClients = 100;
 
-        PublishClient[] publishClients = new PublishClient[numOfClients];
-        SubscribeClient[] subscribeClients = new SubscribeClient[numOfClients];
+            PublishClient[] publishClients = new PublishClient[numOfClients];
+            SubscribeClient[] subscribeClients = new SubscribeClient[numOfClients];
 
-        String topic = "Foo";
-        int sleepInterval = 500; // publish sleep interval
-        int groupId = 1; // Subscribe group ID
+            String topic = "Foo";
+            int sleepInterval = 500; // publish sleep interval
+            int groupId = 1; // Subscribe group ID
 
-        // Initialize subscribe clients
-        for(int i=0; i<subscribeClients.length; i++) {
-            subscribeClients[i] = new SubscribeClient(serverAddress, serverPort, topic, groupId);
-            subscribeClients[i].start();
-        }
+            // Initialize subscribe clients
+            for (int i = 0; i < subscribeClients.length; i++) {
+                subscribeClients[i] = new SubscribeClient(serverAddress, serverPort, topic, groupId);
+                subscribeClients[i].start();
+            }
 
-        // Initialize publish clients
-        for(int i=0; i<publishClients.length; i++) {
-            publishClients[i] = new PublishClient(serverAddress, serverPort, topic, sleepInterval);
-            publishClients[i].start();
+            // Initialize publish clients
+            for (int i = 0; i < publishClients.length; i++) {
+                publishClients[i] = new PublishClient(serverAddress, serverPort, topic, sleepInterval);
+                publishClients[i].start();
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            logger.error("Not enough argument");
+            System.exit(1);
         }
     }
 }
@@ -71,6 +80,7 @@ class PublishClient extends Thread {
         } catch(Exception e) {
             logger.error(e.getMessage());
             logger.error(e.getStackTrace().toString());
+            return;
         }
 
     }
@@ -83,6 +93,7 @@ class PublishClient extends Thread {
         } catch (Exception e){
             logger.error(e.getMessage());
             logger.error(e.getStackTrace().toString());
+            return;
         }
 
     }
@@ -106,6 +117,7 @@ class SubscribeClient extends Thread {
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(e.getStackTrace().toString());
+            return;
         }
 
     }
@@ -121,7 +133,7 @@ class SubscribeClient extends Thread {
             System.exit(1);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            System.exit(1);
+            return;
         }
 
     }

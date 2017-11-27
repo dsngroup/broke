@@ -19,6 +19,9 @@ package org.dsngroup.broke.client.channel.handler;
 import io.netty.channel.*;
 
 import io.netty.util.ReferenceCountUtil;
+import org.dsngroup.broke.client.ClientContext;
+import org.dsngroup.broke.client.ConnectDeniedException;
+import org.dsngroup.broke.client.channel.storage.ClientSession;
 import org.dsngroup.broke.protocol.*;
 
 import org.slf4j.Logger;
@@ -29,7 +32,11 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
 
-    private ProtocolProcessor protocolProcessor = new ProtocolProcessor();
+    private ProtocolProcessor protocolProcessor;
+
+    private ClientContext clientContext;
+
+    private ClientSession clientSession;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -74,12 +81,18 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
         logger.error(cause.getMessage());
         logger.error(cause.getStackTrace().toString());
         ctx.close();
+        // TODO: is this proper?
+        Thread.currentThread().interrupt();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        protocolProcessor = new ProtocolProcessor();
+        protocolProcessor = new ProtocolProcessor(this.clientContext);
     }
 
+    public MqttMessageHandler(ClientContext clientContext) {
+        this.clientContext = clientContext;
+        this.clientSession = clientContext.getClientSession();
+    }
 
 }

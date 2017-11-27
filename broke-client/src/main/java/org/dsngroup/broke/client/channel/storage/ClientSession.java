@@ -29,12 +29,24 @@ public class ClientSession {
 
     private final String clientId;
 
+    private FakePublishMessageQueue fakePublishMessageQueue;
+
     // Unacked messages store: Key: packet idenfier, value: message
     private final Map<String, MqttMessage> unackedMessages;
+
+    public boolean isBackPressured() {
+        return fakePublishMessageQueue.isBackPressured();
+    }
+
+    public FakePublishMessageQueue getFakePublishMessageQueue() {
+        return fakePublishMessageQueue;
+    }
 
     public ClientSession(String clientId) {
         this.clientId = clientId;
         this.unackedMessages = new ConcurrentHashMap<>();
+        this.fakePublishMessageQueue = new FakePublishMessageQueue(10, 0.3, 0.8);
     }
 
 }
+

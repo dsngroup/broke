@@ -22,12 +22,12 @@ package org.dsngroup.broke.protocol;
  * */
 public class MqttPingRespMessage extends MqttMessage {
 
-    public MqttPingRespMessage(MqttFixedHeader mqttFixedHeader, MqttMessageIdVariableHeader variableHeader) {
+    public MqttPingRespMessage(MqttFixedHeader mqttFixedHeader, MqttPingRespVariableHeader variableHeader) {
         super(mqttFixedHeader, variableHeader);
     }
 
     @Override
-    public MqttMessageIdVariableHeader variableHeader() {
-        return (MqttMessageIdVariableHeader) super.variableHeader();
+    public MqttPingRespVariableHeader variableHeader() {
+        return (MqttPingRespVariableHeader) super.variableHeader();
     }
 }
