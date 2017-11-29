@@ -16,24 +16,8 @@
 
 package org.dsngroup.broke.client;
 
-import org.dsngroup.broke.client.channel.storage.ClientSession;
-
-public class ClientContext {
-
-    private ClientSession clientSession;
-
-    private String clientId;
-
-    public ClientSession getClientSession() {
-        return clientSession;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public ClientContext(String clientId) {
-        this.clientId = clientId;
-        clientSession = new ClientSession(clientId);
+public class ConnectDeniedException extends Exception {
+    public ConnectDeniedException(String message) {
+        super(message);
     }
 }

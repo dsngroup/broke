@@ -70,8 +70,6 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
             }
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
-            // TODO: delete this
-            logger.error(e.getStackTrace().toString());
         }
 
     }
@@ -83,7 +81,9 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
         closeFuture.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                protocolProcessor.processDisconnect(ctx.channel());
+                // TODO: is this check necessary?
+                if(ctx.channel()!=null)
+                    protocolProcessor.processDisconnect(ctx.channel());
             }
         });
     }

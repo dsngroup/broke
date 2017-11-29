@@ -53,8 +53,6 @@ public class MessagePublisher {
 
                 if (appMessage.isReadable()) {
                     messagePool.putContentOnTopic(topic, appMessage);
-                } else {
-                    // TODO: handle unreadable payload
                 }
 
                 // Forward to next handler for publishing to subscribers
@@ -68,8 +66,6 @@ public class MessagePublisher {
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
-            // TODO: delete this
-            logger.error(e.getStackTrace().toString());
         }
 
     }

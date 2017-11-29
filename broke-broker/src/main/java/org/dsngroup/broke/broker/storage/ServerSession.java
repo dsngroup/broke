@@ -115,7 +115,10 @@ public class ServerSession {
     }
 
     public double getPublishScore() {
-        return 1/clientProber.getRttAvg();
+        if(clientProber.isBackPressured())
+            return 0;
+        else
+            return 1/clientProber.getRttAvg();
     }
 
     ServerSession(String clientId) {

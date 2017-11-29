@@ -188,9 +188,11 @@ public final class MqttDecoder extends ReplayingDecoder<DecoderState> {
             case PUBREC:
             case PUBCOMP:
             case PUBREL:
-            case PINGREQ:
-            case PINGRESP:
                 return decodeMessageIdVariableHeader(buffer);
+            case PINGREQ:
+                return decodePingReqVariableHeader(buffer);
+            case PINGRESP:
+                return decodePingRespVariableHeader(buffer);
 
             case PUBLISH:
                 return decodePublishVariableHeader(buffer, mqttFixedHeader);
@@ -260,6 +262,24 @@ public final class MqttDecoder extends ReplayingDecoder<DecoderState> {
         return new Result<MqttMessageIdVariableHeader>(
                 MqttMessageIdVariableHeader.from(messageId.value),
                 messageId.numberOfBytesConsumed);
+    }
+
+    private static Result<MqttPingReqVariableHeader> decodePingReqVariableHeader(ByteBuf buffer) {
+        final boolean isBackPressured = (buffer.readUnsignedByte() & 0x01) == 0x01; // consume 1 byte
+        final Result<Integer> messageId = decodeMessageId(buffer);
+        return new Result<MqttPingReqVariableHeader>(
+                new MqttPingReqVariableHeader(isBackPressured, messageId.value),
+                messageId.numberOfBytesConsumed + 1
+        );
+    }
+
+    private static Result<MqttPingRespVariableHeader> decodePingRespVariableHeader(ByteBuf buffer) {
+        final boolean isBackPressured = (buffer.readUnsignedByte() & 0x01) == 0x01; // consume 1 byte
+        final Result<Integer> messageId = decodeMessageId(buffer);
+        return new Result<MqttPingRespVariableHeader>(
+                new MqttPingRespVariableHeader(isBackPressured, messageId.value),
+                messageId.numberOfBytesConsumed + 1
+        );
     }
 
     private static Result<MqttPublishVariableHeader> decodePublishVariableHeader(

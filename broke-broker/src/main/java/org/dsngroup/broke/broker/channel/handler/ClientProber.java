@@ -38,6 +38,8 @@ public class ClientProber {
 
     private PingRequests pingRequests;
 
+    private boolean isBackPressured;
+
     /**
      * Getter for current round-trip time
      * */
@@ -58,6 +60,20 @@ public class ClientProber {
     }
 
     /**
+     * Getter for isBackPressured
+     * */
+    public boolean isBackPressured() {
+        return isBackPressured;
+    }
+
+    /**
+     * Setter for isBackPressured
+     * */
+    void setIsBackPressured(boolean isBackPressured) {
+        this.isBackPressured = isBackPressured;
+    }
+
+    /**
      * Called in the processConnect(). When the client makes the connection successfully, schedule the PING message.
      * */
     void schedulePingReq(Channel channel, ServerSession serverSession) {
@@ -69,10 +85,10 @@ public class ClientProber {
                         int packetId = pingReqPacketIdGenerator.getAndIncrement();
                         MqttFixedHeader mqttFixedHeader =
                                 new MqttFixedHeader(MqttMessageType.PINGREQ, false, MqttQoS.AT_MOST_ONCE, false, 0);
-                        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
-                                MqttMessageIdVariableHeader.from(packetId);
+                        MqttPingReqVariableHeader mqttPingReqVariableHeader =
+                                new MqttPingReqVariableHeader(false, packetId);
                         MqttPingReqMessage mqttPingReqMessage =
-                                new MqttPingReqMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
+                                new MqttPingReqMessage(mqttFixedHeader, mqttPingReqVariableHeader);
                         // Set the PINGREQ's sendTime
                         setPingReq(packetId);
                         channel.writeAndFlush(mqttPingReqMessage);
@@ -82,7 +98,9 @@ public class ClientProber {
 
     void cancelPingReq() {
         // Stop the PINGREQ schedule
-        pingReqScheduleFuture.cancel(false);
+        // TODO: is the check necessary?
+        if (pingReqScheduleFuture!=null)
+            pingReqScheduleFuture.cancel(false);
     }
 
     ClientProber() {

@@ -96,7 +96,6 @@ public class MqttMessageHandlerTest {
         channel2.pipeline().addLast(new MqttMessageHandler(serverContext));
         channel2.pipeline().addLast(new PublishToSubscriberHandler(serverContext));
         // Channel 1 and 2 connects to the same "embedded" server
-        // TODO: are they really the same "embedded" server?
         assertEquals(channel1.remoteAddress(), channel2.remoteAddress());
 
         MqttFixedHeader mqttFixedHeader =

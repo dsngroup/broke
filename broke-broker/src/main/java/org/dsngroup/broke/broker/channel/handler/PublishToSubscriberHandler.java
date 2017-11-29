@@ -47,8 +47,6 @@ public class PublishToSubscriberHandler extends ChannelInboundHandlerAdapter {
             if (mqttMessage.fixedHeader().messageType() == MqttMessageType.PUBLISH) {
                 MqttPublishMessage mqttPublishMessage = (MqttPublishMessage) msg;
                 publishToSubscriptions(serverContext, mqttPublishMessage);
-            } else {
-                // TODO: necessary exception handling or logic
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -67,7 +65,7 @@ public class PublishToSubscriberHandler extends ChannelInboundHandlerAdapter {
     private void publishToSubscriptions(ServerContext serverContext,
                                         MqttPublishMessage mqttPublishMessage) {
         // serverContext.publishToSubscription(mqttPublishMessage);
-        serverContext.groupBasedPublishToSubscription(mqttPublishMessage);
+        serverContext.getMessageDispatcher().groupBasedPublishToSubscription(mqttPublishMessage);
     }
 
     /**
@@ -77,8 +75,8 @@ public class PublishToSubscriberHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        // TODO: log this, instead of printStackTrace()
-        cause.printStackTrace();
+        logger.error(cause.getMessage());
+        logger.debug(cause.getStackTrace().toString());
         ctx.close();
     }
 

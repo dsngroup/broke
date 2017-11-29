@@ -137,32 +137,35 @@ public class ExtendedMqttCodecTest {
     public void mqttPingReqMsgCodecTest() {
 
         int packetId = 1;
+        boolean isBackPressured = false;
 
         EmbeddedChannel serverChannel = new EmbeddedChannel(MqttEncoder.INSTANCE);
 
         MqttFixedHeader mqttFixedHeader =
                 new MqttFixedHeader(MqttMessageType.PINGREQ, false, MqttQoS.AT_MOST_ONCE, false, 0);
-        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
-                MqttMessageIdVariableHeader.from(packetId);
+        MqttPingReqVariableHeader mqttPingReqVariableHeader =
+                new MqttPingReqVariableHeader(isBackPressured, packetId);
         MqttPingReqMessage pingMsg =
-                new MqttPingReqMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
+                new MqttPingReqMessage(mqttFixedHeader, mqttPingReqVariableHeader);
         serverChannel.writeOutbound(pingMsg);
         ByteBuf pingReqMsgBuffer = serverChannel.readOutbound();
 
-        assertEquals(4, pingReqMsgBuffer.readableBytes());
+        assertEquals(5, pingReqMsgBuffer.readableBytes());
         if(pingReqMsgBuffer.isReadable()) {
             byte byte1 = pingReqMsgBuffer.readByte();
             String s1 = String.format("%8s", Integer.toBinaryString(byte1 & 0xFF)).replace(' ', '0');
             assertEquals("11000000", s1);
             byte byte2 = pingReqMsgBuffer.readByte();
             String s2 = String.format("%8s", Integer.toBinaryString(byte2 & 0xFF)).replace(' ', '0');
-            assertEquals(2, byte2);
+            assertEquals(3, byte2);
+            boolean isBackPressuredActual = ( pingReqMsgBuffer.readByte() & 0x01 ) == 0x01;
+            assertEquals(isBackPressured, isBackPressuredActual);
             int packetIdActual = pingReqMsgBuffer.readShort();
             assertEquals(packetId, packetIdActual);
         }
         assertEquals(0, pingReqMsgBuffer.readableBytes());
         pingReqMsgBuffer.resetReaderIndex();
-        assertEquals(4, pingReqMsgBuffer.readableBytes());
+        assertEquals(5, pingReqMsgBuffer.readableBytes());
 
         EmbeddedChannel clientChannel = new EmbeddedChannel(new MqttDecoder());
 
@@ -174,39 +177,43 @@ public class ExtendedMqttCodecTest {
         MqttMessage msgRec = clientChannel.readInbound();
         assertEquals(msgRec instanceof MqttPingReqMessage, true);
         MqttPingReqMessage pingReqMsgRec = (MqttPingReqMessage) msgRec;
-        assertEquals(packetId, pingReqMsgRec.variableHeader().messageId());
+        assertEquals(packetId, pingReqMsgRec.variableHeader().packetId());
+        assertEquals(isBackPressured, pingReqMsgRec.variableHeader().isBackPressured());
     }
 
     @Test
     public void mqttPingRespMsgCodecTest() {
 
         int packetId = 1;
+        boolean isBackPressured = true;
 
         EmbeddedChannel serverChannel = new EmbeddedChannel(MqttEncoder.INSTANCE);
 
         MqttFixedHeader mqttFixedHeader =
                 new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0);
-        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
-                MqttMessageIdVariableHeader.from(packetId);
-        MqttPingReqMessage pingMsg =
-                new MqttPingReqMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
+        MqttPingRespVariableHeader mqttPingRespVariableHeader =
+                new MqttPingRespVariableHeader(isBackPressured, packetId);
+        MqttPingRespMessage pingMsg =
+                new MqttPingRespMessage(mqttFixedHeader, mqttPingRespVariableHeader);
         serverChannel.writeOutbound(pingMsg);
         ByteBuf pingRespMsgBuffer = serverChannel.readOutbound();
 
-        assertEquals(4, pingRespMsgBuffer.readableBytes());
+        assertEquals(5, pingRespMsgBuffer.readableBytes());
         if(pingRespMsgBuffer.isReadable()) {
             byte byte1 = pingRespMsgBuffer.readByte();
             String s1 = String.format("%8s", Integer.toBinaryString(byte1 & 0xFF)).replace(' ', '0');
             assertEquals("11010000", s1);
             byte byte2 = pingRespMsgBuffer.readByte();
             String s2 = String.format("%8s", Integer.toBinaryString(byte2 & 0xFF)).replace(' ', '0');
-            assertEquals(2, byte2);
+            assertEquals(3, byte2);
+            boolean isBackPressuredActual = ( pingRespMsgBuffer.readByte() & 0x01 ) == 0x01;
+            assertEquals(isBackPressured, isBackPressuredActual);
             int packetIdActual = pingRespMsgBuffer.readShort();
             assertEquals(packetId, packetIdActual);
         }
         assertEquals(0, pingRespMsgBuffer.readableBytes());
         pingRespMsgBuffer.resetReaderIndex();
-        assertEquals(4, pingRespMsgBuffer.readableBytes());
+        assertEquals(5, pingRespMsgBuffer.readableBytes());
 
         EmbeddedChannel clientChannel = new EmbeddedChannel(new MqttDecoder());
 
@@ -219,5 +226,6 @@ public class ExtendedMqttCodecTest {
         assertEquals(msgRec instanceof MqttPingRespMessage, true);
         MqttPingRespMessage pingRespMsgRec = (MqttPingRespMessage) msgRec;
         assertEquals(packetId, pingRespMsgRec.variableHeader().messageId());
+        assertEquals(isBackPressured, pingRespMsgRec.variableHeader().isBackPressured());
     }
 }

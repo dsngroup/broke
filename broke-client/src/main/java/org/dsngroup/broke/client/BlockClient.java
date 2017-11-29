@@ -30,7 +30,6 @@ import org.dsngroup.broke.protocol.MqttDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -62,7 +61,6 @@ public class BlockClient {
 
     /**
      * Send CONNECT to server
-     * TODO: the CONNECT message may contain user and authentication information
      * @param qos qos option
      * */
     public void connect(int qos, int criticalOption) throws Exception {
@@ -96,6 +94,7 @@ public class BlockClient {
 
         } else {
             logger.error("[Client] Channel is not active");
+            throw new ConnectDeniedException("CONNECT_DENIED");
         }
 
     }
@@ -124,9 +123,11 @@ public class BlockClient {
             );
 
             // TODO: publish statistics.
-            logger.debug("[Publish] Topic: " + topic + " Payload: " + payload);
+            // TODO debug
+            logger.info("[Publish] Topic: " + topic + " Payload: " + payload);
         } else {
             logger.error("[Publish] Channel closed, cannot publish");
+            throw new ConnectDeniedException("CONNECT_DENIED");
         }
     }
 
@@ -161,6 +162,7 @@ public class BlockClient {
             logger.info("[Subscribe] Topic: " + topic);
         } else {
             logger.error("[Publish] Channel closed, cannot subscribe");
+            throw new ConnectDeniedException("CONNECT_DENIED");
         }
     }
 
@@ -223,18 +225,24 @@ public class BlockClient {
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(MqttEncoder.INSTANCE);
                             ch.pipeline().addLast(new MqttDecoder());
-                            ch.pipeline().addLast(new MqttMessageHandler());
+                            ch.pipeline().addLast(new MqttMessageHandler(clientContext));
                         }
                     });
 
             // Block until the connection built
             ChannelFuture future = b.connect(this.targetBrokerAddress, this.targetBrokerPort).sync();
             targetServerChannel = future.channel();
+            targetServerChannel.closeFuture().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    workerGroup.shutdownGracefully();
+                }
+            });
 
         } catch (Exception e) {
             logger.error(e.getMessage());
-            // TODO: delete this
-            logger.error(e.getStackTrace().toString());
+            // TODO: delete
+            logger.debug(e.getStackTrace().toString());
         }
     }
 
@@ -245,8 +253,12 @@ public class BlockClient {
     public void close() throws Exception {
         // Request to close this Channel and notify the ChannelFuture once the operation completes
         ChannelFuture future = targetServerChannel.close();
-        future.channel().closeFuture().sync();
-        workerGroup.shutdownGracefully();
+        targetServerChannel.closeFuture().addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                workerGroup.shutdownGracefully();
+            }
+        });
     }
 
 }

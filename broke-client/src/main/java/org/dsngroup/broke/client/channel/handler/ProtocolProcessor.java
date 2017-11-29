@@ -18,6 +18,9 @@ package org.dsngroup.broke.client.channel.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 
+import org.dsngroup.broke.client.ClientContext;
+import org.dsngroup.broke.client.ConnectDeniedException;
+import org.dsngroup.broke.client.channel.storage.ClientSession;
 import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +28,10 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 
 public class ProtocolProcessor {
+
+    private ClientContext clientContext;
+
+    private ClientSession clientSession;
 
     private final static Logger logger = LoggerFactory.getLogger(ProtocolProcessor.class);
     /**
@@ -39,6 +46,7 @@ public class ProtocolProcessor {
         } else {
             logger.error("[Connect] Connection denied, close the channel.");
             ctx.channel().close();
+            throw new ConnectDeniedException("CONNECTION_DENIED");
         }
     }
 
@@ -49,8 +57,9 @@ public class ProtocolProcessor {
      * */
     public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) throws Exception {
         // TODO: delete this
-        logger.debug( "Topic: "+mqttPublishMessage.variableHeader().topicName()+
+        logger.info( "Topic: "+mqttPublishMessage.variableHeader().topicName()+
                 " Payload: "+mqttPublishMessage.payload().toString(StandardCharsets.UTF_8) );
+        clientSession.getFakePublishMessageQueue().putMessage(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
         // TODO: return PUBACK
     }
 
@@ -83,15 +92,21 @@ public class ProtocolProcessor {
      * @param mqttPingReqMessage PINGREQ message from broker
      * */
     public void processPingReq(ChannelHandlerContext ctx, MqttPingReqMessage mqttPingReqMessage) throws Exception{
+        if (clientSession.isBackPressured()) {
+            // TODO: debug
+            logger.info("Back pressured");
+        }
         MqttFixedHeader mqttFixedHeader =
                 new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0);
-        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
-                MqttMessageIdVariableHeader.from(mqttPingReqMessage.variableHeader().messageId());
+        MqttPingRespVariableHeader mqttPingRespVariableHeader =
+                new MqttPingRespVariableHeader(clientSession.isBackPressured(), mqttPingReqMessage.variableHeader().packetId());
         MqttPingRespMessage mqttPingRespMessage =
-                new MqttPingRespMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
+                new MqttPingRespMessage(mqttFixedHeader, mqttPingRespVariableHeader);
         ctx.channel().writeAndFlush(mqttPingRespMessage);
     }
 
-
-    public ProtocolProcessor() {}
+    public ProtocolProcessor(ClientContext clientContext) {
+        this.clientContext = clientContext;
+        this.clientSession = clientContext.getClientSession();
+    }
 }

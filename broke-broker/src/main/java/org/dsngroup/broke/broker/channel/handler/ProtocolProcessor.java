@@ -51,7 +51,6 @@ public class ProtocolProcessor {
 
     /**
      * The logic to deal with CONNECT message.
-     * TODO: remove throws exception
      * @param channel Channel the protocol processor belongs to
      * @param mqttConnectMessage Instance of MqttConnectMessage
      * */
@@ -72,8 +71,6 @@ public class ProtocolProcessor {
             ServerSessionPool serverSessionPool = serverContext.getServerSessionPool();
 
             // For a session, accept one client only (specified using clientId)
-            // TODO: How to gracefully sets the isActive status when the connection closed,
-            // TODO: no matter when a normal or abnormal termination occurred.
             synchronized (this) {
                 if (!serverSessionPool.isSessionActive(clientId)) {
                     // Accept the connection: initialize the server session
@@ -141,7 +138,6 @@ public class ProtocolProcessor {
     /**
      * Process SUBSCRIBE
      * Registor all of the subscriptions to the subscription pool in the server session.
-     * TODO: Is QoS in the SUBSCRIBE fixed header useful?
      * @param channel {@see channel}
      * @param mqttSubscribeMessage SUBSCRIBE message from the client
      * */
@@ -193,8 +189,10 @@ public class ProtocolProcessor {
 
 
     public void processPingResp(Channel channel, MqttPingRespMessage mqttPingRespMessage) {
-        int packetId = mqttPingRespMessage.variableHeader().messageId();
+        int packetId = mqttPingRespMessage.variableHeader().packetId();
+        boolean isBackPressured = mqttPingRespMessage.variableHeader().isBackPressured();
         clientProber.setPingResp(packetId);
+        clientProber.setIsBackPressured(isBackPressured);
     }
 
     /**
@@ -202,13 +200,18 @@ public class ProtocolProcessor {
      * If the session is used by this channel
      * 1. Set the session's isActive to false
      * 2. Close the PINGREQ schedule.
+     * TODO: when will server session and client prober be null?
      * */
     public void processDisconnect(Channel channel) {
         if(isConnected) {
             synchronized (this) {
-                serverSession.setIsActive(false);
+                // TODO: is this check necessary?
+                if(serverSession!=null)
+                    serverSession.setIsActive(false);
             }
-            clientProber.cancelPingReq();
+            // TODO: is this check necessary?
+            if(clientProber != null)
+                clientProber.cancelPingReq();
         }
         channel.close();
     }
