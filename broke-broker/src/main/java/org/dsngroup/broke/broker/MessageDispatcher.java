@@ -93,18 +93,26 @@ public class MessageDispatcher {
         for(int i=0; i<sessionList.size();i++) {
             scoreArray[i] = sessionList.get(i).getPublishScore();
         }
-        double maxScore = 0;
-        int maxScoreIdx = 0;
+        double sumScore = 0;
         for(int i=0; i<scoreArray.length; i++) {
-            if(maxScore<scoreArray[i]){
-                maxScore = scoreArray[i];
-                maxScoreIdx = i;
+            sumScore += scoreArray[i];
+        }
+
+        double rand = (Math.random())*sumScore;
+        int selectedIdx = 0;
+        double aggr = 0;
+        for(int i=0; i<scoreArray.length; i++) {
+            aggr += scoreArray[i];
+            if(aggr >= rand) {
+                selectedIdx = i;
+                break;
             }
         }
-        if(maxScore == 0) {
+
+        if(scoreArray[selectedIdx] == 0) {
             return null;
         } else {
-            return sessionList.get(maxScoreIdx);
+            return sessionList.get(selectedIdx);
         }
     }
 
