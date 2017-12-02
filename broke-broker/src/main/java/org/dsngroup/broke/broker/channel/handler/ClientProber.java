@@ -111,6 +111,7 @@ public class ClientProber {
     }
 }
 
+// TODO: metadata
 class RttStatistics {
 
     // Queue that stores history RTTs for statistic calculation.

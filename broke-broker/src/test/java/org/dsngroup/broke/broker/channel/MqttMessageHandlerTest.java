@@ -19,7 +19,6 @@ package org.dsngroup.broke.broker.channel;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.dsngroup.broke.broker.channel.handler.PublishToSubscriberHandler;
 import org.dsngroup.broke.protocol.*;
 import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.channel.handler.MqttMessageHandler;
@@ -91,10 +90,8 @@ public class MqttMessageHandlerTest {
 
         EmbeddedChannel channel1 = new EmbeddedChannel();
         channel1.pipeline().addLast(new MqttMessageHandler(serverContext));
-        channel1.pipeline().addLast(new PublishToSubscriberHandler(serverContext));
         EmbeddedChannel channel2 = new EmbeddedChannel();
         channel2.pipeline().addLast(new MqttMessageHandler(serverContext));
-        channel2.pipeline().addLast(new PublishToSubscriberHandler(serverContext));
         // Channel 1 and 2 connects to the same "embedded" server
         assertEquals(channel1.remoteAddress(), channel2.remoteAddress());
 
@@ -127,10 +124,8 @@ public class MqttMessageHandlerTest {
 
         EmbeddedChannel publisherChannel = new EmbeddedChannel();
         publisherChannel.pipeline().addLast(new MqttMessageHandler(serverContext));
-        publisherChannel.pipeline().addLast(new PublishToSubscriberHandler(serverContext));
         EmbeddedChannel subscriberChannel = new EmbeddedChannel();
         subscriberChannel.pipeline().addLast(new MqttMessageHandler(serverContext));
-        subscriberChannel.pipeline().addLast(new PublishToSubscriberHandler(serverContext));
 
         // Creation of CONNECT message for both publisher and subscriber clients
         MqttFixedHeader mqttFixedHeader =

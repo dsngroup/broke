@@ -44,7 +44,6 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
                 case CONNECT:
                     protocolProcessor.processConnect(ctx.channel(), (MqttConnectMessage) mqttMessage);
                     logger.debug("[MqttMessageHandler] CONNECT");
-                    ReferenceCountUtil.release(msg);
                     break;
                 case PUBLISH:
                     protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
@@ -53,23 +52,22 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
                 case SUBSCRIBE:
                     logger.debug("[MqttMessageHandler] SUBSCRIBE");
                     protocolProcessor.processSubscribe(ctx.channel(), (MqttSubscribeMessage) mqttMessage);
-                    ReferenceCountUtil.release(msg);
                     break;
                 case PINGRESP:
                     logger.debug("[MqttMessageHandler] PINGRESP");
                     protocolProcessor.processPingResp(ctx.channel(), (MqttPingRespMessage) mqttMessage);
-                    ReferenceCountUtil.release(msg);
                     break;
                 case DISCONNECT:
                     logger.debug("[MqttMessageHandler] DISCONNECT");
                     protocolProcessor.processDisconnect(ctx.channel());
-                    ReferenceCountUtil.release(msg);
                     break;
                 default:
                     logger.error("invalid message: "+msg.toString());
             }
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
+        } finally {
+            ReferenceCountUtil.release(msg);
         }
 
     }

@@ -39,8 +39,6 @@ public class ServerContext {
 
     private MessageDispatcher messageDispatcher;
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerContext.class);
-
     /**
      * Getter method for server session pool
      * */

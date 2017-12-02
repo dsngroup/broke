@@ -20,12 +20,9 @@ import io.netty.channel.ChannelInitializer;
 
 import io.netty.channel.Channel;
 import org.dsngroup.broke.broker.ServerContext;
-import org.dsngroup.broke.broker.channel.handler.PublishToSubscriberHandler;
 import org.dsngroup.broke.protocol.MqttDecoder;
 import org.dsngroup.broke.protocol.MqttEncoder;
 import org.dsngroup.broke.broker.channel.handler.MqttMessageHandler;
-
-import java.nio.channels.Pipe;
 
 /**
  * The PipelineInitializer is a customized ChannelInitializer for desired pipeline of handlers.
@@ -47,7 +44,6 @@ public class PipelineInitializer extends ChannelInitializer<Channel> {
         channel.pipeline().addLast("MqttEncoder", MqttEncoder.INSTANCE);
         channel.pipeline().addLast("MqttDecoder", new MqttDecoder());
         channel.pipeline().addLast("MqttMessageHandler", new MqttMessageHandler(this.serverContext));
-        channel.pipeline().addLast("PublishToSubscriberHandler", new PublishToSubscriberHandler(this.serverContext));
     }
 
     public PipelineInitializer(ServerContext serverContext) {

@@ -20,16 +20,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.dsngroup.broke.broker.ServerContext;
 import org.dsngroup.broke.broker.storage.MessagePool;
-import org.dsngroup.broke.broker.storage.ServerSession;
 import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 
 public class MessagePublisher {
 
@@ -48,18 +44,18 @@ public class MessagePublisher {
 
                 String topic = mqttPublishMessage.variableHeader().topicName();
                 int packetId = mqttPublishMessage.variableHeader().packetId();
-                // Deep copy
-                ByteBuf appMessage = Unpooled.copiedBuffer( mqttPublishMessage.payload() );
 
-                if (appMessage.isReadable()) {
-                    messagePool.putContentOnTopic(topic, appMessage);
+                if (mqttPublishMessage.payload().isReadable()) {
+                    if (mqttPublishMessage.fixedHeader().isRetain()) {
+                        mqttPublishMessage.payload().retain();
+                        messagePool.putContentOnTopic(topic, mqttPublishMessage.payload());
+                    }
+                    publishToSubscriptions(serverContext, mqttPublishMessage);
                 }
-
-                // Forward to next handler for publishing to subscribers
-                ctx.fireChannelRead(mqttPublishMessage);
 
                 MqttPubAckMessage mqttPubAckMessage = pubAck(channel, MqttQoS.AT_LEAST_ONCE, packetId);
                 channel.writeAndFlush(mqttPubAckMessage);
+
 
             } else {
                 logger.error("Inactive channel");
@@ -70,6 +66,16 @@ public class MessagePublisher {
 
     }
 
+    /**
+     * Publish the message to all sessions
+     * @param serverContext server context
+     * @param mqttPublishMessage The PUBLISH message from the publisher
+     * */
+    private void publishToSubscriptions(ServerContext serverContext,
+                                        MqttPublishMessage mqttPublishMessage) {
+        // serverContext.publishToSubscription(mqttPublishMessage);
+        serverContext.getMessageDispatcher().groupBasedPublishToSubscription(mqttPublishMessage);
+    }
 
     private MqttPubAckMessage pubAck(Channel channel, MqttQoS qos, int packetId) {
         MqttFixedHeader mqttFixedHeader =
