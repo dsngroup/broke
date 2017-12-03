@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.client;
+package org.dsngroup.broke.broker.metadata;
 
-import org.dsngroup.broke.client.metadata.ClientSession;
+import io.netty.buffer.Unpooled;
+import org.dsngroup.broke.broker.ServerContext;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ClientContext {
+public class MessagePoolTest {
 
-    private ClientSession clientSession;
+    @Test
+    public void testTopicPutAndGet() {
+        ServerContext serverContext = new ServerContext();
 
-    private String clientId;
-
-    public ClientSession getClientSession() {
-        return clientSession;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public ClientContext(String clientId) {
-        this.clientId = clientId;
-        clientSession = new ClientSession(clientId);
+        MessagePool messagePool = serverContext.getMessagePool();
+        messagePool.putContentOnTopic("foo", Unpooled.wrappedBuffer("bar".getBytes()));
+        assertEquals(Unpooled.wrappedBuffer("bar".getBytes()), messagePool.getContentFromTopic("foo"));
     }
 }

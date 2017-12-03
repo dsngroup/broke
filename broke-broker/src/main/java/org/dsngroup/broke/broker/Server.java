@@ -18,14 +18,13 @@ package org.dsngroup.broke.broker;
 
 import io.netty.bootstrap.ServerBootstrap;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-import org.dsngroup.broke.broker.channel.PipelineInitializer;
+import org.dsngroup.broke.broker.handler.MqttMessageHandler;
+import org.dsngroup.broke.protocol.MqttDecoder;
+import org.dsngroup.broke.protocol.MqttEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,31 @@ public class Server {
 
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
-    private Channel serverChannel;
+    /**
+     * The PipelineInitializer is a customized ChannelInitializer for desired pipeline of handlers.
+     * <code>
+     *     new PipelineInitializer()
+     * </code>
+     */
+    class PipelineInitializer extends ChannelInitializer<Channel> {
+
+        private ServerContext serverContext;
+
+        /**
+         * Implement the channel, for the pipeline of handler.
+         * @param channel The Netty {@see Channel}
+         */
+        @Override
+        public void initChannel(Channel channel) throws Exception {
+            channel.pipeline().addLast("MqttEncoder", MqttEncoder.INSTANCE);
+            channel.pipeline().addLast("MqttDecoder", new MqttDecoder());
+            channel.pipeline().addLast("MqttMessageHandler", new MqttMessageHandler(this.serverContext));
+        }
+
+        PipelineInitializer(ServerContext serverContext) {
+            this.serverContext = serverContext;
+        }
+    }
 
     /**
      * The Server constructor construct a basic information of a Server.
@@ -75,8 +98,6 @@ public class Server {
 
             ChannelFuture after = boots.bind(port).sync();
             after.channel().closeFuture().sync();
-
-            serverChannel = after.channel();
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
