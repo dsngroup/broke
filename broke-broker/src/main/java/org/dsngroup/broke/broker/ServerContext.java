@@ -16,14 +16,8 @@
 
 package org.dsngroup.broke.broker;
 
-import org.dsngroup.broke.broker.storage.*;
-import org.dsngroup.broke.protocol.MqttPublishMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
+import org.dsngroup.broke.broker.dispatch.MessageDispatcher;
+import org.dsngroup.broke.broker.metadata.*;
 
 /**
  * The ServerContext class records the associated information of a Server.
@@ -38,8 +32,6 @@ public class ServerContext {
     private MessagePool messagePool;
 
     private MessageDispatcher messageDispatcher;
-
-    private static final Logger logger = LoggerFactory.getLogger(ServerContext.class);
 
     /**
      * Getter method for server session pool

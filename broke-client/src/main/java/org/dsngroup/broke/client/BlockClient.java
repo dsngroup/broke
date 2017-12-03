@@ -23,8 +23,9 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.dsngroup.broke.client.util.PacketIdGenerator;
 import org.dsngroup.broke.protocol.*;
-import org.dsngroup.broke.client.channel.handler.MqttMessageHandler;
+import org.dsngroup.broke.client.handler.MqttMessageHandler;
 import org.dsngroup.broke.protocol.MqttEncoder;
 import org.dsngroup.broke.protocol.MqttDecoder;
 import org.slf4j.Logger;
@@ -33,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The BlockClient should be deprecated after the asynchronous client is implemented.
@@ -263,30 +263,3 @@ public class BlockClient {
 
 }
 
-/**
- * Packet Id should between 1~65535
- * */
-class PacketIdGenerator {
-
-    private AtomicInteger packetId;
-
-    int getPacketId() {
-        int retVal = packetId.getAndIncrement();
-        if(retVal > 65535) {
-            synchronized (this) {
-                if(packetId.get() > 65535) {
-                    packetId.set(1);
-                    retVal = packetId.getAndIncrement();
-                }
-            }
-        }
-        return retVal;
-
-    }
-
-    PacketIdGenerator() {
-        packetId = new AtomicInteger();
-        packetId.set(1);
-    }
-
-}

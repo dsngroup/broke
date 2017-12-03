@@ -14,26 +14,8 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.client;
+/**
+ * This package used for dealing with metadata.
+ */
 
-import org.dsngroup.broke.client.metadata.ClientSession;
-
-public class ClientContext {
-
-    private ClientSession clientSession;
-
-    private String clientId;
-
-    public ClientSession getClientSession() {
-        return clientSession;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public ClientContext(String clientId) {
-        this.clientId = clientId;
-        clientSession = new ClientSession(clientId);
-    }
-}
+package org.dsngroup.broke.broker.metadata;
