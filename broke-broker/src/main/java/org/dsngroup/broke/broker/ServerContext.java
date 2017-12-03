@@ -29,36 +29,37 @@ public class ServerContext {
 
     private ServerSessionPool serverSessionPool;
 
+    // TODO: The message pool is not used anymore.
+    @Deprecated
     private MessagePool messagePool;
 
     private MessageDispatcher messageDispatcher;
 
     /**
      * Getter method for server session pool
-     * */
+     */
     public ServerSessionPool getServerSessionPool() {
         return serverSessionPool;
     }
 
     /**
      * Getter method for message pool
-     * */
+     */
+    @Deprecated
     public MessagePool getMessagePool() {
         return messagePool;
     }
 
     /**
      * Getter method for message dispatcher
-     * */
+     */
     public MessageDispatcher getMessageDispatcher() {
         return messageDispatcher;
     }
 
     /**
-     * Constructor of the server context
-     * TODO: The ServerContext constructs the associated information of a Server,
-     * TODO: will be used depends on what we need in the future.
-     * */
+     * Constructor of Server Context.
+     */
     public ServerContext() {
         serverSessionPool = new ServerSessionPool();
         messagePool = new MessagePool();

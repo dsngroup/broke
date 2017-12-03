@@ -49,9 +49,7 @@ public class Server {
      *     new PipelineInitializer()
      * </code>
      */
-    class PipelineInitializer extends ChannelInitializer<Channel> {
-
-        private ServerContext serverContext;
+    private class PipelineInitializer extends ChannelInitializer<Channel> {
 
         /**
          * Implement the channel, for the pipeline of handler.
@@ -61,11 +59,8 @@ public class Server {
         public void initChannel(Channel channel) throws Exception {
             channel.pipeline().addLast("MqttEncoder", MqttEncoder.INSTANCE);
             channel.pipeline().addLast("MqttDecoder", new MqttDecoder());
-            channel.pipeline().addLast("MqttMessageHandler", new MqttMessageHandler(this.serverContext));
-        }
-
-        PipelineInitializer(ServerContext serverContext) {
-            this.serverContext = serverContext;
+            // Inject server context from outside.
+            channel.pipeline().addLast("MqttMessageHandler", new MqttMessageHandler(serverContext));
         }
     }
 
@@ -84,15 +79,15 @@ public class Server {
      * @throws Exception connection error
      */
     public void run() throws Exception {
-        // TODO: May move these codebase into another class for scalability.
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        // Serve the bossGroup and workerGroup in fix nums of threads (explicit)
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(4);
         try {
             ServerBootstrap boots = new ServerBootstrap();
 
             boots.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new PipelineInitializer(serverContext))
+                    .childHandler(new PipelineInitializer())
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
@@ -110,8 +105,6 @@ public class Server {
 
     public static void main(String[] args) throws Exception {
         logger.info("Server is running at 0.0.0.0:8181");
-        // TODO: Blocking currently.
-        // TODO: Prefer to have a return binding for server as an interaction.
         new Server(8181, new ServerContext()).run();
     }
 }

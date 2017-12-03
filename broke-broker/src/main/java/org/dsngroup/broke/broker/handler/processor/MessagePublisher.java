@@ -29,15 +29,18 @@ class MessagePublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 
-    void processQos0Publish(ChannelHandlerContext ctx, ServerContext serverContext, MqttPublishMessage mqttPublishMessage) {
+    void processQos0Publish(ChannelHandlerContext ctx, ServerContext serverContext,
+                            MqttPublishMessage mqttPublishMessage) {
         // TODO
     }
 
-    void processQos1Publish(ChannelHandlerContext ctx, ServerContext serverContext, MqttPublishMessage mqttPublishMessage) {
+    void processQos1Publish(ChannelHandlerContext ctx, ServerContext serverContext,
+                            MqttPublishMessage mqttPublishMessage) {
 
         try {
             if(ctx.channel().isActive()) {
                 Channel channel = ctx.channel();
+                // TODO: Clean up message pool implementation here.
                 MessagePool messagePool = serverContext.getMessagePool();
 
                 String topic = mqttPublishMessage.variableHeader().topicName();
@@ -54,11 +57,11 @@ class MessagePublisher {
                 MqttPubAckMessage mqttPubAckMessage = pubAck(MqttQoS.AT_LEAST_ONCE, packetId);
                 channel.writeAndFlush(mqttPubAckMessage);
 
-
             } else {
                 logger.error("Inactive channel");
             }
         } catch (Exception e) {
+            // TODO: Gracefully handle this.
             logger.error(e.getMessage());
         }
 
@@ -82,8 +85,5 @@ class MessagePublisher {
                 MqttMessageIdVariableHeader.from(packetId);
 
         return new MqttPubAckMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
-    }
-
-    MessagePublisher() {
     }
 }

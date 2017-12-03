@@ -77,8 +77,10 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 // TODO: is this check necessary?
-                if(ctx.channel()!=null)
+                if(ctx.channel() != null) {
+                    // TODO: Strange here, may cause a double close.
                     protocolProcessor.processDisconnect(ctx.channel());
+                }
             }
         });
     }

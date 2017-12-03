@@ -90,10 +90,8 @@ public class ProtocolProcessor {
                             mqttConnectMessage
                     );
                     channel.writeAndFlush(mqttConnAckMessage);
-
                 }
             }
-
         }
     }
 
@@ -104,8 +102,8 @@ public class ProtocolProcessor {
      * @return created MqttConnAckMessage instance.
      * */
     private MqttConnAckMessage connAck(MqttConnectReturnCode returnCode, MqttConnectMessage mqttConnectMessage) {
-        MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false, mqttConnectMessage.fixedHeader().qosLevel(),
-                false, 0);
+        MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false,
+                mqttConnectMessage.fixedHeader().qosLevel(),false, 0);
         MqttConnAckVariableHeader mqttConnAckVariableHeader = new MqttConnAckVariableHeader(returnCode, true);
         return new MqttConnAckMessage(mqttFixedHeader, mqttConnAckVariableHeader);
     }
@@ -130,7 +128,6 @@ public class ProtocolProcessor {
         } else {
             logger.error("[Protocol Processor] Not connected, cannot process publish");
         }
-
     }
 
     /**
@@ -157,7 +154,6 @@ public class ProtocolProcessor {
                     mqttSubscribeMessage.variableHeader().messageId(),
                     grantedQosList);
             channel.writeAndFlush(mqttSubAckMessage);
-
         } else {
             logger.error("[Protocol Processor] Not connected, cannot process subscribe");
         }
@@ -225,5 +221,4 @@ public class ProtocolProcessor {
         this.messagePublisher = new MessagePublisher();
         this.clientProber = new ClientProber();
     }
-
 }
