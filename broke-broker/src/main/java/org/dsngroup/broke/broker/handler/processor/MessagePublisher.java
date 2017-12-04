@@ -19,7 +19,6 @@ package org.dsngroup.broke.broker.handler.processor;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.dsngroup.broke.broker.ServerContext;
-import org.dsngroup.broke.broker.metadata.MessagePool;
 import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,17 +39,9 @@ class MessagePublisher {
         try {
             if(ctx.channel().isActive()) {
                 Channel channel = ctx.channel();
-                // TODO: Clean up message pool implementation here.
-                MessagePool messagePool = serverContext.getMessagePool();
-
-                String topic = mqttPublishMessage.variableHeader().topicName();
                 int packetId = mqttPublishMessage.variableHeader().packetId();
 
                 if (mqttPublishMessage.payload().isReadable()) {
-                    if (mqttPublishMessage.fixedHeader().isRetain()) {
-                        mqttPublishMessage.payload().retain();
-                        messagePool.putContentOnTopic(topic, mqttPublishMessage.payload());
-                    }
                     publishToSubscriptions(serverContext, mqttPublishMessage);
                 }
 
@@ -60,8 +51,9 @@ class MessagePublisher {
             } else {
                 logger.error("Inactive channel");
             }
+        } catch (NullPointerException e) {
+            logger.error("Null PUBLISH payload: " + e.getMessage());
         } catch (Exception e) {
-            // TODO: Gracefully handle this.
             logger.error(e.getMessage());
         }
 

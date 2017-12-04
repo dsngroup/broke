@@ -104,7 +104,8 @@ public class ProtocolProcessor {
     private MqttConnAckMessage connAck(MqttConnectReturnCode returnCode, MqttConnectMessage mqttConnectMessage) {
         MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false,
                 mqttConnectMessage.fixedHeader().qosLevel(),false, 0);
-        MqttConnAckVariableHeader mqttConnAckVariableHeader = new MqttConnAckVariableHeader(returnCode, true);
+        MqttConnAckVariableHeader mqttConnAckVariableHeader =
+                new MqttConnAckVariableHeader(returnCode, true);
         return new MqttConnAckMessage(mqttFixedHeader, mqttConnAckVariableHeader);
     }
 
@@ -193,20 +194,15 @@ public class ProtocolProcessor {
      * If the session is used by this channel
      * 1. Set the session's isActive to false
      * 2. Close the PINGREQ schedule.
-     * TODO: when will server session and client prober be null?
      * */
-    public void processDisconnect(Channel channel) {
+    public void processDisconnect() {
         if(isConnected) {
+            isConnected = false;
             synchronized (this) {
-                // TODO: is this check necessary?
-                if(serverSession!=null)
-                    serverSession.setIsActive(false);
+                serverSession.setIsActive(false);
             }
-            // TODO: is this check necessary?
-            if(clientProber != null)
-                clientProber.cancelPingReq();
+            clientProber.cancelPingReq();
         }
-        channel.close();
     }
 
     /**
