@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Server {
 
-    private int port;
-
     private final ServerContext serverContext;
 
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -66,22 +64,23 @@ public class Server {
 
     /**
      * The Server constructor construct a basic information of a Server.
-     * @param port the binding port.
      * @param serverContext the {@see SeverContext} instance for associated information.
      */
-    public Server(int port, ServerContext serverContext) {
-        this.port = port;
+    public Server(ServerContext serverContext) {
         this.serverContext = serverContext;
     }
 
     /**
-     * Run the server.
+     * Serve the server.
      * @throws Exception connection error
      */
-    public void run() throws Exception {
+    public void serve() throws Exception {
+
+        logger.info("Server is running at 0.0.0.0:" + serverContext.getBoundPort());
+
         // Serve the bossGroup and workerGroup in fix nums of threads (explicit)
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(4);
+        EventLoopGroup bossGroup = new NioEventLoopGroup(serverContext.getNumOfBoss());
+        EventLoopGroup workerGroup = new NioEventLoopGroup(serverContext.getNumOfWorker());
         try {
             ServerBootstrap boots = new ServerBootstrap();
 
@@ -91,7 +90,7 @@ public class Server {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            ChannelFuture after = boots.bind(port).sync();
+            ChannelFuture after = boots.bind(serverContext.getBoundPort()).sync();
             after.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
@@ -104,7 +103,6 @@ public class Server {
     public void close() {}
 
     public static void main(String[] args) throws Exception {
-        logger.info("Server is running at 0.0.0.0:8181");
-        new Server(8181, new ServerContext()).run();
+        new Server(new ServerContext()).serve();
     }
 }
