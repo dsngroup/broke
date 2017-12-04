@@ -25,11 +25,12 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Client session
  * Each client should have only one client session
- * */
+ */
 public class ClientSession {
 
     private final String clientId;
 
+    @SuppressWarnings("Need to rediscuss this, for the scope of fake publish")
     private FakePublishMessageQueue fakePublishMessageQueue;
 
     // Unacked messages store: Key: packet idenfier, value: message

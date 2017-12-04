@@ -19,6 +19,7 @@ package org.dsngroup.broke.client.storage;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+@SuppressWarnings("The fake publish module should move out to the outer scope.")
 public class PublishMessageQueue {
 
     private Deque<String> receivedPublishQueue;

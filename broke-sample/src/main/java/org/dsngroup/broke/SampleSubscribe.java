@@ -33,18 +33,17 @@ public class SampleSubscribe {
 
             blockClient.connect(0, 0);
             blockClient.subscribe("Foo", MqttQoS.AT_LEAST_ONCE, 0, 555);
-            // blockClient.disconnect();
-            while(true) {
-                if (System.in.read()!=0){
-                    // Block
-                }
-            }
+
+            while(System.in.read() != 0) {}
+
+            blockClient.disconnect();
+
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Not enough arguments");
             System.exit(1);
         } catch (Exception e) {
-            logger.error(e.getMessage());
             logger.error("Wrong settings of message options");
+            logger.error(e.getMessage());
             System.exit(1);
         }
     }

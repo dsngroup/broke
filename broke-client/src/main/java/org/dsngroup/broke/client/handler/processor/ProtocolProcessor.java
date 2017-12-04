@@ -19,7 +19,7 @@ package org.dsngroup.broke.client.handler.processor;
 import io.netty.channel.ChannelHandlerContext;
 
 import org.dsngroup.broke.client.ClientContext;
-import org.dsngroup.broke.client.ConnectDeniedException;
+import org.dsngroup.broke.client.exception.ConnectDeniedException;
 import org.dsngroup.broke.client.metadata.ClientSession;
 import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
@@ -34,6 +34,7 @@ public class ProtocolProcessor {
     private ClientSession clientSession;
 
     private final static Logger logger = LoggerFactory.getLogger(ProtocolProcessor.class);
+
     /**
      * Handle CONNACK
      * @param ctx {@see ChannelHandlerContext}
@@ -41,8 +42,7 @@ public class ProtocolProcessor {
      * */
     public void processConnAck(ChannelHandlerContext ctx, MqttConnAckMessage mqttConnAckMessage) throws Exception {
         if (mqttConnAckMessage.variableHeader().connectReturnCode() == MqttConnectReturnCode.CONNECTION_ACCEPTED) {
-            // TODO: delete this
-            logger.debug("[Connect] Connect to broker"+ctx.channel().remoteAddress());
+            // nop, currently.
         } else {
             logger.error("[Connect] Connection denied, close the channel.");
             ctx.channel().close();
@@ -56,10 +56,8 @@ public class ProtocolProcessor {
      * @param mqttPublishMessage PUBLISH message from broker
      * */
     public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) throws Exception {
-        // TODO: delete this
-        logger.info( "Topic: "+mqttPublishMessage.variableHeader().topicName()+
-                " Payload: "+mqttPublishMessage.payload().toString(StandardCharsets.UTF_8) );
-        clientSession.getFakePublishMessageQueue().putMessage(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+        clientSession.getFakePublishMessageQueue()
+                .putMessage(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
         // TODO: return PUBACK
     }
 
@@ -70,9 +68,7 @@ public class ProtocolProcessor {
      * @param mqttPubAckMessage PUBACK message from broker
      * */
     public void processPubAck(ChannelHandlerContext ctx, MqttPubAckMessage mqttPubAckMessage) throws Exception {
-        // TODO: remove message in client session's unacked message queue
-        // TODO: delete this.
-        logger.debug("[PUBACK] Packet ID "+mqttPubAckMessage.variableHeader().messageId());
+        // nop, currently.
     }
 
     /**
@@ -91,17 +87,18 @@ public class ProtocolProcessor {
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPingReqMessage PINGREQ message from broker
      * */
-    public void processPingReq(ChannelHandlerContext ctx, MqttPingReqMessage mqttPingReqMessage) throws Exception{
-        if (clientSession.isBackPressured()) {
-            // TODO: debug
-            logger.info("Back pressured");
-        }
+    public void processPingReq(ChannelHandlerContext ctx, MqttPingReqMessage mqttPingReqMessage) throws Exception {
+
         MqttFixedHeader mqttFixedHeader =
                 new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0);
+
         MqttPingRespVariableHeader mqttPingRespVariableHeader =
-                new MqttPingRespVariableHeader(clientSession.isBackPressured(), mqttPingReqMessage.variableHeader().packetId());
+                new MqttPingRespVariableHeader(clientSession.isBackPressured(),
+                        mqttPingReqMessage.variableHeader().packetId());
+
         MqttPingRespMessage mqttPingRespMessage =
                 new MqttPingRespMessage(mqttFixedHeader, mqttPingRespVariableHeader);
+
         ctx.channel().writeAndFlush(mqttPingRespMessage);
     }
 

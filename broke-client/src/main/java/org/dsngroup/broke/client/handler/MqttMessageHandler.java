@@ -40,11 +40,14 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
+
         if(!(msg instanceof MqttMessage)) {
             logger.error("Undefined message");
-            System.exit(1);
+            // Ignore this read.
         }
+
         MqttMessage mqttMessage = (MqttMessage) msg;
+
         try {
             switch (mqttMessage.fixedHeader().messageType()) {
                 case CONNACK:
@@ -69,7 +72,6 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
         } catch (Exception e) {
             logger.error(e.getMessage());
-            logger.error(e.getStackTrace().toString());
         } finally {
             // The msg object is an reference counting object.
             ReferenceCountUtil.release(msg);
@@ -79,7 +81,6 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause) {
         logger.error(cause.getMessage());
-        logger.error(cause.getStackTrace().toString());
         ctx.close();
         // TODO: is this proper?
         Thread.currentThread().interrupt();

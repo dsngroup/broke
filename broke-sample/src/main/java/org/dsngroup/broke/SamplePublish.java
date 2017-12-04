@@ -37,12 +37,6 @@ public class SamplePublish {
 
             blockClient.connect(0, 0);
 
-            // Stress test
-            // for(int i=0; i<65535; i++) {
-            //    logger.info("Publish "+i);
-            //    blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
-            // }
-
             while(true) {
                 blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
                 Thread.sleep(500);
@@ -52,6 +46,7 @@ public class SamplePublish {
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Not enough arguments");
             System.exit(1);
+
         } catch (Exception e) {
             logger.error(e.getMessage());
             System.exit(1);

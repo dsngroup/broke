@@ -23,6 +23,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.dsngroup.broke.client.exception.ConnectDeniedException;
 import org.dsngroup.broke.client.util.PacketIdGenerator;
 import org.dsngroup.broke.protocol.*;
 import org.dsngroup.broke.client.handler.MqttMessageHandler;
@@ -67,8 +68,6 @@ public class BlockClient {
 
         // Connect only when the channel is active
         if(targetServerChannel.isActive()) {
-            // TODO: delete this
-            logger.debug("[Client] Make connection, clientId: "+clientId);
 
             // Create CONNECT message
             MqttFixedHeader mqttFixedHeader =
@@ -82,6 +81,7 @@ public class BlockClient {
 
             ChannelFuture future = targetServerChannel.pipeline().writeAndFlush(
                     new MqttConnectMessage(mqttFixedHeader, mqttConnectVariableHeader, mqttConnectPayload));
+
             future.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
@@ -123,8 +123,7 @@ public class BlockClient {
             );
 
             // TODO: publish statistics.
-            // TODO debug
-            logger.info("[Publish] Topic: " + topic + " Payload: " + payload);
+
         } else {
             logger.error("[Publish] Channel closed, cannot publish");
             throw new ConnectDeniedException("CONNECT_DENIED");
@@ -158,8 +157,6 @@ public class BlockClient {
                     }
                 }
             });
-
-            logger.info("[Subscribe] Topic: " + topic);
         } else {
             logger.error("[Publish] Channel closed, cannot subscribe");
             throw new ConnectDeniedException("CONNECT_DENIED");
@@ -215,6 +212,7 @@ public class BlockClient {
         this.clientContext = new ClientContext(clientId);
 
         workerGroup = new NioEventLoopGroup();
+
         try {
             Bootstrap b = new Bootstrap();
             b.group(workerGroup)
@@ -241,8 +239,6 @@ public class BlockClient {
 
         } catch (Exception e) {
             logger.error(e.getMessage());
-            // TODO: delete
-            logger.debug(e.getStackTrace().toString());
         }
     }
 
@@ -260,6 +256,5 @@ public class BlockClient {
             }
         });
     }
-
 }
 
