@@ -39,8 +39,8 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
             MqttMessage mqttMessage = (MqttMessage) msg;
             switch (mqttMessage.fixedHeader().messageType()) {
                 case CONNECT:
-                    protocolProcessor.processConnect(ctx.channel(), (MqttConnectMessage) mqttMessage);
                     logger.debug("[MqttMessageHandler] CONNECT");
+                    protocolProcessor.processConnect(ctx.channel(), (MqttConnectMessage) mqttMessage);
                     break;
                 case PUBLISH:
                     protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
@@ -56,10 +56,11 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
                     break;
                 case DISCONNECT:
                     logger.debug("[MqttMessageHandler] DISCONNECT");
-                    protocolProcessor.processDisconnect(ctx.channel());
+                    protocolProcessor.processDisconnect();
+                    ctx.close();
                     break;
                 default:
-                    logger.error("invalid message: "+msg.toString());
+                    logger.error("invalid message: " + msg.toString());
             }
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
@@ -76,9 +77,7 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
         closeFuture.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                // TODO: is this check necessary?
-                if(ctx.channel()!=null)
-                    protocolProcessor.processDisconnect(ctx.channel());
+                protocolProcessor.processDisconnect();
             }
         });
     }

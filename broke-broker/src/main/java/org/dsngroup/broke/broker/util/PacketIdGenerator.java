@@ -36,12 +36,10 @@ public class PacketIdGenerator {
             }
         }
         return retVal;
-
     }
 
     public PacketIdGenerator() {
         packetId = new AtomicInteger();
         packetId.set(1);
     }
-
 }

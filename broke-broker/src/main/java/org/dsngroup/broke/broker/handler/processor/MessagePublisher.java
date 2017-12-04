@@ -19,7 +19,6 @@ package org.dsngroup.broke.broker.handler.processor;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.dsngroup.broke.broker.ServerContext;
-import org.dsngroup.broke.broker.metadata.MessagePool;
 import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,35 +28,31 @@ class MessagePublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 
-    void processQos0Publish(ChannelHandlerContext ctx, ServerContext serverContext, MqttPublishMessage mqttPublishMessage) {
+    void processQos0Publish(ChannelHandlerContext ctx, ServerContext serverContext,
+                            MqttPublishMessage mqttPublishMessage) {
         // TODO
     }
 
-    void processQos1Publish(ChannelHandlerContext ctx, ServerContext serverContext, MqttPublishMessage mqttPublishMessage) {
+    void processQos1Publish(ChannelHandlerContext ctx, ServerContext serverContext,
+                            MqttPublishMessage mqttPublishMessage) {
 
         try {
             if(ctx.channel().isActive()) {
                 Channel channel = ctx.channel();
-                MessagePool messagePool = serverContext.getMessagePool();
-
-                String topic = mqttPublishMessage.variableHeader().topicName();
                 int packetId = mqttPublishMessage.variableHeader().packetId();
 
                 if (mqttPublishMessage.payload().isReadable()) {
-                    if (mqttPublishMessage.fixedHeader().isRetain()) {
-                        mqttPublishMessage.payload().retain();
-                        messagePool.putContentOnTopic(topic, mqttPublishMessage.payload());
-                    }
                     publishToSubscriptions(serverContext, mqttPublishMessage);
                 }
 
                 MqttPubAckMessage mqttPubAckMessage = pubAck(MqttQoS.AT_LEAST_ONCE, packetId);
                 channel.writeAndFlush(mqttPubAckMessage);
 
-
             } else {
                 logger.error("Inactive channel");
             }
+        } catch (NullPointerException e) {
+            logger.error("Null PUBLISH payload: " + e.getMessage());
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -82,8 +77,5 @@ class MessagePublisher {
                 MqttMessageIdVariableHeader.from(packetId);
 
         return new MqttPubAckMessage(mqttFixedHeader, mqttMessageIdVariableHeader);
-    }
-
-    MessagePublisher() {
     }
 }

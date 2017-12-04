@@ -90,10 +90,8 @@ public class ProtocolProcessor {
                             mqttConnectMessage
                     );
                     channel.writeAndFlush(mqttConnAckMessage);
-
                 }
             }
-
         }
     }
 
@@ -104,9 +102,10 @@ public class ProtocolProcessor {
      * @return created MqttConnAckMessage instance.
      * */
     private MqttConnAckMessage connAck(MqttConnectReturnCode returnCode, MqttConnectMessage mqttConnectMessage) {
-        MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false, mqttConnectMessage.fixedHeader().qosLevel(),
-                false, 0);
-        MqttConnAckVariableHeader mqttConnAckVariableHeader = new MqttConnAckVariableHeader(returnCode, true);
+        MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false,
+                mqttConnectMessage.fixedHeader().qosLevel(),false, 0);
+        MqttConnAckVariableHeader mqttConnAckVariableHeader =
+                new MqttConnAckVariableHeader(returnCode, true);
         return new MqttConnAckMessage(mqttFixedHeader, mqttConnAckVariableHeader);
     }
 
@@ -130,7 +129,6 @@ public class ProtocolProcessor {
         } else {
             logger.error("[Protocol Processor] Not connected, cannot process publish");
         }
-
     }
 
     /**
@@ -157,7 +155,6 @@ public class ProtocolProcessor {
                     mqttSubscribeMessage.variableHeader().messageId(),
                     grantedQosList);
             channel.writeAndFlush(mqttSubAckMessage);
-
         } else {
             logger.error("[Protocol Processor] Not connected, cannot process subscribe");
         }
@@ -197,20 +194,15 @@ public class ProtocolProcessor {
      * If the session is used by this channel
      * 1. Set the session's isActive to false
      * 2. Close the PINGREQ schedule.
-     * TODO: when will server session and client prober be null?
      * */
-    public void processDisconnect(Channel channel) {
+    public void processDisconnect() {
         if(isConnected) {
+            isConnected = false;
             synchronized (this) {
-                // TODO: is this check necessary?
-                if(serverSession!=null)
-                    serverSession.setIsActive(false);
+                serverSession.setIsActive(false);
             }
-            // TODO: is this check necessary?
-            if(clientProber != null)
-                clientProber.cancelPingReq();
+            clientProber.cancelPingReq();
         }
-        channel.close();
     }
 
     /**
@@ -225,5 +217,4 @@ public class ProtocolProcessor {
         this.messagePublisher = new MessagePublisher();
         this.clientProber = new ClientProber();
     }
-
 }

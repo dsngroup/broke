@@ -69,7 +69,7 @@ public class MessageDispatcher {
             ArrayList sessionList = entry.getValue();
             // Select over the session lists
             ServerSession selectedSession = selectSession(sessionList);
-            if(selectedSession!=null) {
+            if(selectedSession != null) {
                 // TODO: debug
                 logger.info("Group ID: " + groupId + " Publish to " + selectedSession.getClientId());
                 publishToSubscription(selectedSession, mqttPublishMessage);
@@ -100,18 +100,19 @@ public class MessageDispatcher {
 
     private ServerSession selectSession(ArrayList<ServerSession> sessionList) {
         double[] scoreArray = new double[sessionList.size()];
-        for(int i=0; i<sessionList.size();i++) {
+        for(int i = 0; i < sessionList.size(); i++) {
             scoreArray[i] = sessionList.get(i).getPublishScore();
         }
+
         double sumScore = 0;
-        for(int i=0; i<scoreArray.length; i++) {
+        for(int i = 0; i < scoreArray.length; i++) {
             sumScore += scoreArray[i];
         }
 
         double rand = (Math.random())*sumScore;
         int selectedIdx = 0;
         double aggr = 0;
-        for(int i=0; i<scoreArray.length; i++) {
+        for(int i = 0; i < scoreArray.length; i++) {
             aggr += scoreArray[i];
             if(aggr >= rand) {
                 selectedIdx = i;
@@ -155,12 +156,12 @@ public class MessageDispatcher {
                     // TODO: try to remove sync()
                     matchSubscription.getSubscriberChannel().writeAndFlush(mqttPublishMessageOut).sync();
                 } catch (Exception e) {
-                    // TODO: remove this
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
         }
     }
+
     public MessageDispatcher(ServerSessionPool serverSessionPool) {
         this.serverSessionPool = serverSessionPool;
     }

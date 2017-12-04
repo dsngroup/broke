@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Server {
 
-    private int port;
-
     private final ServerContext serverContext;
 
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -49,9 +47,7 @@ public class Server {
      *     new PipelineInitializer()
      * </code>
      */
-    class PipelineInitializer extends ChannelInitializer<Channel> {
-
-        private ServerContext serverContext;
+    private class PipelineInitializer extends ChannelInitializer<Channel> {
 
         /**
          * Implement the channel, for the pipeline of handler.
@@ -61,42 +57,40 @@ public class Server {
         public void initChannel(Channel channel) throws Exception {
             channel.pipeline().addLast("MqttEncoder", MqttEncoder.INSTANCE);
             channel.pipeline().addLast("MqttDecoder", new MqttDecoder());
-            channel.pipeline().addLast("MqttMessageHandler", new MqttMessageHandler(this.serverContext));
-        }
-
-        PipelineInitializer(ServerContext serverContext) {
-            this.serverContext = serverContext;
+            // Inject server context from outside.
+            channel.pipeline().addLast("MqttMessageHandler", new MqttMessageHandler(serverContext));
         }
     }
 
     /**
      * The Server constructor construct a basic information of a Server.
-     * @param port the binding port.
      * @param serverContext the {@see SeverContext} instance for associated information.
      */
-    public Server(int port, ServerContext serverContext) {
-        this.port = port;
+    public Server(ServerContext serverContext) {
         this.serverContext = serverContext;
     }
 
     /**
-     * Run the server.
+     * Serve the server.
      * @throws Exception connection error
      */
-    public void run() throws Exception {
-        // TODO: May move these codebase into another class for scalability.
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+    public void serve() throws Exception {
+
+        logger.info("Server is running at 0.0.0.0:" + serverContext.getBoundPort());
+
+        // Serve the bossGroup and workerGroup in fix nums of threads (explicit)
+        EventLoopGroup bossGroup = new NioEventLoopGroup(serverContext.getNumOfBoss());
+        EventLoopGroup workerGroup = new NioEventLoopGroup(serverContext.getNumOfWorker());
         try {
             ServerBootstrap boots = new ServerBootstrap();
 
             boots.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new PipelineInitializer(serverContext))
+                    .childHandler(new PipelineInitializer())
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            ChannelFuture after = boots.bind(port).sync();
+            ChannelFuture after = boots.bind(serverContext.getBoundPort()).sync();
             after.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
@@ -109,9 +103,6 @@ public class Server {
     public void close() {}
 
     public static void main(String[] args) throws Exception {
-        logger.info("Server is running at 0.0.0.0:8181");
-        // TODO: Blocking currently.
-        // TODO: Prefer to have a return binding for server as an interaction.
-        new Server(8181, new ServerContext()).run();
+        new Server(new ServerContext()).serve();
     }
 }
