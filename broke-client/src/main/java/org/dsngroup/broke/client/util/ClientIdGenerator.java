@@ -14,27 +14,15 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.client;
+package org.dsngroup.broke.client.util;
 
-import org.dsngroup.broke.client.metadata.ClientSession;
-import org.dsngroup.broke.client.storage.FakePublishMessageQueue;
+import java.util.Random;
 
-public class ClientContext {
+public class ClientIdGenerator {
 
-    private ClientSession clientSession;
+    private static Random rand = new Random();
 
-    private String clientId;
-
-    public ClientSession getClientSession() {
-        return clientSession;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public ClientContext(String clientId) {
-        this.clientId = clientId;
-        clientSession = new ClientSession(clientId, new FakePublishMessageQueue(10, 0.3, 0.8));
+    public static String getClientId() {
+        return "client_" + (rand.nextInt(1000000) + 1);
     }
 }

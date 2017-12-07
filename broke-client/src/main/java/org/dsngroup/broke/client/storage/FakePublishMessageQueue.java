@@ -24,8 +24,9 @@ import org.slf4j.LoggerFactory;
  * The isBackPressured status is emulated as follow:
  * 1. After the PUBLISH received is more than maxSize, set isBackPressured to true
  * 2. Start a thread that will set the isBackPressured to false after a fixed time.
- * */
-public class FakePublishMessageQueue {
+ */
+@SuppressWarnings("The fake publish module should move out to the outer scope.")
+public class FakePublishMessageQueue implements IPublishMessageQueue {
 
     private int count;
 
@@ -39,17 +40,24 @@ public class FakePublishMessageQueue {
 
     private static final Logger logger = LoggerFactory.getLogger(FakePublishMessageQueue.class);
 
+    @Override
     public boolean isBackPressured() {
         return isBackPressured;
     }
 
+    @Override
     public synchronized void putMessage(String message) {
-        count++;
-        if(count==maxSize) {
+        count ++ ;
+        if(count == maxSize) {
             isBackPressured = true;
             // Set the isBackPressured to false after 5 seconds.
             new BackPressureSetterThread(5000).start();
         }
+    }
+
+    @Override
+    public synchronized String getMessage() {
+        return null;
     }
 
     public FakePublishMessageQueue(int maxSize, double lowWaterMark, double highWaterMark) {

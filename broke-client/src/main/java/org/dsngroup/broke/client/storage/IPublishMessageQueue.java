@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.client;
+package org.dsngroup.broke.client.storage;
 
-public class ConnectDeniedException extends Exception {
-    public ConnectDeniedException(String message) {
-        super(message);
-    }
+public interface IPublishMessageQueue {
+    boolean isBackPressured();
+    void putMessage(String message);
+    String getMessage();
 }

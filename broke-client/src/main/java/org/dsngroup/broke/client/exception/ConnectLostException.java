@@ -14,21 +14,10 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.broker.metadata;
+package org.dsngroup.broke.client.exception;
 
-import io.netty.buffer.Unpooled;
-import org.dsngroup.broke.broker.ServerContext;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-public class MessagePoolTest {
-
-    @Test
-    public void testTopicPutAndGet() {
-        ServerContext serverContext = new ServerContext();
-
-        MessagePool messagePool = serverContext.getMessagePool();
-        messagePool.putContentOnTopic("foo", Unpooled.wrappedBuffer("bar".getBytes()));
-        assertEquals(Unpooled.wrappedBuffer("bar".getBytes()), messagePool.getContentFromTopic("foo"));
+public class ConnectLostException extends Exception {
+    public ConnectLostException(String message) {
+        super(message);
     }
 }

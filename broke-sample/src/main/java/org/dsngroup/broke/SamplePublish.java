@@ -17,9 +17,14 @@
 package org.dsngroup.broke;
 
 import org.dsngroup.broke.client.BlockClient;
+import org.dsngroup.broke.client.exception.ConnectLostException;
+import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
+import org.dsngroup.broke.protocol.MqttPublishMessage;
 import org.dsngroup.broke.protocol.MqttQoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * SamplePublish establish a connection and publish a message to a target broker.
@@ -29,20 +34,39 @@ public class SamplePublish {
 
     private static final Logger logger = LoggerFactory.getLogger(SamplePublish.class);
 
+
     public static void main(String[] args) {
+
+        class MessageCallbackHandler implements IMessageCallbackHandler {
+
+            @Override
+            public void messageArrive(MqttPublishMessage mqttPublishMessage) {
+                logger.info(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+            }
+
+            @Override
+            public void connectionLost(Throwable cause) {
+                logger.error("Connection lost: " + cause.getMessage());
+                System.exit(1);
+            }
+
+        }
+
         // The args[0] = address, args[1] = port
         // TODO: better parsed from one string.
         try {
-            BlockClient blockClient = new BlockClient(args[0], Integer.parseInt(args[1]));
 
-            blockClient.connect(0, 0);
+            String address = args[0].split(":")[0];
+            int port = Integer.parseInt(args[0].split(":")[1]);
 
-            // Stress test
-            // for(int i=0; i<65535; i++) {
-            //    logger.info("Publish "+i);
-            //    blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
-            // }
+            BlockClient blockClient = new BlockClient(address, port);
 
+            blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
+
+            blockClient.setMessageCallbackHandler(new MessageCallbackHandler());
+
+
+            Thread.sleep(10000);
             while(true) {
                 blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
                 Thread.sleep(500);
@@ -52,7 +76,12 @@ public class SamplePublish {
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Not enough arguments");
             System.exit(1);
+
+        } catch (ConnectLostException e) {
+            logger.error("Connection lost: " + e.getMessage());
+            System.exit(1);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(e.getMessage());
             System.exit(1);
         }

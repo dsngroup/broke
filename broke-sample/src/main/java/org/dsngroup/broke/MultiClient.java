@@ -17,10 +17,13 @@
 package org.dsngroup.broke;
 
 import org.dsngroup.broke.client.BlockClient;
-import org.dsngroup.broke.client.ConnectDeniedException;
+import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
+import org.dsngroup.broke.protocol.MqttPublishMessage;
 import org.dsngroup.broke.protocol.MqttQoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
 
 public class MultiClient {
 
@@ -57,84 +60,112 @@ public class MultiClient {
             System.exit(1);
         }
     }
-}
 
-class PublishClient extends Thread {
+    private static class PublishClient extends Thread {
 
-    private BlockClient blockClient;
+        private BlockClient blockClient;
 
-    private static final Logger logger = LoggerFactory.getLogger(PublishClient.class);
+        private static final Logger logger = LoggerFactory.getLogger(PublishClient.class);
 
-    private String topic;
+        private String topic;
 
-    private int sleepInterval;
+        private int sleepInterval;
 
-    @Override
-    public void run() {
-        try {
-            blockClient.connect(1, 0);
-            while(true) {
-                blockClient.publish(topic, MqttQoS.AT_LEAST_ONCE, 0, "Foo");
-                Thread.sleep(sleepInterval);
+        class MessageCallbackHandler implements IMessageCallbackHandler {
+
+            @Override
+            public void messageArrive(MqttPublishMessage mqttPublishMessage) {}
+
+            @Override
+            public void connectionLost(Throwable cause) {
+                logger.error("Connection lost: " + cause.getMessage() + " Client ID: " + blockClient.getClientId());
+                Thread.interrupted();
             }
-        } catch(Exception e) {
-            logger.error(e.getMessage());
-            logger.error(e.getStackTrace().toString());
-            return;
+
         }
 
-    }
+        @Override
+        public void run() {
+            try {
+                blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
+                blockClient.setMessageCallbackHandler(new MessageCallbackHandler());
+                while (true) {
+                    blockClient.publish(topic, MqttQoS.AT_LEAST_ONCE, 0, "Foo");
+                    Thread.sleep(sleepInterval);
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                return;
+            }
 
-    public PublishClient(String serverAddress, int serverPort, String topic, int sleepInterval) {
-        try {
-            this.blockClient = new BlockClient(serverAddress, serverPort);
-            this.topic = topic;
-            this.sleepInterval = sleepInterval;
-        } catch (Exception e){
-            logger.error(e.getMessage());
-            logger.error(e.getStackTrace().toString());
-            return;
         }
 
+        public PublishClient(String serverAddress, int serverPort, String topic, int sleepInterval) {
+            try {
+                this.blockClient = new BlockClient(serverAddress, serverPort);
+                this.topic = topic;
+                this.sleepInterval = sleepInterval;
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                return;
+            }
+
+        }
     }
-}
 
-class SubscribeClient extends Thread {
+    private static class SubscribeClient extends Thread {
 
-    private BlockClient blockClient;
+        private BlockClient blockClient;
 
-    private static final Logger logger = LoggerFactory.getLogger(SubscribeClient.class);
+        private static final Logger logger = LoggerFactory.getLogger(SubscribeClient.class);
 
-    private String topicFilter;
+        private String topicFilter;
 
-    private int groupId;
+        private int groupId;
 
-    @Override
-    public void run() {
-        try {
-            blockClient.connect(1, 0);
-            blockClient.subscribe(topicFilter, MqttQoS.AT_LEAST_ONCE, 0, groupId);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(e.getStackTrace().toString());
-            return;
+        class MessageCallbackHandler implements IMessageCallbackHandler {
+
+            @Override
+            public void messageArrive(MqttPublishMessage mqttPublishMessage) {
+                logger.info(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+            }
+
+            @Override
+            public void connectionLost(Throwable cause) {
+                logger.error("Connection lost: " + cause.getMessage() + " Client ID: " + blockClient.getClientId());
+                Thread.interrupted();
+            }
+
         }
 
-    }
+        @Override
+        public void run() {
+            try {
+                blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
+                blockClient.setMessageCallbackHandler(new MessageCallbackHandler());
+                blockClient.subscribe(topicFilter, MqttQoS.AT_LEAST_ONCE, 0, groupId);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                return;
+            }
 
-    public SubscribeClient(String serverAddress, int serverPort, String topicFilter, int groupId) {
-
-        try {
-            this.blockClient = new BlockClient(serverAddress, serverPort);
-            this.topicFilter = topicFilter;
-            this.groupId = groupId;
-        } catch (ArrayIndexOutOfBoundsException e) {
-            logger.error("Not enough arguments");
-            System.exit(1);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return;
         }
 
+        public SubscribeClient(String serverAddress, int serverPort, String topicFilter, int groupId) {
+
+            try {
+                this.blockClient = new BlockClient(serverAddress, serverPort);
+                this.topicFilter = topicFilter;
+                this.groupId = groupId;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                logger.error("Not enough arguments");
+                System.exit(1);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                return;
+            }
+
+        }
     }
+
 }
