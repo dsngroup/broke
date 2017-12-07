@@ -14,27 +14,10 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.client;
+package org.dsngroup.broke.client.storage;
 
-import org.dsngroup.broke.client.metadata.ClientSession;
-import org.dsngroup.broke.client.storage.FakePublishMessageQueue;
-
-public class ClientContext {
-
-    private ClientSession clientSession;
-
-    private String clientId;
-
-    public ClientSession getClientSession() {
-        return clientSession;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public ClientContext(String clientId) {
-        this.clientId = clientId;
-        clientSession = new ClientSession(clientId, new FakePublishMessageQueue(10, 0.3, 0.8));
-    }
+public interface IPublishMessageQueue {
+    boolean isBackPressured();
+    void putMessage(String message);
+    String getMessage();
 }

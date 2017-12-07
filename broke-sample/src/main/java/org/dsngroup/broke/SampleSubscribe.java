@@ -17,26 +17,59 @@
 package org.dsngroup.broke;
 
 import org.dsngroup.broke.client.BlockClient;
+import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
+import org.dsngroup.broke.protocol.MqttPublishMessage;
 import org.dsngroup.broke.protocol.MqttQoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 public class SampleSubscribe {
 
     private static final Logger logger = LoggerFactory.getLogger(SampleSubscribe.class);
 
     public static void main(String[] args) {
-        // The args[0] = address, args[1] = port
+
+        class MessageCallbackHandler implements IMessageCallbackHandler {
+
+            @Override
+            public void messageArrive(MqttPublishMessage mqttPublishMessage) {
+                logger.info(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+            }
+
+            @Override
+            public void connectionLost(Throwable cause) {
+                logger.error("Connection lost: " + cause.getMessage());
+                System.exit(1);
+            }
+
+        }
+
         // TODO: better parsed from one string.
         try {
-            BlockClient blockClient = new BlockClient(args[0], Integer.parseInt(args[1]));
 
-            blockClient.connect(0, 0);
+            String address = args[0].split(":")[0];
+            int port = Integer.parseInt(args[0].split(":")[1]);
+
+            BlockClient blockClient = new BlockClient(address, port);
+
+            blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
+
+            blockClient.setMessageCallbackHandler(new MessageCallbackHandler());
+
             blockClient.subscribe("Foo", MqttQoS.AT_LEAST_ONCE, 0, 555);
 
-            while(System.in.read() != 0) {}
+            Scanner scanner = new Scanner(System.in);
 
-            blockClient.disconnect();
+            while(true) {
+                String cmd = scanner.next();
+                if (cmd.equals("terminate")) {
+                    break;
+                }
+                Thread.sleep(3000);
+            }
 
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Not enough arguments");
@@ -48,3 +81,4 @@ public class SampleSubscribe {
         }
     }
 }
+

@@ -46,6 +46,10 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
                     protocolProcessor.processPublish(ctx, (MqttPublishMessage) mqttMessage);
                     logger.debug("[MqttMessageHandler] PUBLISH");
                     break;
+                case PUBACK:
+                    protocolProcessor.processPubAck((MqttPubAckMessage)mqttMessage);
+                    logger.debug("[MqttMessageHandler] PUBACK");
+                    break;
                 case SUBSCRIBE:
                     logger.debug("[MqttMessageHandler] SUBSCRIBE");
                     protocolProcessor.processSubscribe(ctx.channel(), (MqttSubscribeMessage) mqttMessage);

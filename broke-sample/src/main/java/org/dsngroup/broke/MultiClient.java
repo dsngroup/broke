@@ -17,9 +17,13 @@
 package org.dsngroup.broke;
 
 import org.dsngroup.broke.client.BlockClient;
+import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
+import org.dsngroup.broke.protocol.MqttPublishMessage;
 import org.dsngroup.broke.protocol.MqttQoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
 
 public class MultiClient {
 
@@ -67,10 +71,24 @@ public class MultiClient {
 
         private int sleepInterval;
 
+        class MessageCallbackHandler implements IMessageCallbackHandler {
+
+            @Override
+            public void messageArrive(MqttPublishMessage mqttPublishMessage) {}
+
+            @Override
+            public void connectionLost(Throwable cause) {
+                logger.error("Connection lost: " + cause.getMessage() + " Client ID: " + blockClient.getClientId());
+                Thread.interrupted();
+            }
+
+        }
+
         @Override
         public void run() {
             try {
-                blockClient.connect(1, 0);
+                blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
+                blockClient.setMessageCallbackHandler(new MessageCallbackHandler());
                 while (true) {
                     blockClient.publish(topic, MqttQoS.AT_LEAST_ONCE, 0, "Foo");
                     Thread.sleep(sleepInterval);
@@ -105,10 +123,26 @@ public class MultiClient {
 
         private int groupId;
 
+        class MessageCallbackHandler implements IMessageCallbackHandler {
+
+            @Override
+            public void messageArrive(MqttPublishMessage mqttPublishMessage) {
+                logger.info(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+            }
+
+            @Override
+            public void connectionLost(Throwable cause) {
+                logger.error("Connection lost: " + cause.getMessage() + " Client ID: " + blockClient.getClientId());
+                Thread.interrupted();
+            }
+
+        }
+
         @Override
         public void run() {
             try {
-                blockClient.connect(1, 0);
+                blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
+                blockClient.setMessageCallbackHandler(new MessageCallbackHandler());
                 blockClient.subscribe(topicFilter, MqttQoS.AT_LEAST_ONCE, 0, groupId);
             } catch (Exception e) {
                 logger.error(e.getMessage());

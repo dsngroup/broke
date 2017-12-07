@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.client.exception;
+/**
+ * This package used for dealing with channel, as a pipeline of processing.
+ */
 
-public class ConnectDeniedException extends Exception {
-    public ConnectDeniedException(String message) {
-        super(message);
-    }
-}
+package org.dsngroup.broke.client.handler.processor;

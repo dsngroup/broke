@@ -19,10 +19,13 @@ package org.dsngroup.broke.client.handler;
 import io.netty.channel.*;
 
 import io.netty.util.ReferenceCountUtil;
+import org.dsngroup.broke.client.exception.ConnectLostException;
 import org.dsngroup.broke.client.ClientContext;
+import org.dsngroup.broke.client.handler.callback.DefaultMessageCallbackHandler;
 import org.dsngroup.broke.client.metadata.ClientSession;
 import org.dsngroup.broke.client.handler.processor.ProtocolProcessor;
 import org.dsngroup.broke.protocol.*;
+import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +40,15 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
     private ClientContext clientContext;
 
     private ClientSession clientSession;
+
+    private IMessageCallbackHandler messageCallbackHandler;
+
+    public void setMessageCallbackHandler(IMessageCallbackHandler messageCallbackHandler) {
+        this.messageCallbackHandler = messageCallbackHandler;
+        if(protocolProcessor != null) {
+            protocolProcessor.setMessageCallbackHandler(messageCallbackHandler);
+        }
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -80,20 +92,25 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause) {
-        logger.error(cause.getMessage());
-        ctx.close();
-        // TODO: is this proper?
-        Thread.currentThread().interrupt();
+        logger.error("An exceptionCaught() event is fired: " + cause.getMessage());
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         protocolProcessor = new ProtocolProcessor(this.clientContext);
+        protocolProcessor.setMessageCallbackHandler(this.messageCallbackHandler);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws ConnectLostException {
+        ctx.close();
+        messageCallbackHandler.connectionLost(new ConnectLostException("CONNECTION_LOST"));
     }
 
     public MqttMessageHandler(ClientContext clientContext) {
         this.clientContext = clientContext;
         this.clientSession = clientContext.getClientSession();
+        this.messageCallbackHandler = new DefaultMessageCallbackHandler();
     }
 
 }

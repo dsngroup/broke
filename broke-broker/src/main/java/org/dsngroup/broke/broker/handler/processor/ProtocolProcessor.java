@@ -134,6 +134,14 @@ public class ProtocolProcessor {
     }
 
     /**
+     * Process PUBACK
+     * @param mqttPubAckMessage puback message from the subscribe client.
+     */
+    public void processPubAck(MqttPubAckMessage mqttPubAckMessage) {
+        // nop currently.
+    }
+
+    /**
      * Process SUBSCRIBE
      * Registor all of the subscriptions to the subscription pool in the server session.
      * @param channel {@see channel}

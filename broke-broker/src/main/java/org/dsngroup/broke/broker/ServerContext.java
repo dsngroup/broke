@@ -29,8 +29,6 @@ public class ServerContext {
 
     private ServerSessionPool serverSessionPool;
 
-    private MessagePool messagePool;
-
     private MessageDispatcher messageDispatcher;
 
     /**
@@ -38,13 +36,6 @@ public class ServerContext {
      * */
     public ServerSessionPool getServerSessionPool() {
         return serverSessionPool;
-    }
-
-    /**
-     * Getter method for message pool
-     * */
-    public MessagePool getMessagePool() {
-        return messagePool;
     }
 
     /**
@@ -61,7 +52,6 @@ public class ServerContext {
      * */
     public ServerContext() {
         serverSessionPool = new ServerSessionPool();
-        messagePool = new MessagePool();
         messageDispatcher = new MessageDispatcher(serverSessionPool);
     }
 }

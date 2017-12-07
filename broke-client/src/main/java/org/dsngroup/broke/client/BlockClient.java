@@ -23,18 +23,17 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.dsngroup.broke.client.exception.ConnectDeniedException;
+import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
+import org.dsngroup.broke.client.exception.ConnectLostException;
+import org.dsngroup.broke.client.util.ClientIdGenerator;
 import org.dsngroup.broke.client.util.PacketIdGenerator;
-import org.dsngroup.broke.protocol.*;
 import org.dsngroup.broke.client.handler.MqttMessageHandler;
-import org.dsngroup.broke.protocol.MqttEncoder;
-import org.dsngroup.broke.protocol.MqttDecoder;
+import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * The BlockClient should be deprecated after the asynchronous client is implemented.
@@ -52,26 +51,33 @@ public class BlockClient {
 
     private EventLoopGroup workerGroup;
 
-    private static Random rand = new Random();
-
     private String clientId;
 
     private PacketIdGenerator packetIdGenerator = new PacketIdGenerator();
 
     private final static Logger logger = LoggerFactory.getLogger(BlockClient.class);
 
+    private MqttMessageHandler mqttMessageHandler;
+
+    /**
+     * Getter for client ID
+     * */
+    public String getClientId() {
+        return clientId;
+    }
+
     /**
      * Send CONNECT to server
      * @param qos qos option
      * */
-    public void connect(int qos, int criticalOption) throws Exception {
+    public void connect(MqttQoS qos, int criticalOption) throws Exception {
 
         // Connect only when the channel is active
         if(targetServerChannel.isActive()) {
 
             // Create CONNECT message
             MqttFixedHeader mqttFixedHeader =
-                    new MqttFixedHeader(MqttMessageType.CONNECT, false, MqttQoS.AT_LEAST_ONCE,
+                    new MqttFixedHeader(MqttMessageType.CONNECT, false, qos,
                     true, 0);
             MqttConnectVariableHeader mqttConnectVariableHeader =
                     new MqttConnectVariableHeader("MQTT", 4, false, false,
@@ -79,22 +85,11 @@ public class BlockClient {
             MqttConnectPayload mqttConnectPayload =
                     new MqttConnectPayload(clientId, "Foo", "Bar".getBytes(), null, null);
 
-            ChannelFuture future = targetServerChannel.pipeline().writeAndFlush(
+            targetServerChannel.pipeline().writeAndFlush(
                     new MqttConnectMessage(mqttFixedHeader, mqttConnectVariableHeader, mqttConnectPayload));
 
-            future.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.cause()!=null) {
-                        logger.error("[Connect] Write CONNECT failed: "+future.cause());
-                        System.exit(1);
-                    }
-                }
-            });
-
         } else {
-            logger.error("[Client] Channel is not active");
-            throw new ConnectDeniedException("CONNECT_DENIED");
+            throw new ConnectLostException("CONNECT_DENIED");
         }
 
     }
@@ -122,11 +117,8 @@ public class BlockClient {
                     new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, publisherPayload)
             );
 
-            // TODO: publish statistics.
-
         } else {
-            logger.error("[Publish] Channel closed, cannot publish");
-            throw new ConnectDeniedException("CONNECT_DENIED");
+            throw new ConnectLostException("CANNOT_PUBLISH");
         }
     }
 
@@ -147,19 +139,10 @@ public class BlockClient {
             MqttSubscribePayload subscriberSubscribePayload = new MqttSubscribePayload(mqttTopicSubscriptionList);
             MqttSubscribeMessage mqttSubscribeMessage =
                     new MqttSubscribeMessage(subscriberFixedHeader, subscriberVariableHeader, subscriberSubscribePayload);
+            targetServerChannel.writeAndFlush(mqttSubscribeMessage);
 
-            ChannelFuture future = targetServerChannel.writeAndFlush(mqttSubscribeMessage);
-            future.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if(!future.isSuccess()) {
-                        logger.error("Write subscribe failed");
-                    }
-                }
-            });
         } else {
-            logger.error("[Publish] Channel closed, cannot subscribe");
-            throw new ConnectDeniedException("CONNECT_DENIED");
+            throw new ConnectLostException("CANNOT_SUBSCRIBE");
         }
     }
 
@@ -167,22 +150,23 @@ public class BlockClient {
      * Disconnect: send DISCONNECT to server and close the channel.
      * */
     public void disconnect() {
-        MqttFixedHeader mqttFixedHeader =
-                new MqttFixedHeader(MqttMessageType.DISCONNECT, false, MqttQoS.AT_LEAST_ONCE, false, 0 );
-        MqttMessage disconnectMessage = new MqttMessage(mqttFixedHeader);
+        if (targetServerChannel.isActive()) {
+            MqttFixedHeader mqttFixedHeader =
+                    new MqttFixedHeader(MqttMessageType.DISCONNECT, false, MqttQoS.AT_LEAST_ONCE, false, 0);
+            MqttMessage disconnectMessage = new MqttMessage(mqttFixedHeader);
 
-        targetServerChannel.writeAndFlush(disconnectMessage);
-        ChannelFuture future = targetServerChannel.closeFuture();
-        future.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if(future.isDone()) {
-                    workerGroup.shutdownGracefully();
-                }
-            }
-        });
+            targetServerChannel.writeAndFlush(disconnectMessage);
+        }
+        targetServerChannel.close();
     }
 
+    /**
+     * Setter for message callback handler
+     * @param messageCallbackHandler user-defined message callback handler
+     * */
+    public void setMessageCallbackHandler(IMessageCallbackHandler messageCallbackHandler) {
+        mqttMessageHandler.setMessageCallbackHandler(messageCallbackHandler);
+    }
 
     /**
      * The default constructor
@@ -195,7 +179,7 @@ public class BlockClient {
      * The constructor without specifying clientId
      * */
     public BlockClient(String targetBrokerAddress, int targetBrokerPort) throws Exception {
-        this(targetBrokerAddress, targetBrokerPort, "client_"+(rand.nextInt(10000) + 1));
+        this(targetBrokerAddress, targetBrokerPort, ClientIdGenerator.getClientId());
     }
 
     /**
@@ -223,7 +207,7 @@ public class BlockClient {
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(MqttEncoder.INSTANCE);
                             ch.pipeline().addLast(new MqttDecoder());
-                            ch.pipeline().addLast(new MqttMessageHandler(clientContext));
+                            ch.pipeline().addLast(mqttMessageHandler = new MqttMessageHandler(clientContext));
                         }
                     });
 
@@ -242,19 +226,5 @@ public class BlockClient {
         }
     }
 
-    public boolean isActive() {
-        return targetServerChannel.isActive();
-    }
-
-    public void close() throws Exception {
-        // Request to close this Channel and notify the ChannelFuture once the operation completes
-        ChannelFuture future = targetServerChannel.close();
-        targetServerChannel.closeFuture().addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                workerGroup.shutdownGracefully();
-            }
-        });
-    }
 }
 

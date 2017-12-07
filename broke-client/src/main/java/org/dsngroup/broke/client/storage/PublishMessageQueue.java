@@ -20,7 +20,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 @SuppressWarnings("The fake publish module should move out to the outer scope.")
-public class PublishMessageQueue {
+public class PublishMessageQueue implements IPublishMessageQueue {
 
     private Deque<String> receivedPublishQueue;
 
@@ -32,13 +32,15 @@ public class PublishMessageQueue {
 
     private boolean isBackPressured;
 
+    @Override
     public boolean isBackPressured() {
         return isBackPressured;
     }
 
-    synchronized String getMessage() {
-        if(receivedPublishQueue.size()>0) {
-            if (receivedPublishQueue.size()-1<maxSize*lowWaterMark) {
+    @Override
+    public synchronized String getMessage() {
+        if(receivedPublishQueue.size() > 0) {
+            if (receivedPublishQueue.size()-1 < maxSize*lowWaterMark) {
                 isBackPressured = false;
             }
             return receivedPublishQueue.poll();
@@ -46,10 +48,11 @@ public class PublishMessageQueue {
         return null;
     }
 
-    synchronized void putMessage(String message) {
+    @Override
+    public synchronized void putMessage(String message) {
         if(receivedPublishQueue.size() < maxSize) {
             receivedPublishQueue.offer(message);
-            if (receivedPublishQueue.size()>maxSize*highWaterMark) {
+            if (receivedPublishQueue.size() > maxSize*highWaterMark) {
                 isBackPressured = true;
             }
         }

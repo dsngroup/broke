@@ -19,7 +19,9 @@ package org.dsngroup.broke.client.handler.processor;
 import io.netty.channel.ChannelHandlerContext;
 
 import org.dsngroup.broke.client.ClientContext;
-import org.dsngroup.broke.client.exception.ConnectDeniedException;
+import org.dsngroup.broke.client.handler.callback.DefaultMessageCallbackHandler;
+import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
+import org.dsngroup.broke.client.exception.ConnectLostException;
 import org.dsngroup.broke.client.metadata.ClientSession;
 import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
@@ -35,6 +37,12 @@ public class ProtocolProcessor {
 
     private final static Logger logger = LoggerFactory.getLogger(ProtocolProcessor.class);
 
+    private IMessageCallbackHandler messageCallbackHandler;
+
+    public void setMessageCallbackHandler(IMessageCallbackHandler messageCallbackHandler) {
+        this.messageCallbackHandler = messageCallbackHandler;
+    }
+
     /**
      * Handle CONNACK
      * @param ctx {@see ChannelHandlerContext}
@@ -46,19 +54,29 @@ public class ProtocolProcessor {
         } else {
             logger.error("[Connect] Connection denied, close the channel.");
             ctx.channel().close();
-            throw new ConnectDeniedException("CONNECTION_DENIED");
+            messageCallbackHandler.connectionLost(new ConnectLostException("CONNECT_DENIED"));
         }
     }
 
     /**
-     * Handle PUBLISH
+     * Handle PUBLISH and return a PUBACK
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPublishMessage PUBLISH message from broker
      * */
     public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) throws Exception {
-        clientSession.getFakePublishMessageQueue()
+        clientSession.getPublishMessageQueue()
                 .putMessage(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
-        // TODO: return PUBACK
+        messageCallbackHandler.messageArrive(mqttPublishMessage);
+
+        MqttFixedHeader mqttFixedHeader =
+                new MqttFixedHeader(MqttMessageType.PUBACK,
+                        false,
+                        MqttQoS.AT_LEAST_ONCE,
+                        false,
+                        0);
+        MqttMessageIdVariableHeader mqttMessageIdVariableHeader =
+                MqttMessageIdVariableHeader.from(mqttPublishMessage.variableHeader().packetId());
+        ctx.channel().writeAndFlush(new MqttPubAckMessage(mqttFixedHeader, mqttMessageIdVariableHeader));
     }
 
     /**
