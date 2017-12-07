@@ -39,9 +39,13 @@ class MessagePublisher {
         try {
             if(ctx.channel().isActive()) {
                 Channel channel = ctx.channel();
+
                 int packetId = mqttPublishMessage.variableHeader().packetId();
 
                 if (mqttPublishMessage.payload().isReadable()) {
+                    if (mqttPublishMessage.fixedHeader().isRetain()) {
+                        mqttPublishMessage.payload().retain();
+                    }
                     publishToSubscriptions(serverContext, mqttPublishMessage);
                 }
 

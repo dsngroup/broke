@@ -33,10 +33,6 @@ public class ServerContext {
 
     private ServerSessionPool serverSessionPool;
 
-    // TODO: The message pool is not used anymore.
-    @Deprecated
-    private MessagePool messagePool;
-
     private MessageDispatcher messageDispatcher;
 
     /**
@@ -44,14 +40,6 @@ public class ServerContext {
      */
     public ServerSessionPool getServerSessionPool() {
         return serverSessionPool;
-    }
-
-    /**
-     * Getter method for message pool
-     */
-    @Deprecated
-    public MessagePool getMessagePool() {
-        return messagePool;
     }
 
     /**
@@ -117,7 +105,6 @@ public class ServerContext {
     public ServerContext() {
         loadProperties();
         serverSessionPool = new ServerSessionPool();
-        messagePool = new MessagePool();
         messageDispatcher = new MessageDispatcher(serverSessionPool);
     }
 }

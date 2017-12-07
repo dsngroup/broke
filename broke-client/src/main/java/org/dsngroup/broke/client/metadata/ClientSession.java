@@ -16,7 +16,9 @@
 
 package org.dsngroup.broke.client.metadata;
 
+import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
 import org.dsngroup.broke.client.storage.FakePublishMessageQueue;
+import org.dsngroup.broke.client.storage.IPublishMessageQueue;
 import org.dsngroup.broke.protocol.MqttMessage;
 
 import java.util.Map;
@@ -25,28 +27,29 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Client session
  * Each client should have only one client session
- * */
+ */
 public class ClientSession {
 
     private final String clientId;
 
-    private FakePublishMessageQueue fakePublishMessageQueue;
+    @SuppressWarnings("Need to rediscuss this, for the scope of fake publish")
+    private IPublishMessageQueue publishMessageQueue;
 
     // Unacked messages store: Key: packet idenfier, value: message
     private final Map<String, MqttMessage> unackedMessages;
 
     public boolean isBackPressured() {
-        return fakePublishMessageQueue.isBackPressured();
+        return publishMessageQueue.isBackPressured();
     }
 
-    public FakePublishMessageQueue getFakePublishMessageQueue() {
-        return fakePublishMessageQueue;
+    public IPublishMessageQueue getPublishMessageQueue() {
+        return publishMessageQueue;
     }
 
-    public ClientSession(String clientId) {
+    public ClientSession(String clientId, IPublishMessageQueue publishMessageQueue) {
         this.clientId = clientId;
         this.unackedMessages = new ConcurrentHashMap<>();
-        this.fakePublishMessageQueue = new FakePublishMessageQueue(10, 0.3, 0.8);
+        this.publishMessageQueue = publishMessageQueue;
     }
 
 }

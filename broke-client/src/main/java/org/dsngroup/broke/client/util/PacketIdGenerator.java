@@ -18,9 +18,7 @@ package org.dsngroup.broke.client.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Packet Id should between 1~65535
- * */
+/** Packet Id should between 1~65535 */
 public class PacketIdGenerator {
 
     private AtomicInteger packetId;
