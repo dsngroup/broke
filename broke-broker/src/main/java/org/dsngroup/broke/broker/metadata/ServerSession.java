@@ -31,7 +31,7 @@ public class ServerSession {
     private SubscriptionPool subscriptionPool;
 
     /**
-     * An incremental packet ID
+     * An incremental packet ID.
      * */
     private PacketIdGenerator packetIdGenerator;
 
@@ -41,21 +41,21 @@ public class ServerSession {
     private ClientProber clientProber;
 
     /**
-     * Getter for isActive
+     * Getter for isActive.
      * */
     public boolean getIsActive() {
         return isActive;
     }
 
     /**
-     * Setter for isActive
+     * Setter for isActive.
      * */
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
 
     /**
-     * Getter for client Id
+     * Getter for client Id.
      * */
     public String getClientId() {
         return clientId;
@@ -63,21 +63,21 @@ public class ServerSession {
 
 
     /**
-     * Getter for subscription pool
+     * Getter for subscription pool.
      * */
     public SubscriptionPool getSubscriptionPool() {
         return subscriptionPool;
     }
 
     /**
-     * Getter for the next valid publish packet Id
+     * Getter for the next valid publish packet Id.
      * */
     public int getNextPacketId() {
         return packetIdGenerator.getPacketId();
     }
 
     /**
-     * Setter for client prober
+     * Setter for client prober.
      * */
     public void setClientProber(ClientProber clientProber) {
         this.clientProber = clientProber;
@@ -87,10 +87,11 @@ public class ServerSession {
      * Getter for the current publish score.
      * */
     public double getPublishScore() {
-        if(clientProber.isBackPressured())
+        if (clientProber.isBackPressured()) {
             return 0;
-        else
-            return 1/clientProber.getRttAvg();
+        } else {
+            return 1 / clientProber.getRttAvg();
+        }
     }
 
     ServerSession(String clientId) {

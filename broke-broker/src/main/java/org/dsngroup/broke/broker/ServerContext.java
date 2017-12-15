@@ -36,14 +36,14 @@ public class ServerContext {
     private MessageDispatcher messageDispatcher;
 
     /**
-     * Getter method for server session pool
+     * Getter method for server session pool.
      */
     public ServerSessionPool getServerSessionPool() {
         return serverSessionPool;
     }
 
     /**
-     * Getter method for message dispatcher
+     * Getter method for message dispatcher.
      */
     public MessageDispatcher getMessageDispatcher() {
         return messageDispatcher;

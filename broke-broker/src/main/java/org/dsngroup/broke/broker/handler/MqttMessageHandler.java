@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
 
-    private final static Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
 
     private ProtocolProcessor protocolProcessor;
 
@@ -47,7 +47,7 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
                     logger.debug("[MqttMessageHandler] PUBLISH");
                     break;
                 case PUBACK:
-                    protocolProcessor.processPubAck((MqttPubAckMessage)mqttMessage);
+                    protocolProcessor.processPubAck((MqttPubAckMessage) mqttMessage);
                     logger.debug("[MqttMessageHandler] PUBACK");
                     break;
                 case SUBSCRIBE:

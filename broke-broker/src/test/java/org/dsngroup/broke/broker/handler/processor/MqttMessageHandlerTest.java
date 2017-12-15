@@ -47,7 +47,7 @@ public class MqttMessageHandlerTest {
             EmbeddedChannel channel = new EmbeddedChannel(new MqttMessageHandler(serverContext));
 
             MqttFixedHeader mqttFixedHeader =
-                    new MqttFixedHeader( MqttMessageType.CONNECT, false, MqttQoS.AT_LEAST_ONCE,
+                    new MqttFixedHeader(MqttMessageType.CONNECT, false, MqttQoS.AT_LEAST_ONCE,
                             true, 0);
 
             MqttConnectVariableHeader mqttConnectVariableHeader =
@@ -67,7 +67,6 @@ public class MqttMessageHandlerTest {
             assertEquals(mqttConnAckMessage.variableHeader().connectReturnCode(), MqttConnectReturnCode.CONNECTION_ACCEPTED);
             // The channel must be active now
             assertEquals(channel.isActive(), true);
-
 
             // Send second CONNECT, the handler should close the channel
             channel.writeInbound(mqttConnectMessage);
@@ -152,7 +151,7 @@ public class MqttMessageHandlerTest {
         assertEquals(publisherConnAck.variableHeader().connectReturnCode(), MqttConnectReturnCode.CONNECTION_ACCEPTED);
 
         subscriberChannel.writeInbound(mqttSubscriberConnectMessage);
-        MqttConnAckMessage subscriberConnAck= subscriberChannel.readOutbound();
+        MqttConnAckMessage subscriberConnAck = subscriberChannel.readOutbound();
         assertEquals(subscriberConnAck.variableHeader().connectReturnCode(), MqttConnectReturnCode.CONNECTION_ACCEPTED);
 
         // Subscribe

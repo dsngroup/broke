@@ -13,6 +13,10 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- plugins -->
+        <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
+        <!-- dependencies -->
+        <dep.version>1.0-SNAPSHOT</dep.version>
     </properties>
     <dependencies>
         <dependency>
@@ -27,4 +31,63 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.5.5</version>
+                    <executions>
+                        <execution>
+                            <id>build-SamplePublish</id>
+                            <configuration>
+                                <archive>
+                                    <manifest>
+                                        <mainClass>org.dsngroup.broke.SamplePublish</mainClass>
+                                    </manifest>
+                                </archive>
+                                <descriptorRefs>
+                                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                                </descriptorRefs>
+                                <finalName>SamplePublish</finalName>
+                            </configuration>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>build-SampleSubscribe</id>
+                            <configuration>
+                                <archive>
+                                    <manifest>
+                                        <mainClass>org.dsngroup.broke.SampleSubscribe</mainClass>
+                                    </manifest>
+                                </archive>
+                                <descriptorRefs>
+                                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                                </descriptorRefs>
+                                <finalName>SampleSubscribe</finalName>
+                            </configuration>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

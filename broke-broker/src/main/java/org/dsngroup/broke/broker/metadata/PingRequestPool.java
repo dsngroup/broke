@@ -17,7 +17,7 @@
 package org.dsngroup.broke.broker.metadata;
 
 /**
- * Storage for PINGREQ messages
+ * Storage for PINGREQ messages.
  * */
 public class PingRequestPool {
 
@@ -37,10 +37,11 @@ public class PingRequestPool {
         private long sendTime;
 
         synchronized long getPingReq(int packetId) {
-            if(this.packetId == packetId)
+            if (this.packetId == packetId) {
                 return sendTime;
-            else
+            } else {
                 return -1;
+            }
         }
 
         synchronized void setPingReq(int packetId, long sendTime) {
@@ -74,7 +75,7 @@ public class PingRequestPool {
 
     public PingRequestPool(int pingReqSize) {
         pingReq = new PingReq[pingReqSize];
-        for (int i=0; i<pingReqSize; i++) {
+        for (int i = 0; i < pingReqSize; i++) {
             pingReq[i] = new PingReq();
         }
     }

@@ -33,11 +33,11 @@ public class ServerSessionPoolTest {
         ServerSessionPool serverSessionPool = serverContext.getServerSessionPool();
 
         // Do not clean session
-        ServerSession serverSession_1 = serverSessionPool.getSession("client_123", false);
-        ServerSession serverSession_2 = serverSessionPool.getSession("client_123", false);
+        ServerSession serverSession1 = serverSessionPool.getSession("client_123", false);
+        ServerSession serverSession2 = serverSessionPool.getSession("client_123", false);
 
         // Two of the sessions should be the same session
-        assertEquals(serverSession_1, serverSession_2);
+        assertEquals(serverSession1, serverSession2);
 
     }
 
@@ -49,11 +49,11 @@ public class ServerSessionPoolTest {
         ServerSessionPool serverSessionPool = serverContext.getServerSessionPool();
 
         // Clean session
-        ServerSession serverSession_1 = serverSessionPool.getSession("client_123", true);
-        ServerSession serverSession_2 = serverSessionPool.getSession("client_123", true);
+        ServerSession serverSession1 = serverSessionPool.getSession("client_123", true);
+        ServerSession serverSession2 = serverSessionPool.getSession("client_123", true);
 
         // Second session is a newly created session. Not the same as the first session.
-        assertNotEquals(serverSession_1, serverSession_2);
+        assertNotEquals(serverSession1, serverSession2);
 
     }
 
@@ -74,7 +74,7 @@ public class ServerSessionPoolTest {
                 serverSessionPool.getSession("client_" + i, true);
             }
         } catch (Exception e) {
-            fail("Create many session test failed: "+e.getStackTrace().toString());
+            fail("Create many session test failed: " + e.getStackTrace().toString());
         }
     }
 

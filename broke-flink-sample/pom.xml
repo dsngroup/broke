@@ -2,37 +2,44 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>org.dsngroup</groupId>
         <artifactId>broke-parent</artifactId>
+        <groupId>org.dsngroup</groupId>
         <version>0.1</version>
     </parent>
-    <artifactId>broke-broker</artifactId>
-    <packaging>jar</packaging>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>broke-flink</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-java</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java_2.11</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients_2.11</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dsngroup</groupId>
+            <artifactId>broke-client</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <!-- plugins -->
         <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
         <!-- dependencies -->
         <dep.version>1.0-SNAPSHOT</dep.version>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.16.Final</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dsngroup</groupId>
-            <artifactId>broke-protocol</artifactId>
-            <version>0.1</version>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -54,13 +61,13 @@
                     <configuration>
                         <archive>
                             <manifest>
-                                <mainClass>org.dsngroup.broke.broker.Server</mainClass>
+                                <mainClass>org.dsngroup.broke.BrokeWordCount</mainClass>
                             </manifest>
                         </archive>
                         <descriptorRefs>
                             <descriptorRef>jar-with-dependencies</descriptorRef>
                         </descriptorRefs>
-                        <finalName>Server</finalName>
+                        <finalName>MqttWordCount</finalName>
                     </configuration>
                     <executions>
                         <execution>

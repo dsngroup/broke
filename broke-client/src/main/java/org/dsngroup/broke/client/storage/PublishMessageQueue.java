@@ -58,7 +58,7 @@ public class PublishMessageQueue implements IPublishMessageQueue {
         }
     }
 
-    public PublishMessageQueue(int maxSize, float lowWaterMark, float highWaterMark) {
+    public PublishMessageQueue(int maxSize, double lowWaterMark, double highWaterMark) {
         this.maxSize = maxSize;
         this.receivedPublishQueue = new ArrayDeque<>(maxSize);
         this.lowWaterMark = lowWaterMark;
