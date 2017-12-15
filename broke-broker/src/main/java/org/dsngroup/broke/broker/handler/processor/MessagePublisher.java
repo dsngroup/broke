@@ -37,7 +37,7 @@ class MessagePublisher {
                             MqttPublishMessage mqttPublishMessage) {
 
         try {
-            if(ctx.channel().isActive()) {
+            if (ctx.channel().isActive()) {
                 Channel channel = ctx.channel();
 
                 int packetId = mqttPublishMessage.variableHeader().packetId();
@@ -64,7 +64,7 @@ class MessagePublisher {
     }
 
     /**
-     * Publish the message to all sessions
+     * Publish the message to all sessions.
      * @param serverContext server context
      * @param mqttPublishMessage The PUBLISH message from the publisher
      * */

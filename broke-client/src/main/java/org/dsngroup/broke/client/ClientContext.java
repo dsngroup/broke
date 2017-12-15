@@ -18,6 +18,7 @@ package org.dsngroup.broke.client;
 
 import org.dsngroup.broke.client.metadata.ClientSession;
 import org.dsngroup.broke.client.storage.FakePublishMessageQueue;
+import org.dsngroup.broke.client.storage.PublishMessageQueue;
 
 public class ClientContext {
 

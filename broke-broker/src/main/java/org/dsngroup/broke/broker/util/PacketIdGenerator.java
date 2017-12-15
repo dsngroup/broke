@@ -19,7 +19,7 @@ package org.dsngroup.broke.broker.util;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Packet Id should between 1~65535
+ * Packet Id should between 1~65535.
  * */
 public class PacketIdGenerator {
 
@@ -27,9 +27,9 @@ public class PacketIdGenerator {
 
     public int getPacketId() {
         int retVal = packetId.getAndIncrement();
-        if(retVal > 65535) {
+        if (retVal > 65535) {
             synchronized (this) {
-                if(packetId.get() > 65535) {
+                if (packetId.get() > 65535) {
                     packetId.set(1);
                     retVal = packetId.getAndIncrement();
                 }

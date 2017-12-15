@@ -27,13 +27,13 @@ import java.util.*;
 public class SubscriptionPool {
 
     /**
-     * The subscriber pool
+     * The subscriber pool.
      * The List of subscribers
      * */
     private final List<Subscription> subscriptionList;
 
     /**
-     * Register the subscriber to an interested topic
+     * Register the subscriber to an interested topic.
      * @param topic Interested topic
      * @param groupId consumer group id
      * @param channel subscriber's Channel {@see Channel}
@@ -46,7 +46,7 @@ public class SubscriptionPool {
     }
 
     /**
-     * Unregister the subscriber from the interested topic keyed by subscriber's ChannelHandlerContext
+     * Unregister the subscriber from the interested topic keyed by subscriber's ChannelHandlerContext.
      * @param topic topic to unsubscribe
      * @param channel the subscriber's ChannelHandlerContext
      * @Exception no such topic or subscriber
@@ -67,14 +67,16 @@ public class SubscriptionPool {
     }
 
     public Subscription getMatchSubscription(String topic) {
-        for(Subscription subscription: subscriptionList) {
-            if(subscription.getTopic().equals(topic)) return subscription;
+        for (Subscription subscription: subscriptionList) {
+            if (subscription.getTopic().equals(topic)) {
+                return subscription;
+            }
         }
         return null;
     }
 
     /**
-     * Constructor
+     * Constructor.
      * */
     SubscriptionPool() {
         subscriptionList = new LinkedList<>();

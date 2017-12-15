@@ -35,7 +35,7 @@ public class ProtocolProcessor {
     // Status of the Protocol Processor: Whether the client has sent the CONNECT message.
     private boolean isConnected;
 
-    private final static Logger logger = LoggerFactory.getLogger(ProtocolProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProtocolProcessor.class);
 
     // Initialized at the construction of protocol processor
     private ServerContext serverContext;
@@ -55,7 +55,7 @@ public class ProtocolProcessor {
     public void processConnect(Channel channel, MqttConnectMessage mqttConnectMessage) {
 
         // Close the channel if receive the connect message second time.
-        if(this.isConnected) {
+        if (this.isConnected) {
             channel.close();
         } else {
             // Mark the channel as is connected when first received a connect message
@@ -96,21 +96,21 @@ public class ProtocolProcessor {
     }
 
     /**
-     * Create the Mqtt CONNACK message with given return code and original CONNECT message
+     * Create the Mqtt CONNACK message with given return code and original CONNECT message.
      * @param returnCode The return code of CONNACK
      * @param mqttConnectMessage original CONNECT message
      * @return created MqttConnAckMessage instance.
      * */
     private MqttConnAckMessage connAck(MqttConnectReturnCode returnCode, MqttConnectMessage mqttConnectMessage) {
         MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false,
-                mqttConnectMessage.fixedHeader().qosLevel(),false, 0);
+                mqttConnectMessage.fixedHeader().qosLevel(), false, 0);
         MqttConnAckVariableHeader mqttConnAckVariableHeader =
                 new MqttConnAckVariableHeader(returnCode, true);
         return new MqttConnAckMessage(mqttFixedHeader, mqttConnAckVariableHeader);
     }
 
     /**
-     * process PUBLISH message using messagePublisher
+     * process PUBLISH message using messagePublisher.
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPublishMessage PUBLISH message from the client
      * */
@@ -132,7 +132,7 @@ public class ProtocolProcessor {
     }
 
     /**
-     * Process PUBACK
+     * Process PUBACK.
      * @param mqttPubAckMessage puback message from the subscribe client.
      */
     public void processPubAck(MqttPubAckMessage mqttPubAckMessage) {
@@ -147,7 +147,7 @@ public class ProtocolProcessor {
      * */
     public void processSubscribe(Channel channel, MqttSubscribeMessage mqttSubscribeMessage) {
 
-        if(isConnected) {
+        if (isConnected) {
             SubscriptionPool subscriptionPool = serverSession.getSubscriptionPool();
 
             List<MqttQoS> grantedQosList = new ArrayList<>();
@@ -170,7 +170,7 @@ public class ProtocolProcessor {
     }
 
     /**
-     * Create the SUBACK message
+     * Create the SUBACK message.
      * @param qos QoS of the SUBACK message
      * @param packetId packetId corresponding to the SUBSCRIBE message
      * @param grantedQosList granted QoS List of the corresponding SUBSCRIBE
@@ -182,13 +182,12 @@ public class ProtocolProcessor {
                 new MqttFixedHeader(MqttMessageType.SUBACK, false, qos, false, 0);
         MqttMessageIdVariableHeader mqttMessageIdVariableHeader = MqttMessageIdVariableHeader.from(packetId);
         List<Integer> grantedQoSInteger = new ArrayList<>();
-        for(MqttQoS grantedQos: grantedQosList) {
+        for (MqttQoS grantedQos: grantedQosList) {
             grantedQoSInteger.add(grantedQos.value());
         }
         MqttSubAckPayload mqttSubAckPayload = new MqttSubAckPayload(grantedQoSInteger);
         return new MqttSubAckMessage(mqttFixedHeader, mqttMessageIdVariableHeader, mqttSubAckPayload);
     }
-
 
     public void processPingResp(MqttPingRespMessage mqttPingRespMessage) {
         int packetId = mqttPingRespMessage.variableHeader().packetId();
@@ -204,7 +203,7 @@ public class ProtocolProcessor {
      * 2. Close the PINGREQ schedule.
      * */
     public void processDisconnect() {
-        if(isConnected) {
+        if (isConnected) {
             isConnected = false;
             synchronized (this) {
                 serverSession.setIsActive(false);
@@ -214,7 +213,7 @@ public class ProtocolProcessor {
     }
 
     /**
-     * The constructor of the protocol processor
+     * The constructor of the protocol processor.
      * Initialize the isConnected status to false
      * Create the message publisher
      * @param serverContext the global server context

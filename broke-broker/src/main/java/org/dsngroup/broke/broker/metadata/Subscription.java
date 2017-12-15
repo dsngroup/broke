@@ -22,7 +22,7 @@ import org.dsngroup.broke.protocol.MqttQoS;
 import java.util.Objects;
 
 /**
- * The subscriber information class
+ * The subscriber information class.
  * */
 public class Subscription {
 
@@ -32,7 +32,7 @@ public class Subscription {
     private Channel subscriberChannel;
 
     /**
-     * Getter methods
+     * Getter methods.
      * */
     public String getTopic() {
         return topic;
@@ -51,7 +51,7 @@ public class Subscription {
     }
 
     /**
-     * The constructor
+     * The constructor.
      * @param subscriberChannel subscriberChannel of this subscriber {@see ChannelHandlerContext}
      * @param groupId the consumer group id
      * */
@@ -63,7 +63,7 @@ public class Subscription {
     }
 
     /**
-     * Override hashCode() for HashSet
+     * Override hashCode() for HashSet.
      * @return hash code
      * */
     @Override
@@ -72,8 +72,8 @@ public class Subscription {
     }
 
     /**
-     * Override equals() for Set comparator
-     * Compare using the reference of subscriberChannelHandlerContext
+     * Override equals() for Set comparator.
+     * Compare using the reference of subscriberChannelHandlerContext.
      * @param obj Other object
      * */
     @Override
@@ -85,10 +85,10 @@ public class Subscription {
             return false;
         }
         final Subscription other = (Subscription) obj;
-        if(this.getSubscriberChannel() != other.getSubscriberChannel()) {
+        if (this.getSubscriberChannel() != other.getSubscriberChannel()) {
             return false;
         }
-        if(!this.getTopic().equals(other.getTopic())) {
+        if (!this.getTopic().equals(other.getTopic())) {
             return false;
         }
         return true;

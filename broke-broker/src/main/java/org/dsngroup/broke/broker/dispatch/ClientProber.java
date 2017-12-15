@@ -20,7 +20,6 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.ScheduledFuture;
 import org.dsngroup.broke.broker.metadata.PingRequestPool;
 import org.dsngroup.broke.broker.metadata.RttStatistics;
-import org.dsngroup.broke.broker.metadata.ServerSession;
 import org.dsngroup.broke.protocol.*;
 
 import java.util.concurrent.TimeUnit;
@@ -39,7 +38,7 @@ public class ClientProber {
     private boolean isBackPressured;
 
     /**
-     * Getter for current round-trip time
+     * Getter for current round-trip time.
      * */
     public double getRttAvg() {
         return rttStatistics.getRttAvg();
@@ -52,20 +51,20 @@ public class ClientProber {
     public void setPingResp(int packetId) {
         long sendTime = pingRequestPool.getPingReq(packetId);
         if (sendTime != -1) {
-            double newRtt = (System.nanoTime() - sendTime)/1e6;
+            double newRtt = (System.nanoTime() - sendTime) / 1e6;
             rttStatistics.updateRttStatistics(newRtt);
         }
     }
 
     /**
-     * Getter for isBackPressured
+     * Getter for isBackPressured.
      * */
     public boolean isBackPressured() {
         return isBackPressured;
     }
 
     /**
-     * Setter for isBackPressured
+     * Setter for isBackPressured.
      * */
     public void setIsBackPressured(boolean isBackPressured) {
         this.isBackPressured = isBackPressured;
@@ -82,7 +81,10 @@ public class ClientProber {
 
                         int packetId = pingReqPacketIdGenerator.getAndIncrement();
                         MqttFixedHeader mqttFixedHeader =
-                                new MqttFixedHeader(MqttMessageType.PINGREQ, false, MqttQoS.AT_MOST_ONCE, false, 0);
+                                new MqttFixedHeader(MqttMessageType.PINGREQ,
+                                        false, MqttQoS.AT_MOST_ONCE,
+                                        false,
+                                        0);
                         MqttPingReqVariableHeader mqttPingReqVariableHeader =
                                 new MqttPingReqVariableHeader(false, packetId);
                         MqttPingReqMessage mqttPingReqMessage =
@@ -97,8 +99,9 @@ public class ClientProber {
     public void cancelPingReq() {
         // Stop the PINGREQ schedule
         // TODO: is the check necessary?
-        if (pingReqScheduleFuture!=null)
+        if (pingReqScheduleFuture != null) {
             pingReqScheduleFuture.cancel(false);
+        }
     }
 
     public ClientProber() {

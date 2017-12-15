@@ -18,4 +18,4 @@
  * This package used for dealing with channel, as a pipeline of processing.
  */
 
-package org.dsngroup.broke.broker.handler.processor;
+package org.dsngroup.broke.source;

@@ -8,7 +8,7 @@ public class GroupSessionPool {
     private Map<Integer, Map<String, Integer>> messageIndex;
 
     public synchronized Integer getIdx(int groupId, String topic) {
-        if(!messageIndex.containsKey(groupId)) {
+        if (!messageIndex.containsKey(groupId)) {
             messageIndex.put(groupId, new ConcurrentHashMap<>());
             messageIndex.get(groupId).put(topic, 0);
         } else if (!messageIndex.get(groupId).containsKey(topic)) {

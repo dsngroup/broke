@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Contain all the Server Sessions for all clients
+ * Contain all the Server Sessions for all clients.
  * */
 public class ServerSessionPool {
 
@@ -54,15 +54,17 @@ public class ServerSessionPool {
         if (cleanSession) {
             // TODO: is the synchronized necessary?
             synchronized (this) {
-                if (serverSessionPoolMap.containsKey(clientId))
+                if (serverSessionPoolMap.containsKey(clientId)) {
                     serverSessionPoolMap.remove(clientId);
+                }
                 serverSessionPoolMap.put(clientId, new ServerSession(clientId));
             }
         } else {
             // TODO: is the synchronized necessary?
             synchronized (this) {
-                if(!serverSessionPoolMap.containsKey(clientId))
+                if (!serverSessionPoolMap.containsKey(clientId)) {
                     serverSessionPoolMap.put(clientId, new ServerSession(clientId));
+                }
             }
         }
         return serverSessionPoolMap.get(clientId);
@@ -70,7 +72,7 @@ public class ServerSessionPool {
     }
 
     /**
-     * Constructor for ServerSessionPool
+     * Constructor for ServerSessionPool.
      * */
     public ServerSessionPool() {
         serverSessionPoolMap = new ConcurrentHashMap<>();
