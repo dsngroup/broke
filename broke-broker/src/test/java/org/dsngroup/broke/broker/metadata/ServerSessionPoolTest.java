@@ -38,7 +38,6 @@ public class ServerSessionPoolTest {
 
         // Two of the sessions should be the same session
         assertEquals(serverSession1, serverSession2);
-
     }
 
     @Test

@@ -61,12 +61,6 @@ public class MqttPublishMessage extends MqttMessage implements ByteBufHolder {
         return replace(content().duplicate());
     }
 
-    @Override
-    public MqttPublishMessage retainedDuplicate() {
-        return replace(content().retainedDuplicate());
-    }
-
-    @Override
     public MqttPublishMessage replace(ByteBuf content) {
         return new MqttPublishMessage(fixedHeader(), variableHeader(), content);
     }
@@ -85,18 +79,6 @@ public class MqttPublishMessage extends MqttMessage implements ByteBufHolder {
     @Override
     public MqttPublishMessage retain(int increment) {
         content().retain(increment);
-        return this;
-    }
-
-    @Override
-    public MqttPublishMessage touch() {
-        content().touch();
-        return this;
-    }
-
-    @Override
-    public MqttPublishMessage touch(Object hint) {
-        content().touch(hint);
         return this;
     }
 

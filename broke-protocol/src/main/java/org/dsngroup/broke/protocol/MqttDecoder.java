@@ -433,7 +433,10 @@ public final class MqttDecoder extends ReplayingDecoder<DecoderState> {
     }
 
     private static Result<ByteBuf> decodePublishPayload(ByteBuf buffer, int bytesRemainingInVariablePart) {
-        ByteBuf b = buffer.readRetainedSlice(bytesRemainingInVariablePart);
+        // ByteBuf b = buffer.readRetainedSlice(bytesRemainingInVariablePart);
+        ByteBuf b = buffer.readBytes(bytesRemainingInVariablePart);
+        // TODO: need retain?
+        b.retain();
         return new Result<ByteBuf>(b, bytesRemainingInVariablePart);
     }
 

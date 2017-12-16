@@ -62,7 +62,7 @@ public class MqttMessageHandlerTest {
                     new MqttConnectMessage(mqttFixedHeader, mqttConnectVariableHeader, mqttConnectPayload);
             channel.writeInbound(mqttConnectMessage);
 
-            MqttConnAckMessage mqttConnAckMessage = channel.readOutbound();
+            MqttConnAckMessage mqttConnAckMessage = (MqttConnAckMessage) channel.readOutbound();
             // CONNACK must have the return code CONNECTION_ACCEPTED
             assertEquals(mqttConnAckMessage.variableHeader().connectReturnCode(), MqttConnectReturnCode.CONNECTION_ACCEPTED);
             // The channel must be active now
@@ -87,12 +87,8 @@ public class MqttMessageHandlerTest {
 
         ServerContext serverContext = new ServerContext();
 
-        EmbeddedChannel channel1 = new EmbeddedChannel();
-        channel1.pipeline().addLast(new MqttMessageHandler(serverContext));
-        EmbeddedChannel channel2 = new EmbeddedChannel();
-        channel2.pipeline().addLast(new MqttMessageHandler(serverContext));
-        // Channel 1 and 2 connects to the same "embedded" server
-        assertEquals(channel1.remoteAddress(), channel2.remoteAddress());
+        EmbeddedChannel channel1 = new EmbeddedChannel(new MqttMessageHandler(serverContext));
+        EmbeddedChannel channel2 = new EmbeddedChannel(new MqttMessageHandler(serverContext));
 
         MqttFixedHeader mqttFixedHeader =
                 new MqttFixedHeader(MqttMessageType.CONNECT, false, MqttQoS.AT_LEAST_ONCE, true, 0);
@@ -107,8 +103,8 @@ public class MqttMessageHandlerTest {
 
         channel1.writeInbound(mqttConnectMessage);
         channel2.writeInbound(mqttConnectMessage);
-        MqttConnAckMessage mqttConnAckMessage1 = channel1.readOutbound();
-        MqttConnAckMessage mqttConnAckMessage2 = channel2.readOutbound();
+        MqttConnAckMessage mqttConnAckMessage1 = (MqttConnAckMessage) channel1.readOutbound();
+        MqttConnAckMessage mqttConnAckMessage2 = (MqttConnAckMessage) channel2.readOutbound();
         // The CONNACK of channel1 should be accepted.
         assertEquals(mqttConnAckMessage1.variableHeader().connectReturnCode(), MqttConnectReturnCode.CONNECTION_ACCEPTED);
         // The CONNACK of channel2 should be rejected because the same client ID is used by client 1
@@ -121,10 +117,8 @@ public class MqttMessageHandlerTest {
 
         ServerContext serverContext = new ServerContext();
 
-        EmbeddedChannel publisherChannel = new EmbeddedChannel();
-        publisherChannel.pipeline().addLast(new MqttMessageHandler(serverContext));
-        EmbeddedChannel subscriberChannel = new EmbeddedChannel();
-        subscriberChannel.pipeline().addLast(new MqttMessageHandler(serverContext));
+        EmbeddedChannel publisherChannel = new EmbeddedChannel(new MqttMessageHandler(serverContext));
+        EmbeddedChannel subscriberChannel = new EmbeddedChannel(new MqttMessageHandler(serverContext));
 
         // Creation of CONNECT message for both publisher and subscriber clients
         MqttFixedHeader mqttFixedHeader =
@@ -147,11 +141,11 @@ public class MqttMessageHandlerTest {
 
         // Two of the connections should all be accepted
         publisherChannel.writeInbound(mqttPublisherConnectMessage);
-        MqttConnAckMessage publisherConnAck = publisherChannel.readOutbound();
+        MqttConnAckMessage publisherConnAck = (MqttConnAckMessage) publisherChannel.readOutbound();
         assertEquals(publisherConnAck.variableHeader().connectReturnCode(), MqttConnectReturnCode.CONNECTION_ACCEPTED);
 
         subscriberChannel.writeInbound(mqttSubscriberConnectMessage);
-        MqttConnAckMessage subscriberConnAck = subscriberChannel.readOutbound();
+        MqttConnAckMessage subscriberConnAck = (MqttConnAckMessage) subscriberChannel.readOutbound();
         assertEquals(subscriberConnAck.variableHeader().connectReturnCode(), MqttConnectReturnCode.CONNECTION_ACCEPTED);
 
         // Subscribe
@@ -166,7 +160,7 @@ public class MqttMessageHandlerTest {
                 new MqttSubscribeMessage(subscriberFixedHeader, subscriberVariableHeader, subscriberSubscribePayload);
 
         subscriberChannel.writeInbound(mqttSubscribeMessage);
-        MqttSubAckMessage mqttSubAckMessage = subscriberChannel.readOutbound();
+        MqttSubAckMessage mqttSubAckMessage = (MqttSubAckMessage) subscriberChannel.readOutbound();
 
         assertEquals(mqttSubAckMessage.variableHeader().messageId(), mqttSubscribeMessage.variableHeader().messageId());
 
@@ -181,12 +175,12 @@ public class MqttMessageHandlerTest {
                 new MqttPublishMessage(publisherFixedHeader, publisherVariableHeader, publisherPayload);
 
         publisherChannel.writeInbound(mqttPublishMessage);
-        MqttPubAckMessage mqttPubAckMessage = publisherChannel.readOutbound();
+        MqttPubAckMessage mqttPubAckMessage = (MqttPubAckMessage) publisherChannel.readOutbound();
 
         assertEquals(mqttPubAckMessage.variableHeader().messageId(), publisherVariableHeader.packetId());
 
         // Read published message from the subscriber channel
-        MqttPublishMessage receivedMessage = subscriberChannel.readOutbound();
+        MqttPublishMessage receivedMessage = (MqttPublishMessage) subscriberChannel.readOutbound();
 
         assertEquals(receivedMessage.payload().toString(StandardCharsets.UTF_8),
                 publisherPayload.toString(StandardCharsets.UTF_8));
