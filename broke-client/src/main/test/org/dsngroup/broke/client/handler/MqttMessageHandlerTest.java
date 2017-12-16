@@ -52,18 +52,13 @@ public class MqttMessageHandlerTest {
         payload.retain();
         MqttPublishMessage mqttPublishMessage = new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, payload);
 
-        try {
-            channel.writeInbound(mqttPublishMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        EmbeddedChannel channel2 =
+                new EmbeddedChannel(new MqttDecoder(),
+                        new MqttMessageHandler(new ClientContext("client_01")),
+                        MqttEncoder.INSTANCE);
 
-        // Test with codec
-        channel.pipeline().addFirst("MqttDecoder", new MqttDecoder());
-        channel.pipeline().addLast("MqttEncoder", MqttEncoder.INSTANCE);
-
-        channel.writeOutbound(mqttPublishMessage);
-        ByteBuf pubMsgBuffer = channel.readOutbound();
+        channel2.writeOutbound(mqttPublishMessage);
+        ByteBuf pubMsgBuffer = (ByteBuf) channel2.readOutbound();
         ByteBuf pubMsgBufferCopy = Unpooled.copiedBuffer(pubMsgBuffer);
 
         if(pubMsgBuffer.isReadable()) {
@@ -93,7 +88,7 @@ public class MqttMessageHandlerTest {
 
         EmbeddedChannel embeddedChannel = new EmbeddedChannel(new MqttDecoder());
         embeddedChannel.writeInbound(pubMsgBufferCopy);
-        MqttPublishMessage mqttPublishMessageOut = embeddedChannel.readInbound();
+        MqttPublishMessage mqttPublishMessageOut = (MqttPublishMessage) embeddedChannel.readInbound();
         // channel.writeInbound(pubMsgBufferCopy);
         // MqttPublishMessage mqttPublishMessageOut = channel.readInbound();
 

@@ -36,9 +36,8 @@ public class ExtendedMqttCodecTest {
      * */
     @Test
     public void mqttSubscribeGroupIdCodecTest() {
-        EmbeddedChannel channel = new EmbeddedChannel();
-        channel.pipeline().addLast("Mqtt Encoder", MqttEncoder.INSTANCE);
-        channel.pipeline().addLast("Mqtt Decoder", new MqttDecoder());
+        EmbeddedChannel channel = new EmbeddedChannel(MqttEncoder.INSTANCE);
+        // channel.pipeline().addLast("Mqtt Decoder", new MqttDecoder());
 
         MqttFixedHeader mqttFixedHeader
                 = new MqttFixedHeader(MqttMessageType.SUBSCRIBE, false, MqttQoS.AT_LEAST_ONCE, false, 0);
@@ -54,8 +53,10 @@ public class ExtendedMqttCodecTest {
                 = new MqttSubscribeMessage(mqttFixedHeader, mqttMessageIdVariableHeader, mqttSubscribePayload);
 
         channel.writeOutbound(mqttSubscribeMessageIn);
-        channel.writeInbound((ByteBuf)channel.readOutbound());
-        MqttSubscribeMessage mqttSubscribeMessageOut = channel.readInbound();
+        EmbeddedChannel channel2 = new EmbeddedChannel(new MqttDecoder());
+        channel2.writeInbound((ByteBuf)channel.readOutbound());
+        // TODO: alternative than to cast.
+        MqttSubscribeMessage mqttSubscribeMessageOut = (MqttSubscribeMessage) channel2.readInbound();
 
         assertNotEquals(mqttSubscribeMessageOut, null);
 
@@ -76,8 +77,7 @@ public class ExtendedMqttCodecTest {
         int groupId = 555;
         String topicFilter = "Foo";
 
-        EmbeddedChannel channel = new EmbeddedChannel();
-        channel.pipeline().addLast("MqttEncoder", MqttEncoder.INSTANCE);
+        EmbeddedChannel channel = new EmbeddedChannel(MqttEncoder.INSTANCE);
 
         MqttFixedHeader mqttFixedHeader
                 = new MqttFixedHeader(MqttMessageType.SUBSCRIBE, false, MqttQoS.AT_LEAST_ONCE, false, 0);
@@ -93,7 +93,7 @@ public class ExtendedMqttCodecTest {
                 = new MqttSubscribeMessage(mqttFixedHeader, mqttMessageIdVariableHeader, mqttSubscribePayload);
 
         channel.writeOutbound(mqttSubscribeMessageIn);
-        ByteBuf buffer = channel.readOutbound();
+        ByteBuf buffer = (ByteBuf) channel.readOutbound();
         ByteBuf bufferCopy = Unpooled.copiedBuffer(buffer); // deep copied buffer for decoder test
 
         if(buffer.isReadable()) {
@@ -120,11 +120,10 @@ public class ExtendedMqttCodecTest {
         assertEquals(0, buffer.readableBytes());
 
         // test decoder for subscribe message
-        EmbeddedChannel channel2 = new EmbeddedChannel();
-        channel2.pipeline().addLast("MqttDecoder", new MqttDecoder());
+        EmbeddedChannel channel2 = new EmbeddedChannel(new MqttDecoder());
 
         channel2.writeInbound(bufferCopy);
-        MqttSubscribeMessage mqttSubscribeMessage = channel2.readInbound();
+        MqttSubscribeMessage mqttSubscribeMessage = (MqttSubscribeMessage) channel2.readInbound();
 
         assertEquals(MqttMessageType.SUBSCRIBE, mqttSubscribeMessage.fixedHeader().messageType());
         assertEquals(packetId, mqttSubscribeMessage.variableHeader().messageId());
@@ -148,7 +147,7 @@ public class ExtendedMqttCodecTest {
         MqttPingReqMessage pingMsg =
                 new MqttPingReqMessage(mqttFixedHeader, mqttPingReqVariableHeader);
         serverChannel.writeOutbound(pingMsg);
-        ByteBuf pingReqMsgBuffer = serverChannel.readOutbound();
+        ByteBuf pingReqMsgBuffer = (ByteBuf) serverChannel.readOutbound();
 
         assertEquals(5, pingReqMsgBuffer.readableBytes());
         if(pingReqMsgBuffer.isReadable()) {
@@ -174,7 +173,7 @@ public class ExtendedMqttCodecTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        MqttMessage msgRec = clientChannel.readInbound();
+        MqttMessage msgRec = (MqttMessage) clientChannel.readInbound();
         assertEquals(msgRec instanceof MqttPingReqMessage, true);
         MqttPingReqMessage pingReqMsgRec = (MqttPingReqMessage) msgRec;
         assertEquals(packetId, pingReqMsgRec.variableHeader().packetId());
@@ -196,7 +195,7 @@ public class ExtendedMqttCodecTest {
         MqttPingRespMessage pingMsg =
                 new MqttPingRespMessage(mqttFixedHeader, mqttPingRespVariableHeader);
         serverChannel.writeOutbound(pingMsg);
-        ByteBuf pingRespMsgBuffer = serverChannel.readOutbound();
+        ByteBuf pingRespMsgBuffer = (ByteBuf) serverChannel.readOutbound();
 
         assertEquals(5, pingRespMsgBuffer.readableBytes());
         if(pingRespMsgBuffer.isReadable()) {
@@ -222,7 +221,7 @@ public class ExtendedMqttCodecTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        MqttMessage msgRec = clientChannel.readInbound();
+        MqttMessage msgRec = (MqttMessage) clientChannel.readInbound();
         assertEquals(msgRec instanceof MqttPingRespMessage, true);
         MqttPingRespMessage pingRespMsgRec = (MqttPingRespMessage) msgRec;
         assertEquals(packetId, pingRespMsgRec.variableHeader().messageId());
