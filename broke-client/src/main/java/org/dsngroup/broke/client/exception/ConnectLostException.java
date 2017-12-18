@@ -16,8 +16,17 @@
 
 package org.dsngroup.broke.client.exception;
 
+/**
+ * Exception of connection lost.
+ * The exception can be thrown when the connection to the broker server lost.
+ * */
 public class ConnectLostException extends Exception {
-    public ConnectLostException(String message) {
-        super(message);
+
+    /**
+     * The constructor.
+     * @param cause Cause of the connection lost.
+     * */
+    public ConnectLostException(String cause) {
+        super(cause);
     }
 }

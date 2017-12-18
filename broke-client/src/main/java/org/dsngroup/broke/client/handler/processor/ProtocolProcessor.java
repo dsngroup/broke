@@ -19,7 +19,6 @@ package org.dsngroup.broke.client.handler.processor;
 import io.netty.channel.ChannelHandlerContext;
 
 import org.dsngroup.broke.client.ClientContext;
-import org.dsngroup.broke.client.handler.callback.DefaultMessageCallbackHandler;
 import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
 import org.dsngroup.broke.client.exception.ConnectLostException;
 import org.dsngroup.broke.client.metadata.ClientSession;
@@ -29,9 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * The protocol processor of the client.
+ * Process inbound messages from the broker.
+ * */
 public class ProtocolProcessor {
-
-    private ClientContext clientContext;
 
     private ClientSession clientSession;
 
@@ -39,6 +40,10 @@ public class ProtocolProcessor {
 
     private IMessageCallbackHandler messageCallbackHandler;
 
+    /**
+     * Setter for the message callback handler.
+     * @param messageCallbackHandler User-defined message callback handler.
+     * */
     public void setMessageCallbackHandler(IMessageCallbackHandler messageCallbackHandler) {
         this.messageCallbackHandler = messageCallbackHandler;
     }
@@ -64,8 +69,6 @@ public class ProtocolProcessor {
      * @param mqttPublishMessage PUBLISH message from broker
      * */
     public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) throws Exception {
-        clientSession.getPublishMessageQueue()
-                .putMessage(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
         messageCallbackHandler.messageArrive(mqttPublishMessage);
 
         MqttFixedHeader mqttFixedHeader =
@@ -121,7 +124,6 @@ public class ProtocolProcessor {
     }
 
     public ProtocolProcessor(ClientContext clientContext) {
-        this.clientContext = clientContext;
         this.clientSession = clientContext.getClientSession();
     }
 }

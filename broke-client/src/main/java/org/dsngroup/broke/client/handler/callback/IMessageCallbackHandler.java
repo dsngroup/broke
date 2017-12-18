@@ -18,7 +18,18 @@ package org.dsngroup.broke.client.handler.callback;
 
 import org.dsngroup.broke.protocol.MqttPublishMessage;
 
+/**
+ * Interface of the message callback handler.
+ * */
 public interface IMessageCallbackHandler {
+
+    /**
+     * Callback function called when a publish message arrived.
+     * */
     void messageArrive(MqttPublishMessage mqttPublishMessage);
+
+    /**
+     * Callback function called when the connection to the broker server lost.
+     * */
     void connectionLost(Throwable cause);
 }

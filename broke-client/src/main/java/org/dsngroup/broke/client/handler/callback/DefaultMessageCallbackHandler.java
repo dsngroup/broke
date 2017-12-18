@@ -22,16 +22,27 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Default message callback handler.
+ * Default behaviors of messageArrive() and connectionLost().
+ * */
 public class DefaultMessageCallbackHandler implements IMessageCallbackHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultMessageCallbackHandler.class);
 
+    /**
+     * Print the publish message.
+     * @param mqttPublishMessage The incoming publish message.
+     * */
     @Override
     public void messageArrive(MqttPublishMessage mqttPublishMessage) {
         logger.info("topic: " + mqttPublishMessage.variableHeader().topicName() +
                 " payload: " + mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Log the connection lost error message.
+     * */
     @Override
     public void connectionLost(Throwable cause) {
         logger.error(cause.getMessage());
