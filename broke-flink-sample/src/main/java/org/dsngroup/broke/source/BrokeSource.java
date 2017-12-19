@@ -20,8 +20,11 @@ import org.apache.flink.api.common.functions.StoppableFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.dsngroup.broke.client.BlockClient;
 import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
+import org.dsngroup.broke.client.storage.IPublishMessageQueue;
+import org.dsngroup.broke.client.storage.PublishMessageQueue;
 import org.dsngroup.broke.protocol.MqttPublishMessage;
 import org.dsngroup.broke.protocol.MqttQoS;
+import org.dsngroup.broke.util.PublishMessageQueueMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +46,15 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
 
     private boolean isRunning;
 
-    class BrokeCallBack implements IMessageCallbackHandler {
+    private Thread monitorThread;
 
-        SourceContext<String> ctx;
+    private IPublishMessageQueue publishMessageQueue;
+
+    class BrokeCallBack implements IMessageCallbackHandler {
 
         @Override
         public void messageArrive(MqttPublishMessage mqttPublishMessage) {
-            ctx.collect(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+            publishMessageQueue.putMessage(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
         }
 
         @Override
@@ -58,9 +63,7 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
             System.exit(1);
         }
 
-        BrokeCallBack(SourceContext<String> ctx) {
-            this.ctx = ctx;
-        }
+        BrokeCallBack() {}
     }
 
     @Override
@@ -68,13 +71,23 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
         try {
             blockClient = new BlockClient(serverAddress, serverPort);
             blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
-            blockClient.setMessageCallbackHandler(new BrokeCallBack(ctx));
+            blockClient.setMessageCallbackHandler(new BrokeCallBack());
+            blockClient.setPublishMessageQueue(publishMessageQueue =
+                    new PublishMessageQueue(1000, 0.3, 0.7));
             blockClient.subscribe(subscribeTopic, MqttQoS.AT_LEAST_ONCE, 0, groupId);
 
             this.isRunning = true;
 
+            this.monitorThread = new Thread(new PublishMessageQueueMonitor(publishMessageQueue));
+            this.monitorThread.start();
+
             while (this.isRunning) {
-                Thread.sleep(3000);
+                String message = publishMessageQueue.getMessage();
+                if (message == null) {
+                    Thread.sleep(100);
+                } else {
+                    ctx.collect(message);
+                }
             }
 
         } catch (Exception e) {

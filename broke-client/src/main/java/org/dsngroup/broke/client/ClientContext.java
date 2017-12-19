@@ -20,22 +20,36 @@ import org.dsngroup.broke.client.metadata.ClientSession;
 import org.dsngroup.broke.client.storage.FakePublishMessageQueue;
 import org.dsngroup.broke.client.storage.PublishMessageQueue;
 
+/**
+ * The context that contains client's information.
+ * TODO: May be better to integrate with client session.
+ * */
 public class ClientContext {
 
     private ClientSession clientSession;
 
     private String clientId;
 
+    /**
+     * Getter for the client session.
+     * */
     public ClientSession getClientSession() {
         return clientSession;
     }
 
+    /**
+     * Getter for the client ID.
+     * */
     public String getClientId() {
         return clientId;
     }
 
+    /**
+     * Constructor of the client context.
+     * @param clientId Client ID.
+     * */
     public ClientContext(String clientId) {
         this.clientId = clientId;
-        clientSession = new ClientSession(clientId, new FakePublishMessageQueue(10, 0.3, 0.8));
+        clientSession = new ClientSession(clientId);
     }
 }

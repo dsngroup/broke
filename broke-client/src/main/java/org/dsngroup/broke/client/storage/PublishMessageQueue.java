@@ -33,31 +33,60 @@ public class PublishMessageQueue implements IPublishMessageQueue {
     private boolean isBackPressured;
 
     @Override
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    @Override
+    public double getLowWaterMark() {
+        return lowWaterMark;
+    }
+
+    @Override
+    public double getHighWaterMark() {
+        return highWaterMark;
+    }
+
+    @Override
+    public int getCapacity() {
+        return receivedPublishQueue.size();
+    }
+
+    @Override
     public boolean isBackPressured() {
         return isBackPressured;
     }
 
     @Override
-    public synchronized String getMessage() {
+    public String getMessage() {
         if(receivedPublishQueue.size() > 0) {
             if (receivedPublishQueue.size()-1 < maxSize*lowWaterMark) {
                 isBackPressured = false;
             }
-            return receivedPublishQueue.poll();
+            synchronized (receivedPublishQueue) {
+                return receivedPublishQueue.poll();
+            }
         }
         return null;
     }
 
     @Override
-    public synchronized void putMessage(String message) {
-        if(receivedPublishQueue.size() < maxSize) {
+    public void putMessage(String message) {
+        synchronized (receivedPublishQueue) {
             receivedPublishQueue.offer(message);
-            if (receivedPublishQueue.size() > maxSize*highWaterMark) {
-                isBackPressured = true;
-            }
+        }
+        if (receivedPublishQueue.size() > maxSize*highWaterMark) {
+            isBackPressured = true;
         }
     }
 
+    /**
+     * The constructor of the publish message queue.
+     * @param maxSize The max number of messages the queue can contain.
+     *                However, messages that exceed this value will still be stored.
+     * @param highWaterMark The high watermark
+     * @param lowWaterMark The low watermark.
+     * */
     public PublishMessageQueue(int maxSize, double lowWaterMark, double highWaterMark) {
         this.maxSize = maxSize;
         this.receivedPublishQueue = new ArrayDeque<>(maxSize);

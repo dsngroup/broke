@@ -41,6 +41,26 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
     private static final Logger logger = LoggerFactory.getLogger(FakePublishMessageQueue.class);
 
     @Override
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    @Override
+    public double getLowWaterMark() {
+        return lowWaterMark;
+    }
+
+    @Override
+    public double getHighWaterMark() {
+        return highWaterMark;
+    }
+
+    @Override
+    public int getCapacity() {
+        return 0;
+    }
+
+    @Override
     public boolean isBackPressured() {
         return isBackPressured;
     }
@@ -60,12 +80,18 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
         return null;
     }
 
+    /**
+     * Constructor of the fake publish message queue.
+     * */
     public FakePublishMessageQueue(int maxSize, double lowWaterMark, double highWaterMark) {
         this.maxSize = maxSize;
         this.lowWaterMark = lowWaterMark;
         this.highWaterMark = highWaterMark;
     }
 
+    /**
+     * Set the back-pressure status to false after a while.
+     * */
     class BackPressureSetterThread extends Thread {
 
         private int execTime;
@@ -79,8 +105,7 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
                 // TODO: debug
                 logger.info("cancel back pressure");
             } catch (Exception e) {
-                // TODO: delete this
-                e.printStackTrace();
+                logger.error("Back-pressure setter thread: " + e.getMessage());
             }
         }
 

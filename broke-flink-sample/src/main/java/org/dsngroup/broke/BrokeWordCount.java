@@ -16,8 +16,7 @@
 
 package org.dsngroup.broke;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.ReduceFunction;
+import org.apache.flink.api.common.functions.*;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -29,11 +28,15 @@ import org.dsngroup.broke.source.BrokeSource;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * The Flink word count benchmark that receives messages from the broker server.
+ * */
 public class BrokeWordCount {
 
     public static final Logger logger = LoggerFactory.getLogger(BrokeWordCount.class);
 
     public static void main(String[] args) {
+
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         Properties properties = new Properties();
@@ -44,8 +47,7 @@ public class BrokeWordCount {
             properties.load(inputStream);
             inputStream.close();
         } catch (Exception e) {
-            // TODO: e.getMessage()
-            logger.error(e.getStackTrace().toString());
+            logger.error(e.getMessage());
         }
 
         String serverAddress = properties.getProperty("SERVER_ADDRESS");
@@ -56,9 +58,12 @@ public class BrokeWordCount {
             serverAddress = args[0].split(":")[0];
             serverPort = Integer.parseInt(args[0].split(":")[1]);
         }
+
+        // Broke data source.
         DataStream<String> dataStream =
                 env.addSource(new BrokeSource(serverAddress, serverPort, subscribeTopic, groupId));
 
+        // Windowed word count data stream.
         DataStream<WordWithCount> windowCount = dataStream
                 .flatMap(new FlatMapFunction<String, WordWithCount>() {
                     @Override
@@ -77,29 +82,32 @@ public class BrokeWordCount {
                     }
                 });
 
+        // Print the word count result.
         windowCount.print().setParallelism(1);
 
         try {
-            env.execute("MQTT word count");
+            // Execute the topology and block here.
+            env.execute("Broke word count");
         } catch (Exception e) {
-            // TODO: e.getMessage()
-            logger.error(e.getStackTrace().toString());
+            logger.error(e.getMessage());
         }
-
 
     }
 
+    /**
+     * Data structure of the word count in POJO.
+     * */
     public static class WordWithCount {
 
         public String word;
         public long count;
 
-        public WordWithCount() {}
-
         public WordWithCount(String word, long count) {
             this.word = word;
             this.count = count;
         }
+
+        public WordWithCount() {}
 
         @Override
         public String toString() {

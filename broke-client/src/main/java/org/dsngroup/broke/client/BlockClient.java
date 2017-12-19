@@ -25,6 +25,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
 import org.dsngroup.broke.client.exception.ConnectLostException;
+import org.dsngroup.broke.client.storage.IPublishMessageQueue;
 import org.dsngroup.broke.client.util.ClientIdGenerator;
 import org.dsngroup.broke.client.util.PacketIdGenerator;
 import org.dsngroup.broke.client.handler.MqttMessageHandler;
@@ -60,15 +61,24 @@ public class BlockClient {
     private MqttMessageHandler mqttMessageHandler;
 
     /**
-     * Getter for client ID
+     * Getter for client ID.
      * */
     public String getClientId() {
         return clientId;
     }
 
     /**
-     * Send CONNECT to server
+     * Setter for publish message queue.
+     * @param publishMessageQueue The publish message queue.
+     * */
+    public void setPublishMessageQueue(IPublishMessageQueue publishMessageQueue) {
+        clientContext.getClientSession().setPublishMessageQueue(publishMessageQueue);
+    }
+
+    /**
+     * Send CONNECT to server.
      * @param qos qos option
+     * @param criticalOption Critical Option
      * */
     public void connect(MqttQoS qos, int criticalOption) throws Exception {
 

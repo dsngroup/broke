@@ -16,7 +16,6 @@
 
 package org.dsngroup.broke.client.metadata;
 
-import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
 import org.dsngroup.broke.client.storage.FakePublishMessageQueue;
 import org.dsngroup.broke.client.storage.IPublishMessageQueue;
 import org.dsngroup.broke.protocol.MqttMessage;
@@ -25,9 +24,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Client session
- * Each client should have only one client session
- */
+ * Client session.
+ * Each client should have only one client session.
+ * Maintain a reference of publish message queue for back-pressure status monitoring.
+ * The operation of publish message queue is performed outside. (e.g. poll(), offer() at the user's coding space.)
+ * */
 public class ClientSession {
 
     private final String clientId;
@@ -38,18 +39,37 @@ public class ClientSession {
     // Unacked messages store: Key: packet idenfier, value: message
     private final Map<String, MqttMessage> unackedMessages;
 
+    /**
+     * Getter for back-pressure status. Determined by current publish message queue's status.
+     * */
     public boolean isBackPressured() {
         return publishMessageQueue.isBackPressured();
     }
 
+    /**
+     * Getter for the publish message queue.
+     * */
     public IPublishMessageQueue getPublishMessageQueue() {
         return publishMessageQueue;
     }
 
-    public ClientSession(String clientId, IPublishMessageQueue publishMessageQueue) {
+    /**
+     * Setter for the publish message queue.
+     * @param publishMessageQueue The publish message queue.
+     * */
+    public void setPublishMessageQueue(IPublishMessageQueue publishMessageQueue) {
+        this.publishMessageQueue = publishMessageQueue;
+    }
+
+    /**
+     * Constructor of the client session.
+     * The publish message is set to fake publish message queue for fake back-pressure monitoring by default.
+     * @param clientId Client ID
+     * */
+    public ClientSession(String clientId) {
         this.clientId = clientId;
         this.unackedMessages = new ConcurrentHashMap<>();
-        this.publishMessageQueue = publishMessageQueue;
+        this.publishMessageQueue = new FakePublishMessageQueue(10, 0.3, 0.7);
     }
 
 }
