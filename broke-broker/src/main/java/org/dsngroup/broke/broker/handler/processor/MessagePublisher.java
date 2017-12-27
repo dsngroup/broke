@@ -67,7 +67,7 @@ class MessagePublisher {
      * Publish the message to all sessions.
      * @param serverContext server context
      * @param mqttPublishMessage The PUBLISH message from the publisher
-     * */
+     */
     private void publishToSubscriptions(ServerContext serverContext,
                                         MqttPublishMessage mqttPublishMessage) {
         // serverContext.publishToSubscription(mqttPublishMessage);

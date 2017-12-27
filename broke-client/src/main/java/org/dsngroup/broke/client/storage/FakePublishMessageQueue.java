@@ -82,7 +82,7 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
 
     /**
      * Constructor of the fake publish message queue.
-     * */
+     */
     public FakePublishMessageQueue(int maxSize, double lowWaterMark, double highWaterMark) {
         this.maxSize = maxSize;
         this.lowWaterMark = lowWaterMark;
@@ -91,7 +91,7 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
 
     /**
      * Set the back-pressure status to false after a while.
-     * */
+     */
     class BackPressureSetterThread extends Thread {
 
         private int execTime;

@@ -30,7 +30,7 @@ import java.util.Properties;
 
 /**
  * The Flink word count benchmark that receives messages from the broker server.
- * */
+ */
 public class BrokeWordCount {
 
     public static final Logger logger = LoggerFactory.getLogger(BrokeWordCount.class);
@@ -83,7 +83,7 @@ public class BrokeWordCount {
                 });
 
         // Print the word count result.
-        windowCount.print().setParallelism(1);
+        // windowCount.print().setParallelism(1);
 
         try {
             // Execute the topology and block here.
@@ -96,7 +96,7 @@ public class BrokeWordCount {
 
     /**
      * Data structure of the word count in POJO.
-     * */
+     */
     public static class WordWithCount {
 
         public String word;

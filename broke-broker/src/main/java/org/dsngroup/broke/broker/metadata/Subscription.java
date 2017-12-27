@@ -23,7 +23,7 @@ import java.util.Objects;
 
 /**
  * The subscriber information class.
- * */
+ */
 public class Subscription {
 
     private String topic;
@@ -33,7 +33,7 @@ public class Subscription {
 
     /**
      * Getter methods.
-     * */
+     */
     public String getTopic() {
         return topic;
     }
@@ -54,7 +54,7 @@ public class Subscription {
      * The constructor.
      * @param subscriberChannel subscriberChannel of this subscriber {@see ChannelHandlerContext}
      * @param groupId the consumer group id
-     * */
+     */
     Subscription(String topic, MqttQoS qos, int groupId, Channel subscriberChannel) {
         this.topic = topic;
         this.qos = qos;
@@ -65,7 +65,7 @@ public class Subscription {
     /**
      * Override hashCode() for HashSet.
      * @return hash code
-     * */
+     */
     @Override
     public int hashCode() {
         return Objects.hash(groupId, subscriberChannel);
@@ -75,7 +75,7 @@ public class Subscription {
      * Override equals() for Set comparator.
      * Compare using the reference of subscriberChannelHandlerContext.
      * @param obj Other object
-     * */
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

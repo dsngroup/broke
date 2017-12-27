@@ -85,6 +85,24 @@
                                 <goal>single</goal>
                             </goals>
                         </execution>
+                        <execution>
+                            <id>build-MultiClient</id>
+                            <configuration>
+                                <archive>
+                                    <manifest>
+                                        <mainClass>org.dsngroup.broke.MultiClient</mainClass>
+                                    </manifest>
+                                </archive>
+                                <descriptorRefs>
+                                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                                </descriptorRefs>
+                                <finalName>MultiClient</finalName>
+                            </configuration>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
                     </executions>
                 </plugin>
             </plugins>

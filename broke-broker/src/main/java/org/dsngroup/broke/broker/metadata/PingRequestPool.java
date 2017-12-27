@@ -18,7 +18,7 @@ package org.dsngroup.broke.broker.metadata;
 
 /**
  * Storage for PINGREQ messages.
- * */
+ */
 public class PingRequestPool {
 
     private int pingReqSize = 100;
@@ -30,7 +30,7 @@ public class PingRequestPool {
      * 1. packetId: the packet identifier for PINGREQ.
      * 2. sendTime: the send time of the PINGREQ.
      * Used to calculate the round-trip time once the corresponding PINGRESP has received.
-     * */
+     */
     private class PingReq {
 
         private int packetId;

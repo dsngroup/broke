@@ -23,13 +23,13 @@ import java.util.*;
 
 /**
  * Subscription pool that stores all subscriptions of a server session.
- * */
+ */
 public class SubscriptionPool {
 
     /**
      * The subscriber pool.
      * The List of subscribers
-     * */
+     */
     private final List<Subscription> subscriptionList;
 
     /**
@@ -37,7 +37,7 @@ public class SubscriptionPool {
      * @param topic Interested topic
      * @param groupId consumer group id
      * @param channel subscriber's Channel {@see Channel}
-     * */
+     */
     public void register(String topic, MqttQoS qos, int groupId, Channel channel) {
 
         Subscription subscription = new Subscription(topic, qos, groupId, channel);
@@ -50,7 +50,7 @@ public class SubscriptionPool {
      * @param topic topic to unsubscribe
      * @param channel the subscriber's ChannelHandlerContext
      * @Exception no such topic or subscriber
-     * */
+     */
     public void unRegister(String topic, Channel channel) throws Exception{
         // TODO: How to remove a closed subscriber channel context?
         // TODO: e.g. on channel close, call unRegister(channelHandlerContext);
@@ -77,7 +77,7 @@ public class SubscriptionPool {
 
     /**
      * Constructor.
-     * */
+     */
     SubscriptionPool() {
         subscriptionList = new LinkedList<>();
     }

@@ -41,7 +41,7 @@ public class MessageDispatcher {
 
     /**
      * Publish to subscriptions.
-     * */
+     */
     public void publishToSubscription(MqttPublishMessage mqttPublishMessage) {
         // Iterate through all sessions, publishing to every sessions' subscriptions
         for (ServerSession serverSession: serverSessionPool.asCollection()) {
@@ -60,7 +60,7 @@ public class MessageDispatcher {
      * 3. For each group, perform selection algorithm
      * 4. For each group, publish the message to the selected subscriber(session)
      * @param mqttPublishMessage Message to be published.
-     * */
+     */
     public void groupBasedPublishToSubscription(MqttPublishMessage mqttPublishMessage) {
         String topic = mqttPublishMessage.variableHeader().topicName();
         TreeMap<Integer, ArrayList<ServerSession>> groupIdSessionListMap = getGroupedServerSessions(topic);
@@ -71,10 +71,12 @@ public class MessageDispatcher {
             ServerSession selectedSession = selectSession(sessionList);
             if (selectedSession != null) {
                 // TODO: debug
-                logger.info("Group ID: " + groupId + " Publish to " + selectedSession.getClientId());
+                logger.debug(" Publish to " + selectedSession.getClientId() +
+                        " Score: " + selectedSession.getPublishScore() +
+                        " RTT: " + selectedSession.getAverageRTT());
                 publishToSubscription(selectedSession, mqttPublishMessage);
             } else {
-                logger.info("No available session now");
+                logger.debug("No available session now");
                 // TODO: store the published message.
             }
         }
@@ -131,7 +133,7 @@ public class MessageDispatcher {
      * For a PUBLISH message, check whether any subscription in the subscription pool matches its topic.
      * If the topic is matched, create a PUBLISH and publish to the corresponding subscriber client.
      * @param mqttPublishMessage The PUBLISH message from the publisher.
-     * */
+     */
     private void publishToSubscription(ServerSession serverSession, MqttPublishMessage mqttPublishMessage) {
 
         String topic = mqttPublishMessage.variableHeader().topicName();
@@ -153,8 +155,7 @@ public class MessageDispatcher {
                     new MqttPublishMessage(mqttFixedHeader, mqttPublishVariableHeader, payload);
             if (matchSubscription.getSubscriberChannel().isActive()) {
                 try {
-                    // TODO: try to remove sync()
-                    matchSubscription.getSubscriberChannel().writeAndFlush(mqttPublishMessageOut).sync();
+                    matchSubscription.getSubscriberChannel().writeAndFlush(mqttPublishMessageOut);
                 } catch (Exception e) {
                     logger.error(e.getMessage());
                 }

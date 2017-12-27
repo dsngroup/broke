@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Contain all the Server Sessions for all clients.
- * */
+ */
 public class ServerSessionPool {
 
     private ConcurrentHashMap<String, ServerSession> serverSessionPoolMap;
@@ -32,7 +32,7 @@ public class ServerSessionPool {
 
     /**
      * Judge whether a session with specified clientId is in use.
-     * */
+     */
     public boolean isSessionActive(String clientId) {
         if (!serverSessionPoolMap.containsKey(clientId)) {
             return false;
@@ -48,7 +48,7 @@ public class ServerSessionPool {
      * See "Clean Session" flag in Mqtt Specification
      * @param clientId client ID
      * @param cleanSession Clean Session Flag
-     * */
+     */
     public ServerSession getSession(String clientId, boolean cleanSession) {
 
         if (cleanSession) {
@@ -73,7 +73,7 @@ public class ServerSessionPool {
 
     /**
      * Constructor for ServerSessionPool.
-     * */
+     */
     public ServerSessionPool() {
         serverSessionPoolMap = new ConcurrentHashMap<>();
     }

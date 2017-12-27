@@ -26,7 +26,7 @@ import java.io.Serializable;
 /**
  * A thread that reports the status of publish message queue periodically.
  * E.g. Current back-pressure status, queue capacity and default max size of the queue.
- * */
+ */
 public class PublishMessageQueueMonitor extends AbstractRichFunction implements Runnable, Serializable {
 
     public static final Logger logger = LoggerFactory.getLogger(PublishMessageQueueMonitor.class);
@@ -38,9 +38,10 @@ public class PublishMessageQueueMonitor extends AbstractRichFunction implements 
         while(true) {
             logger.info("Back pressure status: " + publishMessageQueue.isBackPressured() +
                     " current capacity: " + publishMessageQueue.getCapacity() +
-                    " max capacity: " + publishMessageQueue.getMaxSize());
+                    " max capacity: " + publishMessageQueue.getMaxSize() +
+                    " current time: " + System.currentTimeMillis());
             try {
-                Thread.sleep(3000);
+                Thread.sleep(250);
             } catch (Exception e) {
                 logger.error("Monitor thread failed: " + e.getMessage());
             }
@@ -51,7 +52,7 @@ public class PublishMessageQueueMonitor extends AbstractRichFunction implements 
      * Constructor of the queue monitor.
      * Set the publish message queue to monitor.
      * @param publishMessageQueue Publish message queue to monitor.
-     * */
+     */
     public PublishMessageQueueMonitor(IPublishMessageQueue publishMessageQueue) {
         this.publishMessageQueue = publishMessageQueue;
     }
