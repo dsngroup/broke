@@ -32,7 +32,7 @@ public class ServerSession {
 
     /**
      * An incremental packet ID.
-     * */
+     */
     private PacketIdGenerator packetIdGenerator;
 
     // Unacked messages store: Key: packet idenfier, value: message
@@ -42,50 +42,59 @@ public class ServerSession {
 
     /**
      * Getter for isActive.
-     * */
+     */
     public boolean getIsActive() {
         return isActive;
     }
 
     /**
      * Setter for isActive.
-     * */
+     */
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
 
     /**
      * Getter for client Id.
-     * */
+     */
     public String getClientId() {
         return clientId;
     }
 
-
     /**
      * Getter for subscription pool.
-     * */
+     * @return Subscription Pool
+     */
     public SubscriptionPool getSubscriptionPool() {
         return subscriptionPool;
     }
 
     /**
      * Getter for the next valid publish packet Id.
-     * */
+     * @return Next valid packet ID.
+     */
     public int getNextPacketId() {
         return packetIdGenerator.getPacketId();
     }
 
     /**
+     * Getter for the average RTT of this client.
+     * @return Average RTT.
+     */
+    public double getAverageRTT() {
+        return clientProber.getRttAvg();
+    }
+
+    /**
      * Setter for client prober.
-     * */
+     */
     public void setClientProber(ClientProber clientProber) {
         this.clientProber = clientProber;
     }
 
     /**
      * Getter for the current publish score.
-     * */
+     */
     public double getPublishScore() {
         if (clientProber.isBackPressured()) {
             return 0;

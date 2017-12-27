@@ -51,7 +51,7 @@ public class ProtocolProcessor {
      * The logic to deal with CONNECT message.
      * @param channel Channel the protocol processor belongs to
      * @param mqttConnectMessage Instance of MqttConnectMessage
-     * */
+     */
     public void processConnect(Channel channel, MqttConnectMessage mqttConnectMessage) {
 
         // Close the channel if receive the connect message second time.
@@ -100,7 +100,7 @@ public class ProtocolProcessor {
      * @param returnCode The return code of CONNACK
      * @param mqttConnectMessage original CONNECT message
      * @return created MqttConnAckMessage instance.
-     * */
+     */
     private MqttConnAckMessage connAck(MqttConnectReturnCode returnCode, MqttConnectMessage mqttConnectMessage) {
         MqttFixedHeader mqttFixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false,
                 mqttConnectMessage.fixedHeader().qosLevel(), false, 0);
@@ -113,7 +113,7 @@ public class ProtocolProcessor {
      * process PUBLISH message using messagePublisher.
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPublishMessage PUBLISH message from the client
-     * */
+     */
     public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) {
 
         if (isConnected) {
@@ -144,7 +144,7 @@ public class ProtocolProcessor {
      * Registor all of the subscriptions to the subscription pool in the server session.
      * @param channel {@see channel}
      * @param mqttSubscribeMessage SUBSCRIBE message from the client
-     * */
+     */
     public void processSubscribe(Channel channel, MqttSubscribeMessage mqttSubscribeMessage) {
 
         if (isConnected) {
@@ -175,7 +175,7 @@ public class ProtocolProcessor {
      * @param packetId packetId corresponding to the SUBSCRIBE message
      * @param grantedQosList granted QoS List of the corresponding SUBSCRIBE
      * @return Created SUBACK message
-     * */
+     */
     private MqttSubAckMessage subAck(MqttQoS qos, int packetId, List<MqttQoS> grantedQosList) {
 
         MqttFixedHeader mqttFixedHeader =
@@ -201,7 +201,7 @@ public class ProtocolProcessor {
      * If the session is used by this channel
      * 1. Set the session's isActive to false
      * 2. Close the PINGREQ schedule.
-     * */
+     */
     public void processDisconnect() {
         if (isConnected) {
             isConnected = false;
@@ -217,7 +217,7 @@ public class ProtocolProcessor {
      * Initialize the isConnected status to false
      * Create the message publisher
      * @param serverContext the global server context
-     * */
+     */
     public ProtocolProcessor(ServerContext serverContext) {
         this.isConnected = false;
         this.serverContext = serverContext;

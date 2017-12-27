@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * The protocol processor of the client.
  * Process inbound messages from the broker.
- * */
+ */
 public class ProtocolProcessor {
 
     private ClientSession clientSession;
@@ -43,7 +43,7 @@ public class ProtocolProcessor {
     /**
      * Setter for the message callback handler.
      * @param messageCallbackHandler User-defined message callback handler.
-     * */
+     */
     public void setMessageCallbackHandler(IMessageCallbackHandler messageCallbackHandler) {
         this.messageCallbackHandler = messageCallbackHandler;
     }
@@ -52,7 +52,7 @@ public class ProtocolProcessor {
      * Handle CONNACK
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttConnAckMessage CONNACK message from broker
-     * */
+     */
     public void processConnAck(ChannelHandlerContext ctx, MqttConnAckMessage mqttConnAckMessage) throws Exception {
         if (mqttConnAckMessage.variableHeader().connectReturnCode() == MqttConnectReturnCode.CONNECTION_ACCEPTED) {
             // nop, currently.
@@ -67,7 +67,7 @@ public class ProtocolProcessor {
      * Handle PUBLISH and return a PUBACK
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPublishMessage PUBLISH message from broker
-     * */
+     */
     public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) throws Exception {
         messageCallbackHandler.messageArrive(mqttPublishMessage);
 
@@ -87,7 +87,7 @@ public class ProtocolProcessor {
      * Remove the corresponding packet id in client session's unacked message queue
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPubAckMessage PUBACK message from broker
-     * */
+     */
     public void processPubAck(ChannelHandlerContext ctx, MqttPubAckMessage mqttPubAckMessage) throws Exception {
         // nop, currently.
     }
@@ -96,7 +96,7 @@ public class ProtocolProcessor {
      * Handle SUBACK
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttSubAckMessage SUBACK message from broker
-     * */
+     */
     public void processSubAck(ChannelHandlerContext ctx, MqttSubAckMessage mqttSubAckMessage) throws Exception {
         // TODO: delete this.
         logger.debug(mqttSubAckMessage.payload().grantedQoSLevels().get(0).toString());
@@ -107,7 +107,7 @@ public class ProtocolProcessor {
      * Respond with a PINGRESP back to broker server.
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPingReqMessage PINGREQ message from broker
-     * */
+     */
     public void processPingReq(ChannelHandlerContext ctx, MqttPingReqMessage mqttPingReqMessage) throws Exception {
 
         MqttFixedHeader mqttFixedHeader =

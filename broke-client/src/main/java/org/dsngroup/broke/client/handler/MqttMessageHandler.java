@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Netty inbound channel handler for messages from the broker server.
- * */
+ */
 public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);

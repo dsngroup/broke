@@ -29,12 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests of the Mqtt Message Handler of the client side.
- * */
+ */
 public class MqttMessageHandlerTest {
 
     /**
      * Test the PUBLISH message handling.
-     * */
+     */
     @Test
     public void publishTest() {
         EmbeddedChannel channel = new EmbeddedChannel(new MqttMessageHandler(new ClientContext("client_01")));

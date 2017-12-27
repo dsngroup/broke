@@ -62,7 +62,7 @@ public class BlockClient {
 
     /**
      * Getter for client ID.
-     * */
+     */
     public String getClientId() {
         return clientId;
     }
@@ -70,7 +70,7 @@ public class BlockClient {
     /**
      * Setter for publish message queue.
      * @param publishMessageQueue The publish message queue.
-     * */
+     */
     public void setPublishMessageQueue(IPublishMessageQueue publishMessageQueue) {
         clientContext.getClientSession().setPublishMessageQueue(publishMessageQueue);
     }
@@ -79,7 +79,7 @@ public class BlockClient {
      * Send CONNECT to server.
      * @param qos qos option
      * @param criticalOption Critical Option
-     * */
+     */
     public void connect(MqttQoS qos, int criticalOption) throws Exception {
 
         // Connect only when the channel is active
@@ -158,7 +158,7 @@ public class BlockClient {
 
     /**
      * Disconnect: send DISCONNECT to server and close the channel.
-     * */
+     */
     public void disconnect() {
         if (targetServerChannel.isActive()) {
             MqttFixedHeader mqttFixedHeader =
@@ -173,7 +173,7 @@ public class BlockClient {
     /**
      * Setter for message callback handler
      * @param messageCallbackHandler user-defined message callback handler
-     * */
+     */
     public void setMessageCallbackHandler(IMessageCallbackHandler messageCallbackHandler) {
         mqttMessageHandler.setMessageCallbackHandler(messageCallbackHandler);
     }
@@ -187,7 +187,7 @@ public class BlockClient {
 
     /**
      * The constructor without specifying clientId
-     * */
+     */
     public BlockClient(String targetBrokerAddress, int targetBrokerPort) throws Exception {
         this(targetBrokerAddress, targetBrokerPort, ClientIdGenerator.getClientId());
     }

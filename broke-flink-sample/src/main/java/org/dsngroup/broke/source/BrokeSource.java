@@ -73,7 +73,7 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
             blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
             blockClient.setMessageCallbackHandler(new BrokeCallBack());
             blockClient.setPublishMessageQueue(publishMessageQueue =
-                    new PublishMessageQueue(1000, 0.3, 0.7));
+                    new PublishMessageQueue(10000, 0.3, 0.8));
             blockClient.subscribe(subscribeTopic, MqttQoS.AT_LEAST_ONCE, 0, groupId);
 
             this.isRunning = true;

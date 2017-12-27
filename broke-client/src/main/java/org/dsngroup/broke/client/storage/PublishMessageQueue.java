@@ -86,7 +86,7 @@ public class PublishMessageQueue implements IPublishMessageQueue {
      *                However, messages that exceed this value will still be stored.
      * @param highWaterMark The high watermark
      * @param lowWaterMark The low watermark.
-     * */
+     */
     public PublishMessageQueue(int maxSize, double lowWaterMark, double highWaterMark) {
         this.maxSize = maxSize;
         this.receivedPublishQueue = new ArrayDeque<>(maxSize);

@@ -21,11 +21,15 @@ import io.netty.util.concurrent.ScheduledFuture;
 import org.dsngroup.broke.broker.metadata.PingRequestPool;
 import org.dsngroup.broke.broker.metadata.RttStatistics;
 import org.dsngroup.broke.protocol.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientProber {
+
+    private static final Logger logger = LoggerFactory.getLogger(ClientProber.class);
 
     private AtomicInteger pingReqPacketIdGenerator;
 
@@ -39,7 +43,7 @@ public class ClientProber {
 
     /**
      * Getter for current round-trip time.
-     * */
+     */
     public double getRttAvg() {
         return rttStatistics.getRttAvg();
     }
@@ -58,21 +62,25 @@ public class ClientProber {
 
     /**
      * Getter for isBackPressured.
-     * */
+     */
     public boolean isBackPressured() {
         return isBackPressured;
     }
 
     /**
      * Setter for isBackPressured.
-     * */
+     */
     public void setIsBackPressured(boolean isBackPressured) {
-        this.isBackPressured = isBackPressured;
+        if (this.isBackPressured != isBackPressured ) {
+            this.isBackPressured = isBackPressured;
+            // TODO: debug
+            logger.info("Back-pressure status toggled: " + isBackPressured);
+        }
     }
 
     /**
      * Called in the processConnect(). When the client makes the connection successfully, schedule the PING message.
-     * */
+     */
     public void schedulePingReq(Channel channel) {
         pingReqScheduleFuture = channel.eventLoop().scheduleAtFixedRate(
                 new Runnable(){
@@ -93,7 +101,7 @@ public class ClientProber {
                         setPingReq(packetId);
                         channel.writeAndFlush(mqttPingReqMessage);
                     }
-                }, 3, 3, TimeUnit.SECONDS);
+                }, 1000, 250, TimeUnit.MILLISECONDS);
     }
 
     public void cancelPingReq() {

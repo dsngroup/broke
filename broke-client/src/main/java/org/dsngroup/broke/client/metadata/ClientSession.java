@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Each client should have only one client session.
  * Maintain a reference of publish message queue for back-pressure status monitoring.
  * The operation of publish message queue is performed outside. (e.g. poll(), offer() at the user's coding space.)
- * */
+ */
 public class ClientSession {
 
     private final String clientId;
@@ -41,14 +41,14 @@ public class ClientSession {
 
     /**
      * Getter for back-pressure status. Determined by current publish message queue's status.
-     * */
+     */
     public boolean isBackPressured() {
         return publishMessageQueue.isBackPressured();
     }
 
     /**
      * Getter for the publish message queue.
-     * */
+     */
     public IPublishMessageQueue getPublishMessageQueue() {
         return publishMessageQueue;
     }
@@ -56,7 +56,7 @@ public class ClientSession {
     /**
      * Setter for the publish message queue.
      * @param publishMessageQueue The publish message queue.
-     * */
+     */
     public void setPublishMessageQueue(IPublishMessageQueue publishMessageQueue) {
         this.publishMessageQueue = publishMessageQueue;
     }
@@ -65,7 +65,7 @@ public class ClientSession {
      * Constructor of the client session.
      * The publish message is set to fake publish message queue for fake back-pressure monitoring by default.
      * @param clientId Client ID
-     * */
+     */
     public ClientSession(String clientId) {
         this.clientId = clientId;
         this.unackedMessages = new ConcurrentHashMap<>();

@@ -37,7 +37,7 @@ public class MqttMessageHandlerTest {
      * Test the MqttMessageHandler on CONNECT message handling
      * 1. Send a CONNECT, the handler should send a CONNACK back with return code CONNECTION_ACCEPTED
      * 2. Send two CONNECT, the handler should close the channel.
-     * */
+     */
     @Test
     public void mqttConnectTest() {
 
@@ -81,7 +81,7 @@ public class MqttMessageHandlerTest {
     /**
      * Two clients with the same client ID send CONNECT to the same broker.
      * Only first client will be accepted, the second client will be rejected because the client ID is used.
-     * */
+     */
     @Test
     public void twoClientsSendsSameClientIdTest() {
 

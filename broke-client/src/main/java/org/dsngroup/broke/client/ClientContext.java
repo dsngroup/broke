@@ -23,7 +23,7 @@ import org.dsngroup.broke.client.storage.PublishMessageQueue;
 /**
  * The context that contains client's information.
  * TODO: May be better to integrate with client session.
- * */
+ */
 public class ClientContext {
 
     private ClientSession clientSession;
@@ -32,14 +32,14 @@ public class ClientContext {
 
     /**
      * Getter for the client session.
-     * */
+     */
     public ClientSession getClientSession() {
         return clientSession;
     }
 
     /**
      * Getter for the client ID.
-     * */
+     */
     public String getClientId() {
         return clientId;
     }
@@ -47,7 +47,7 @@ public class ClientContext {
     /**
      * Constructor of the client context.
      * @param clientId Client ID.
-     * */
+     */
     public ClientContext(String clientId) {
         this.clientId = clientId;
         clientSession = new ClientSession(clientId);
