@@ -16,7 +16,7 @@
 
 package org.dsngroup.broke.client.handler.callback;
 
-import org.dsngroup.broke.protocol.MqttPublishMessage;
+import io.netty.buffer.ByteBuf;
 
 /**
  * Interface of the message callback handler.
@@ -26,7 +26,7 @@ public interface IMessageCallbackHandler {
     /**
      * Callback function called when a publish message arrived.
      */
-    void messageArrive(MqttPublishMessage mqttPublishMessage);
+    void messageArrive(ByteBuf payload);
 
     /**
      * Callback function called when the connection to the broker server lost.

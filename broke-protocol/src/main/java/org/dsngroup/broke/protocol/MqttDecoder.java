@@ -275,10 +275,14 @@ public final class MqttDecoder extends ReplayingDecoder<DecoderState> {
 
     private static Result<MqttPingRespVariableHeader> decodePingRespVariableHeader(ByteBuf buffer) {
         final boolean isBackPressured = (buffer.readUnsignedByte() & 0x01) == 0x01; // consume 1 byte
+        final Result<Integer> consumptionRate = decodeMsbLsb(buffer);
+        final Result<Integer> queueCapacity = decodeMsbLsb(buffer);
         final Result<Integer> messageId = decodeMessageId(buffer);
         return new Result<MqttPingRespVariableHeader>(
-                new MqttPingRespVariableHeader(isBackPressured, messageId.value),
-                messageId.numberOfBytesConsumed + 1
+                new MqttPingRespVariableHeader(isBackPressured, consumptionRate.value, queueCapacity.value,
+                        messageId.value),
+                messageId.numberOfBytesConsumed + consumptionRate.numberOfBytesConsumed
+                        + queueCapacity.numberOfBytesConsumed + 1
         );
     }
 

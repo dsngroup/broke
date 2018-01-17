@@ -16,6 +16,7 @@
 
 package org.dsngroup.broke.client.handler.callback;
 
+import io.netty.buffer.ByteBuf;
 import org.dsngroup.broke.protocol.MqttPublishMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +33,12 @@ public class DefaultMessageCallbackHandler implements IMessageCallbackHandler {
 
     /**
      * Print the publish message.
-     * @param mqttPublishMessage The incoming publish message.
+     * @param payload The payload of the incoming publish message.
      */
     @Override
-    public void messageArrive(MqttPublishMessage mqttPublishMessage) {
-        logger.info("topic: " + mqttPublishMessage.variableHeader().topicName() +
-                " payload: " + mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+    public void messageArrive(ByteBuf payload) {
+        payload.retain();
+        logger.info("payload: " + payload.toString(StandardCharsets.UTF_8));
     }
 
     /**

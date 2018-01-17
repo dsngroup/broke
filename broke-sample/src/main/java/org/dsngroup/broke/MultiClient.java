@@ -16,17 +16,14 @@
 
 package org.dsngroup.broke;
 
+import io.netty.buffer.ByteBuf;
 import org.dsngroup.broke.client.BlockClient;
 import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
-import org.dsngroup.broke.protocol.MqttPublishMessage;
 import org.dsngroup.broke.protocol.MqttQoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,13 +39,18 @@ public class MultiClient {
             String serverAddress = args[0];
             int serverPort = Integer.parseInt(args[1]);
 
-            int numOfClients = Integer.parseInt(args[2]);
+            /*
+            * 3 Flink consumers: 15 clients
+            * Stable: 8 clients
+            * LSMD stable: 12 clients 2ms
+            */
+            int numOfClients = 12;
 
             PublishClient[] publishClients = new PublishClient[numOfClients];
             SubscribeClient[] subscribeClients = new SubscribeClient[numOfClients];
 
             String topic = "Foo";
-            int sleepInterval = 500; // publish sleep interval
+            int sleepInterval = 2; // publish sleep interval
             int groupId = 1; // Subscribe group ID
 
             Path path = Paths.get(MultiClient.class.getClassLoader().getResource("payload.txt").getFile());
@@ -97,7 +99,7 @@ public class MultiClient {
         class MessageCallbackHandler implements IMessageCallbackHandler {
 
             @Override
-            public void messageArrive(MqttPublishMessage mqttPublishMessage) {}
+            public void messageArrive(ByteBuf payload) {}
 
             @Override
             public void connectionLost(Throwable cause) {
@@ -170,8 +172,8 @@ public class MultiClient {
         class MessageCallbackHandler implements IMessageCallbackHandler {
 
             @Override
-            public void messageArrive(MqttPublishMessage mqttPublishMessage) {
-                logger.info(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+            public void messageArrive(ByteBuf payload) {
+                logger.info(payload.toString(StandardCharsets.UTF_8));
             }
 
             @Override

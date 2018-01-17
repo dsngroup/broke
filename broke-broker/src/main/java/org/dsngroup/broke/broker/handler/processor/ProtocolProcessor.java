@@ -21,8 +21,8 @@ import io.netty.channel.ChannelHandlerContext;
 import org.dsngroup.broke.broker.dispatch.ClientProber;
 import org.dsngroup.broke.protocol.*;
 import org.dsngroup.broke.broker.ServerContext;
-import org.dsngroup.broke.broker.metadata.ServerSession;
-import org.dsngroup.broke.broker.metadata.ServerSessionPool;
+import org.dsngroup.broke.broker.metadata.ClientSession;
+import org.dsngroup.broke.broker.metadata.ClientSessionPool;
 import org.dsngroup.broke.broker.metadata.SubscriptionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class ProtocolProcessor {
     private ServerContext serverContext;
 
     // Initialized if CONNECT is accepted.
-    private ServerSession serverSession;
+    private ClientSession clientSession;
 
     private MessagePublisher messagePublisher;
 
@@ -66,22 +66,20 @@ public class ProtocolProcessor {
             boolean cleanSession = mqttConnectMessage.variableHeader().isCleanSession();
 
             // Get server session pool from the server context
-            ServerSessionPool serverSessionPool = serverContext.getServerSessionPool();
+            ClientSessionPool clientSessionPool = serverContext.getClientSessionPool();
 
             // For a session, accept one client only (specified using clientId)
             synchronized (this) {
-                if (!serverSessionPool.isSessionActive(clientId)) {
+                if (!clientSessionPool.isSessionActive(clientId)) {
                     // Accept the connection: initialize the server session
-                    serverSession = serverSessionPool.getSession(clientId, cleanSession);
-                    serverSession.setIsActive(true);
+                    clientSession = clientSessionPool.getSession(clientId, cleanSession);
+                    clientSession.setIsActive(true);
                     // Response the client a CONNACK with return code CONNECTION_ACCEPTED
                     MqttConnAckMessage mqttConnAckMessage = connAck(
                             MqttConnectReturnCode.CONNECTION_ACCEPTED,
                             mqttConnectMessage
                     );
                     channel.writeAndFlush(mqttConnAckMessage);
-                    clientProber.schedulePingReq(channel);
-                    serverSession.setClientProber(clientProber);
                 } else {
                     // Reject the connection
                     // Response the client a CONNACK with return code CONNECTION_REJECTED
@@ -148,10 +146,16 @@ public class ProtocolProcessor {
     public void processSubscribe(Channel channel, MqttSubscribeMessage mqttSubscribeMessage) {
 
         if (isConnected) {
-            SubscriptionPool subscriptionPool = serverSession.getSubscriptionPool();
+            SubscriptionPool subscriptionPool = clientSession.getSubscriptionPool();
 
             List<MqttQoS> grantedQosList = new ArrayList<>();
             for (MqttTopicSubscription mqttTopicSubscription : mqttSubscribeMessage.payload().topicSubscriptions()) {
+                if (subscriptionPool.isEmpty()) {
+                    // Set client prober for first subscription.
+                    // TODO: unset when the subscription pool becomes null.
+                    clientProber.schedulePingReq(channel);
+                    clientSession.setClientProber(clientProber);
+                }
                 subscriptionPool.register(mqttTopicSubscription.topicName(),
                         mqttTopicSubscription.qualityOfService(),
                         mqttTopicSubscription.groupId(),
@@ -192,8 +196,14 @@ public class ProtocolProcessor {
     public void processPingResp(MqttPingRespMessage mqttPingRespMessage) {
         int packetId = mqttPingRespMessage.variableHeader().packetId();
         boolean isBackPressured = mqttPingRespMessage.variableHeader().isBackPressured();
+        int consumptionRate = mqttPingRespMessage.variableHeader().getConsumptionRate();
+        int queueCapacity = mqttPingRespMessage.variableHeader().getQueueCapacity();
         clientProber.setPingResp(packetId);
         clientProber.setIsBackPressured(isBackPressured);
+        clientProber.setConsumptionRate(consumptionRate);
+        clientProber.setQueueCapacity(queueCapacity);
+        // TODO: debug
+        logger.info("Consumption rate: " + consumptionRate + " Queue Capacity: " + queueCapacity);
     }
 
     /**
@@ -206,7 +216,7 @@ public class ProtocolProcessor {
         if (isConnected) {
             isConnected = false;
             synchronized (this) {
-                serverSession.setIsActive(false);
+                clientSession.setIsActive(false);
             }
             clientProber.cancelPingReq();
         }

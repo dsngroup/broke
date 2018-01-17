@@ -44,11 +44,14 @@ public class RttStatistics {
 
     // TODO: synchronize may be unnecessary?
     public synchronized void updateRttStatistics(double newRtt) {
-        logger.debug("Rtt numbers: " + rttQueue.size() + " Rtt New: " + newRtt + " RTT Avg " + rttAvg + " Rtt StdDev: " + rttDev);
         // Check validation only when the collected number of RTT is larger than half of the maxRttNumber
         if (rttQueue.size() > maxRttNumber / 2 && !isValidRtt(newRtt)) {
+            // TODO: debug
+            logger.info( "Measured RTT: " + newRtt + "ms RTT Avg " + rttAvg + " Rtt StdDev: " + rttDev + " Invalid RTT");
             return;
         }
+        // TODO: debug
+        logger.info( "Measured RTT: " + newRtt + "ms RTT Avg " + rttAvg + " Rtt StdDev: " + rttDev + "  Valid RTT");
         rttQueue.offer(newRtt);
         while (rttQueue.size() > maxRttNumber) {
             rttQueue.poll();

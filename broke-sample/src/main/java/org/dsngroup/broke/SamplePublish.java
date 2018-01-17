@@ -16,6 +16,7 @@
 
 package org.dsngroup.broke;
 
+import io.netty.buffer.ByteBuf;
 import org.dsngroup.broke.client.BlockClient;
 import org.dsngroup.broke.client.exception.ConnectLostException;
 import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
@@ -40,8 +41,8 @@ public class SamplePublish {
         class MessageCallbackHandler implements IMessageCallbackHandler {
 
             @Override
-            public void messageArrive(MqttPublishMessage mqttPublishMessage) {
-                logger.info(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+            public void messageArrive(ByteBuf payload) {
+                logger.info(payload.toString(StandardCharsets.UTF_8));
             }
 
             @Override

@@ -16,6 +16,7 @@
 
 package org.dsngroup.broke.client.storage;
 
+import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,7 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
     }
 
     @Override
-    public synchronized void putMessage(String message) {
+    public synchronized void putMessage(ByteBuf message) {
         count ++ ;
         if(count == maxSize) {
             isBackPressured = true;
@@ -76,8 +77,13 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
     }
 
     @Override
-    public synchronized String getMessage() {
+    public synchronized ByteBuf getMessage() {
         return null;
+    }
+
+    @Override
+    public double getConsumptionRate() {
+        return -1;
     }
 
     /**

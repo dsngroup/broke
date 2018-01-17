@@ -36,10 +36,11 @@ public class PublishMessageQueueMonitor extends AbstractRichFunction implements 
     @Override
     public void run() {
         while(true) {
-            logger.info("Back pressure status: " + publishMessageQueue.isBackPressured() +
-                    " current capacity: " + publishMessageQueue.getCapacity() +
-                    " max capacity: " + publishMessageQueue.getMaxSize() +
-                    " current time: " + System.currentTimeMillis());
+            // TODO: debug
+            logger.info("BP status: " + publishMessageQueue.isBackPressured() +
+                    " capacity: " + publishMessageQueue.getCapacity() +
+                    " consumption rate: " + publishMessageQueue.getConsumptionRate() +
+                    " time: " + System.currentTimeMillis());
             try {
                 Thread.sleep(250);
             } catch (Exception e) {

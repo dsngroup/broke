@@ -18,8 +18,8 @@ package org.dsngroup.broke.broker.dispatch;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.dsngroup.broke.broker.metadata.ServerSession;
-import org.dsngroup.broke.broker.metadata.ServerSessionPool;
+import org.dsngroup.broke.broker.metadata.ClientSession;
+import org.dsngroup.broke.broker.metadata.ClientSessionPool;
 import org.dsngroup.broke.broker.metadata.Subscription;
 import org.dsngroup.broke.broker.metadata.SubscriptionPool;
 import org.dsngroup.broke.protocol.MqttFixedHeader;
@@ -35,20 +35,25 @@ import java.util.TreeMap;
 
 public class MessageDispatcher {
 
-    private ServerSessionPool serverSessionPool;
+    private ClientSessionPool clientSessionPool;
 
     private static final Logger logger = LoggerFactory.getLogger(MessageDispatcher.class);
+
+    private ISessionSelector sessionSelector;
+
+    // TODO: delete this
+    private int printerCounter = 0;
 
     /**
      * Publish to subscriptions.
      */
     public void publishToSubscription(MqttPublishMessage mqttPublishMessage) {
         // Iterate through all sessions, publishing to every sessions' subscriptions
-        for (ServerSession serverSession: serverSessionPool.asCollection()) {
+        for (ClientSession clientSession : clientSessionPool.asCollection()) {
             // Only publish to active sessions
-            if (serverSession.getIsActive()) {
+            if (clientSession.getIsActive()) {
                 // Whether the mqttPublish Message matches the subscription is performed in "publishToSubscription"
-                publishToSubscription(serverSession, mqttPublishMessage);
+                publishToSubscription(clientSession, mqttPublishMessage);
             }
         }
     }
@@ -63,18 +68,30 @@ public class MessageDispatcher {
      */
     public void groupBasedPublishToSubscription(MqttPublishMessage mqttPublishMessage) {
         String topic = mqttPublishMessage.variableHeader().topicName();
-        TreeMap<Integer, ArrayList<ServerSession>> groupIdSessionListMap = getGroupedServerSessions(topic);
-        for (Map.Entry<Integer, ArrayList<ServerSession>> entry: groupIdSessionListMap.entrySet()) {
+        TreeMap<Integer, ArrayList<ClientSession>> groupIdSessionListMap = getGroupedServerSessions(topic);
+        for (Map.Entry<Integer, ArrayList<ClientSession>> entry: groupIdSessionListMap.entrySet()) {
             int groupId = entry.getKey();
-            ArrayList sessionList = entry.getValue();
+            ArrayList<ClientSession> sessionList = entry.getValue();
             // Select over the session lists
-            ServerSession selectedSession = selectSession(sessionList);
+            ClientSession selectedSession = sessionSelector.selectSession(sessionList);
+
+            // TODO: debug
+            printerCounter ++;
+            if (printerCounter == 10000) {
+                logger.info("Number of possible consumers: " + sessionList.size());
+                for (ClientSession session : sessionList) {
+                    logger.info(session.getClientId() +
+                            ": score: " + session.getPublishScoreString() +
+                            " total publishes: " + session.getPublishCount());
+                }
+                logger.info("Selected session: " + selectedSession.getClientId());
+                printerCounter = 0;
+            }
+
             if (selectedSession != null) {
-                // TODO: debug
-                logger.debug(" Publish to " + selectedSession.getClientId() +
-                        " Score: " + selectedSession.getPublishScore() +
-                        " RTT: " + selectedSession.getAverageRTT());
                 publishToSubscription(selectedSession, mqttPublishMessage);
+                // TODO: remove after debug
+                selectedSession.setPublishCount();
             } else {
                 logger.debug("No available session now");
                 // TODO: store the published message.
@@ -82,51 +99,22 @@ public class MessageDispatcher {
         }
     }
 
-    private TreeMap<Integer, ArrayList<ServerSession>> getGroupedServerSessions(String topic) {
-        TreeMap<Integer, ArrayList<ServerSession>> groupedServerSessions = new TreeMap<>();
-        for (ServerSession serverSession: serverSessionPool.asCollection()) {
-            if (serverSession.getIsActive()) {
-                SubscriptionPool subscriptionPool = serverSession.getSubscriptionPool();
+    private TreeMap<Integer, ArrayList<ClientSession>> getGroupedServerSessions(String topic) {
+        TreeMap<Integer, ArrayList<ClientSession>> groupedServerSessions = new TreeMap<>();
+        for (ClientSession clientSession : clientSessionPool.asCollection()) {
+            if (clientSession.getIsActive()) {
+                SubscriptionPool subscriptionPool = clientSession.getSubscriptionPool();
                 Subscription matchedSubscription = subscriptionPool.getMatchSubscription(topic);
                 if (matchedSubscription != null) {
                     int groupId = matchedSubscription.getGroupId();
                     if (!groupedServerSessions.containsKey(groupId)) {
                         groupedServerSessions.put(groupId, new ArrayList<>());
                     }
-                    groupedServerSessions.get(groupId).add(serverSession);
+                    groupedServerSessions.get(groupId).add(clientSession);
                 }
             }
         }
         return groupedServerSessions;
-    }
-
-    private ServerSession selectSession(ArrayList<ServerSession> sessionList) {
-        double[] scoreArray = new double[sessionList.size()];
-        for (int i = 0; i < sessionList.size(); i++) {
-            scoreArray[i] = sessionList.get(i).getPublishScore();
-        }
-
-        double sumScore = 0;
-        for (int i = 0; i < scoreArray.length; i++) {
-            sumScore += scoreArray[i];
-        }
-
-        double rand = (Math.random()) * sumScore;
-        int selectedIdx = 0;
-        double aggr = 0;
-        for (int i = 0; i < scoreArray.length; i++) {
-            aggr += scoreArray[i];
-            if (aggr >= rand) {
-                selectedIdx = i;
-                break;
-            }
-        }
-
-        if (scoreArray[selectedIdx] == 0) {
-            return null;
-        } else {
-            return sessionList.get(selectedIdx);
-        }
     }
 
     /**
@@ -134,14 +122,14 @@ public class MessageDispatcher {
      * If the topic is matched, create a PUBLISH and publish to the corresponding subscriber client.
      * @param mqttPublishMessage The PUBLISH message from the publisher.
      */
-    private void publishToSubscription(ServerSession serverSession, MqttPublishMessage mqttPublishMessage) {
+    private void publishToSubscription(ClientSession clientSession, MqttPublishMessage mqttPublishMessage) {
 
         String topic = mqttPublishMessage.variableHeader().topicName();
 
-        Subscription matchSubscription = serverSession.getSubscriptionPool().getMatchSubscription(topic);
+        Subscription matchSubscription = clientSession.getSubscriptionPool().getMatchSubscription(topic);
 
         if (matchSubscription != null) {
-            int packetId = serverSession.getNextPacketId();
+            int packetId = clientSession.getNextPacketId();
             // TODO: perform QoS selection between publish QoS and subscription QoS
             MqttFixedHeader mqttFixedHeader =
                     new MqttFixedHeader(MqttMessageType.PUBLISH, false, matchSubscription.getQos(), false, 0);
@@ -163,7 +151,8 @@ public class MessageDispatcher {
         }
     }
 
-    public MessageDispatcher(ServerSessionPool serverSessionPool) {
-        this.serverSessionPool = serverSessionPool;
+    public MessageDispatcher(ClientSessionPool clientSessionPool) {
+        this.clientSessionPool = clientSessionPool;
+        this.sessionSelector = new RRSessionSelector();
     }
 }

@@ -16,6 +16,8 @@
 
 package org.dsngroup.broke.client.storage;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * Interface for a publish message queue.
  */
@@ -30,12 +32,12 @@ public interface IPublishMessageQueue {
      * Put the message into this queue.
      * @param message Message to put into the queue.
      */
-    void putMessage(String message);
+    void putMessage(ByteBuf message);
 
     /**
      * Getter for the message at the front of the queue (First-In-First-Out).
      */
-    String getMessage();
+    ByteBuf getMessage();
 
     /**
      * Getter for the max number of messages this queue can store.
@@ -56,4 +58,10 @@ public interface IPublishMessageQueue {
      * Getter for the current capacity of the queue.
      */
     int getCapacity();
+
+    /**
+     * Getter for the current consumption rate of the queue.
+     * @return consumption rate of the queue.
+     */
+    double getConsumptionRate();
 }

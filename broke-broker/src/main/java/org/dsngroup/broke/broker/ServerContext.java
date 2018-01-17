@@ -19,7 +19,6 @@ package org.dsngroup.broke.broker;
 import org.dsngroup.broke.broker.dispatch.MessageDispatcher;
 import org.dsngroup.broke.broker.metadata.*;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -31,15 +30,15 @@ import java.util.Properties;
  */
 public class ServerContext {
 
-    private ServerSessionPool serverSessionPool;
+    private ClientSessionPool clientSessionPool;
 
     private MessageDispatcher messageDispatcher;
 
     /**
      * Getter method for server session pool.
      */
-    public ServerSessionPool getServerSessionPool() {
-        return serverSessionPool;
+    public ClientSessionPool getClientSessionPool() {
+        return clientSessionPool;
     }
 
     /**
@@ -104,7 +103,7 @@ public class ServerContext {
      */
     public ServerContext() {
         loadProperties();
-        serverSessionPool = new ServerSessionPool();
-        messageDispatcher = new MessageDispatcher(serverSessionPool);
+        clientSessionPool = new ClientSessionPool();
+        messageDispatcher = new MessageDispatcher(clientSessionPool);
     }
 }

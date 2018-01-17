@@ -22,14 +22,26 @@ public class MqttPingRespVariableHeader {
 
     private final int packetId;
     private final boolean isBackPressured;
+    private final int consumptionRate;
+    private final int queueCapacity;
 
-    public MqttPingRespVariableHeader(boolean isBackPressured, int packetId) {
+    public MqttPingRespVariableHeader(boolean isBackPressured, int consumptionRate, int queueCapacity, int packetId) {
         this.isBackPressured = isBackPressured;
         this.packetId = packetId;
+        this.consumptionRate = consumptionRate;
+        this.queueCapacity = queueCapacity;
     }
 
     public boolean isBackPressured() {
         return isBackPressured;
+    }
+
+    public int getConsumptionRate() {
+        return consumptionRate;
+    }
+
+    public int getQueueCapacity() {
+        return queueCapacity;
     }
 
     @Deprecated
@@ -46,6 +58,8 @@ public class MqttPingRespVariableHeader {
         return new StringBuilder(StringUtil.simpleClassName(this))
                 .append('[')
                 .append("isBackPressured=").append(isBackPressured)
+                .append(", consumptionRate=").append(consumptionRate)
+                .append(", queueCapacity=").append(queueCapacity)
                 .append(", packetId=").append(packetId)
                 .append(']')
                 .toString();

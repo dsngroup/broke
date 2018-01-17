@@ -47,6 +47,22 @@ public class ClientSession {
     }
 
     /**
+     * Getter for the consumption rate of the publish message queue.
+     * @return consumption rate.
+     */
+    public double getConsumptionRate() {
+        return publishMessageQueue.getConsumptionRate();
+    }
+
+    /**
+     * Getter for the capacity of publish message queue.
+     * @return Capacity of the publish message queue.
+     */
+    public int getQueueCapacity() {
+        return publishMessageQueue.getCapacity();
+    }
+
+    /**
      * Getter for the publish message queue.
      */
     public IPublishMessageQueue getPublishMessageQueue() {

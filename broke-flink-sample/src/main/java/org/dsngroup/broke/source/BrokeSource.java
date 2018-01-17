@@ -16,13 +16,14 @@
 
 package org.dsngroup.broke.source;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.flink.api.common.functions.StoppableFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.dsngroup.broke.client.BlockClient;
 import org.dsngroup.broke.client.handler.callback.IMessageCallbackHandler;
 import org.dsngroup.broke.client.storage.IPublishMessageQueue;
 import org.dsngroup.broke.client.storage.PublishMessageQueue;
-import org.dsngroup.broke.protocol.MqttPublishMessage;
 import org.dsngroup.broke.protocol.MqttQoS;
 import org.dsngroup.broke.util.PublishMessageQueueMonitor;
 import org.slf4j.Logger;
@@ -52,9 +53,12 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
 
     class BrokeCallBack implements IMessageCallbackHandler {
 
+        private int messageCounter;
+
         @Override
-        public void messageArrive(MqttPublishMessage mqttPublishMessage) {
-            publishMessageQueue.putMessage(mqttPublishMessage.payload().toString(StandardCharsets.UTF_8));
+        public void messageArrive(ByteBuf payload) {
+            publishMessageQueue.putMessage(payload);
+            messageCounter ++;
         }
 
         @Override
@@ -63,7 +67,25 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
             System.exit(1);
         }
 
-        BrokeCallBack() {}
+        BrokeCallBack() {
+            this.messageCounter = 0;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while(true) {
+                        // TODO: debug
+                        logger.info("Message per second: " + messageCounter + " Time: " + System.currentTimeMillis());
+                        messageCounter = 0;
+                        try {
+                            Thread.sleep(1000);
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        }
+                    }
+                }
+            }).start();
+
+        }
     }
 
     @Override
@@ -73,7 +95,7 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
             blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
             blockClient.setMessageCallbackHandler(new BrokeCallBack());
             blockClient.setPublishMessageQueue(publishMessageQueue =
-                    new PublishMessageQueue(10000, 0.3, 0.8));
+                    new PublishMessageQueue(30000, 0.5, 0.8));
             blockClient.subscribe(subscribeTopic, MqttQoS.AT_LEAST_ONCE, 0, groupId);
 
             this.isRunning = true;
@@ -82,11 +104,18 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
             this.monitorThread.start();
 
             while (this.isRunning) {
-                String message = publishMessageQueue.getMessage();
-                if (message == null) {
-                    Thread.sleep(100);
-                } else {
-                    ctx.collect(message);
+                ByteBuf message = publishMessageQueue.getMessage();
+                try {
+                    if (message == null) {
+                        Thread.sleep(100);
+                    } else {
+                        ctx.collect(message.toString(StandardCharsets.UTF_8));
+                    }
+                } catch(Exception e) {
+                    logger.error("Flink ctx.collect failed: " + e.getMessage());
+                    System.exit(1);
+                } finally {
+                    ReferenceCountUtil.release(message);
                 }
             }
 
@@ -112,7 +141,9 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
             blockClient.disconnect();
         }
         this.isRunning = false;
-
+        // TODO: debug
+        logger.info("Source closed");
+        System.exit(1);
     }
 
     public BrokeSource(String serverAddress, int serverPort, String subscribeTopic, int groupId) {

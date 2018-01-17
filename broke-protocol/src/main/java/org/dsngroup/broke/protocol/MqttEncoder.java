@@ -362,14 +362,19 @@ public final class MqttEncoder extends MessageToMessageEncoder<MqttMessage> {
         MqttFixedHeader mqttFixedHeader = message.fixedHeader();
         MqttPingRespVariableHeader variableHeader = message.variableHeader();
         boolean isBackPressured = variableHeader.isBackPressured();
+        int consumptionRate = variableHeader.getConsumptionRate();
+        int queueCapacity = variableHeader.getQueueCapacity();
         int msgId = variableHeader.packetId();
 
-        int variableHeaderBufferSize = 3; // 1-byte boolean & 2-byte message id
+        // 1-byte boolean back-pressure, 2-byte message id, 2-byte consumption Rate & 2-byte queue capacity
+        int variableHeaderBufferSize = 7;
         int fixedHeaderBufferSize = 1 + getVariableLengthInt(variableHeaderBufferSize);
         ByteBuf buf = byteBufAllocator.buffer(fixedHeaderBufferSize + variableHeaderBufferSize);
         buf.writeByte(getFixedHeaderByte1(mqttFixedHeader));
         writeVariableLengthInt(buf, variableHeaderBufferSize);
         buf.writeByte(isBackPressured?1:0);
+        buf.writeShort(consumptionRate);
+        buf.writeShort(queueCapacity);
         buf.writeShort(msgId);
 
         return buf;

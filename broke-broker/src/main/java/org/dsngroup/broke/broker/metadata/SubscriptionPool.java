@@ -46,6 +46,14 @@ public class SubscriptionPool {
     }
 
     /**
+     * Return whether the subscription list is null.
+     * @return whether the subscription list is null.
+     */
+    public boolean isEmpty() {
+        return subscriptionList.isEmpty();
+    }
+
+    /**
      * Unregister the subscriber from the interested topic keyed by subscriber's ChannelHandlerContext.
      * @param topic topic to unsubscribe
      * @param channel the subscriber's ChannelHandlerContext
