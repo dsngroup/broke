@@ -16,21 +16,27 @@
 
 package org.dsngroup.broke.client.storage;
 
-import java.util.ArrayDeque;
+import io.netty.buffer.ByteBuf;
+
 import java.util.Deque;
+import java.util.concurrent.*;
 
 @SuppressWarnings("The fake publish module should move out to the outer scope.")
 public class PublishMessageQueue implements IPublishMessageQueue {
 
-    private Deque<String> receivedPublishQueue;
+    private BlockingQueue<ByteBuf> receivedPublishQueue;
 
-    private int maxSize;
+    private final int maxSize;
 
-    private double lowWaterMark;
+    private final double lowWaterMark;
 
-    private double highWaterMark;
+    private final double highWaterMark;
 
     private boolean isBackPressured;
+
+    private long consumeStartTime = System.currentTimeMillis();
+
+    private volatile long consumeCount = 0;
 
     @Override
     public int getMaxSize() {
@@ -58,26 +64,40 @@ public class PublishMessageQueue implements IPublishMessageQueue {
     }
 
     @Override
-    public String getMessage() {
-        if(receivedPublishQueue.size() > 0) {
-            if (receivedPublishQueue.size()-1 < maxSize*lowWaterMark) {
-                isBackPressured = false;
-            }
-            synchronized (receivedPublishQueue) {
-                return receivedPublishQueue.poll();
-            }
+    public ByteBuf getMessage() {
+        if (receivedPublishQueue.size()-1 < maxSize*lowWaterMark) {
+            setIsBackPressured(false);
+        }
+        if( ! receivedPublishQueue.isEmpty() ) {
+            consumeCount++;
+            // This is non-blocking. Return null if empty.
+            return receivedPublishQueue.poll();
         }
         return null;
     }
 
     @Override
-    public void putMessage(String message) {
-        synchronized (receivedPublishQueue) {
-            receivedPublishQueue.offer(message);
-        }
+    public void putMessage(ByteBuf message) {
+        // TODO: undo String to ByteBuf message type modification
+        message.retain();
+        receivedPublishQueue.offer(message);
         if (receivedPublishQueue.size() > maxSize*highWaterMark) {
-            isBackPressured = true;
+            setIsBackPressured(true);
         }
+    }
+
+    @Override
+    public double getConsumptionRate() {
+        // TODO: Better consumption rate monitoring mechanism.
+        double duration = (System.currentTimeMillis() - consumeStartTime) / 1000.0d;
+        long thisConsumeCount = consumeCount;
+        consumeCount = 0;
+        consumeStartTime = System.currentTimeMillis();
+        return thisConsumeCount / duration;
+    }
+
+    private synchronized void setIsBackPressured(boolean isBackPressured) {
+        this.isBackPressured = isBackPressured;
     }
 
     /**
@@ -89,7 +109,7 @@ public class PublishMessageQueue implements IPublishMessageQueue {
      */
     public PublishMessageQueue(int maxSize, double lowWaterMark, double highWaterMark) {
         this.maxSize = maxSize;
-        this.receivedPublishQueue = new ArrayDeque<>(maxSize);
+        this.receivedPublishQueue = new ArrayBlockingQueue<>(10 * maxSize);
         this.lowWaterMark = lowWaterMark;
         this.highWaterMark = highWaterMark;
         this.isBackPressured = false;

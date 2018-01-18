@@ -16,6 +16,8 @@
 
 package org.dsngroup.broke.client.handler.processor;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 
 import org.dsngroup.broke.client.ClientContext;
@@ -69,7 +71,9 @@ public class ProtocolProcessor {
      * @param mqttPublishMessage PUBLISH message from broker
      */
     public void processPublish(ChannelHandlerContext ctx, MqttPublishMessage mqttPublishMessage) throws Exception {
-        messageCallbackHandler.messageArrive(mqttPublishMessage);
+        // TODO: Undo the message type modification from String to ByteBuf
+        ByteBuf payload = Unpooled.copiedBuffer(mqttPublishMessage.payload());
+        messageCallbackHandler.messageArrive(payload);
 
         MqttFixedHeader mqttFixedHeader =
                 new MqttFixedHeader(MqttMessageType.PUBACK,
@@ -113,8 +117,11 @@ public class ProtocolProcessor {
         MqttFixedHeader mqttFixedHeader =
                 new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0);
 
+        // TODO: mechanism of consumption rate & queue capacity monitoring.
         MqttPingRespVariableHeader mqttPingRespVariableHeader =
                 new MqttPingRespVariableHeader(clientSession.isBackPressured(),
+                        100, // (int) clientSession.getConsumptionRate(),
+                        100, // clientSession.getQueueCapacity(),
                         mqttPingReqMessage.variableHeader().packetId());
 
         MqttPingRespMessage mqttPingRespMessage =

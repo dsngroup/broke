@@ -17,6 +17,8 @@
 package org.dsngroup.broke.broker.dispatch;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.concurrent.ScheduledFuture;
 import org.dsngroup.broke.broker.metadata.PingRequestPool;
 import org.dsngroup.broke.broker.metadata.RttStatistics;
@@ -40,6 +42,10 @@ public class ClientProber {
     private PingRequestPool pingRequestPool;
 
     private boolean isBackPressured;
+
+    private int consumptionRate;
+
+    private int queueCapacity;
 
     /**
      * Getter for current round-trip time.
@@ -68,6 +74,30 @@ public class ClientProber {
     }
 
     /**
+     * Getter for consumption rate of publish message queue of client.
+     * @return consumption rate of publish message queue of client.
+     */
+    public int getConsumptionRate() {
+        return consumptionRate;
+    }
+
+    /**
+     * Getter for queue capacity.
+     * @return capacity of publish message queue of client.
+     */
+    public int getQueueCapacity() {
+        return queueCapacity;
+    }
+
+    /**
+     * Getter for estimated queuing delay of the client.
+     * @return queuing delay in milliseconds.
+     */
+    public double getEstimatedQueuingDelay() {
+        return consumptionRate * 1000.0d / queueCapacity;
+    }
+
+    /**
      * Setter for isBackPressured.
      */
     public void setIsBackPressured(boolean isBackPressured) {
@@ -76,6 +106,24 @@ public class ClientProber {
             // TODO: debug
             logger.info("Back-pressure status toggled: " + isBackPressured);
         }
+    }
+
+    /**
+     * Setter for consumption rate of publish message queue of client.
+     * @param consumptionRate Consumption rate per second.
+     */
+    public void setConsumptionRate(int consumptionRate) {
+        if (consumptionRate > this.consumptionRate) {
+            this.consumptionRate = consumptionRate;
+        }
+    }
+
+    /**
+     * Setter for queue capacity.
+     * @param queueCapacity Current queue capacity.
+     */
+    public void setQueueCapacity(int queueCapacity) {
+        this.queueCapacity = queueCapacity;
     }
 
     /**
@@ -99,7 +147,15 @@ public class ClientProber {
                                 new MqttPingReqMessage(mqttFixedHeader, mqttPingReqVariableHeader);
                         // Set the PINGREQ's sendTime
                         setPingReq(packetId);
-                        channel.writeAndFlush(mqttPingReqMessage);
+                        ChannelFuture future = channel.writeAndFlush(mqttPingReqMessage);
+                        future.addListener(new ChannelFutureListener() {
+                            @Override
+                            public void operationComplete(ChannelFuture future) throws Exception {
+                                if (!future.isSuccess()) {
+                                    logger.error("PINGREQ failed: ");
+                                }
+                            }
+                        });
                     }
                 }, 1000, 250, TimeUnit.MILLISECONDS);
     }
@@ -116,7 +172,7 @@ public class ClientProber {
         this.pingReqPacketIdGenerator = new AtomicInteger();
         this.pingReqPacketIdGenerator.getAndIncrement();
         this.pingRequestPool = new PingRequestPool();
-        this.rttStatistics = new RttStatistics(1000);
+        this.rttStatistics = new RttStatistics(50);
     }
 }
 
