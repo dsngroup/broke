@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Utility for message dispatching to consumer groups.
+ */
 public class MessageDispatcher {
 
     private ClientSessionPool clientSessionPool;
@@ -76,13 +79,13 @@ public class MessageDispatcher {
             ClientSession selectedSession = sessionSelector.selectSession(sessionList);
 
             // TODO: debug
-            printerCounter ++;
+            printerCounter++;
             if (printerCounter == 10000) {
                 logger.info("Number of possible consumers: " + sessionList.size());
                 for (ClientSession session : sessionList) {
-                    logger.info(session.getClientId() +
-                            ": score: " + session.getPublishScoreString() +
-                            " total publishes: " + session.getPublishCount());
+                    logger.info(session.getClientId()
+                            + ": score: " + session.getPublishScoreString()
+                            + " total publishes: " + session.getPublishCount());
                 }
                 logger.info("Selected session: " + selectedSession.getClientId());
                 printerCounter = 0;

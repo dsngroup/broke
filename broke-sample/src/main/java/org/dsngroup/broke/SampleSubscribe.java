@@ -31,6 +31,9 @@ public class SampleSubscribe {
 
     private static final Logger logger = LoggerFactory.getLogger(SampleSubscribe.class);
 
+    /**
+     * Main function.
+     */
     public static void main(String[] args) {
 
         class MessageCallbackHandler implements IMessageCallbackHandler {
@@ -64,7 +67,7 @@ public class SampleSubscribe {
 
             Scanner scanner = new Scanner(System.in);
 
-            while(true) {
+            while (true) {
                 String cmd = scanner.next();
                 if (cmd.equals("terminate")) {
                     break;

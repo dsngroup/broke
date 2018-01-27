@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package org.dsngroup.broke.protocol;
-
 /**
- * Extended MQTT PINGRESP message.
- * Additional message id was added in variable header
+ * Utilities for Broke Flink sample.
  */
-public class MqttPingRespMessage extends MqttMessage {
 
-    public MqttPingRespMessage(MqttFixedHeader mqttFixedHeader, MqttPingRespVariableHeader variableHeader) {
-        super(mqttFixedHeader, variableHeader);
-    }
-
-    @Override
-    public MqttPingRespVariableHeader variableHeader() {
-        return (MqttPingRespVariableHeader) super.variableHeader();
-    }
-}
+package org.dsngroup.broke.util;

@@ -35,7 +35,9 @@ public class SamplePublish {
 
     private static final Logger logger = LoggerFactory.getLogger(SamplePublish.class);
 
-
+    /**
+     * Main function.
+     */
     public static void main(String[] args) {
 
         class MessageCallbackHandler implements IMessageCallbackHandler {
@@ -68,7 +70,7 @@ public class SamplePublish {
 
 
             Thread.sleep(10000);
-            while(true) {
+            while (true) {
                 blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
                 Thread.sleep(500);
             }

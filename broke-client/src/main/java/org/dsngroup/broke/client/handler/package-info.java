@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * Client-side Netty-based message handler.
  */
 
 package org.dsngroup.broke.client.handler;

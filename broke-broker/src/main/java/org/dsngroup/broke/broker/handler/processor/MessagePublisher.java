@@ -23,7 +23,9 @@ import org.dsngroup.broke.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Utility functions for different QoS publishing.
+ */
 class MessagePublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
@@ -61,6 +63,11 @@ class MessagePublisher {
             logger.error(e.getMessage());
         }
 
+    }
+
+    void processQos2Publish(ChannelHandlerContext ctx, ServerContext serverContext,
+                            MqttPublishMessage mqttPublishMessage) {
+        // TODO
     }
 
     /**

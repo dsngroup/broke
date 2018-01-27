@@ -21,7 +21,9 @@ import io.netty.buffer.ByteBuf;
 import java.util.Deque;
 import java.util.concurrent.*;
 
-@SuppressWarnings("The fake publish module should move out to the outer scope.")
+/**
+ * Message queue that supports watermark-based back-pressure.
+ */
 public class PublishMessageQueue implements IPublishMessageQueue {
 
     private BlockingQueue<ByteBuf> receivedPublishQueue;
@@ -65,10 +67,10 @@ public class PublishMessageQueue implements IPublishMessageQueue {
 
     @Override
     public ByteBuf getMessage() {
-        if (receivedPublishQueue.size()-1 < maxSize*lowWaterMark) {
+        if (receivedPublishQueue.size() - 1 < maxSize * lowWaterMark) {
             setIsBackPressured(false);
         }
-        if( ! receivedPublishQueue.isEmpty() ) {
+        if(! receivedPublishQueue.isEmpty()) {
             consumeCount++;
             // This is non-blocking. Return null if empty.
             return receivedPublishQueue.poll();
@@ -81,7 +83,7 @@ public class PublishMessageQueue implements IPublishMessageQueue {
         // TODO: undo String to ByteBuf message type modification
         message.retain();
         receivedPublishQueue.offer(message);
-        if (receivedPublishQueue.size() > maxSize*highWaterMark) {
+        if (receivedPublishQueue.size() > maxSize * highWaterMark) {
             setIsBackPressured(true);
         }
     }

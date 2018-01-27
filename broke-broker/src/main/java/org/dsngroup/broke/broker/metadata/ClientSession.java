@@ -22,6 +22,9 @@ import org.dsngroup.broke.protocol.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Session of a client.
+ */
 public class ClientSession {
 
     private boolean isActive;
@@ -127,7 +130,6 @@ public class ClientSession {
 
     /**
      * Getter for the current publish score String for Debug.
-     * TODO: remove this
      */
     public String getPublishScoreString() {
         boolean isBackPressured = isBackPressured();
@@ -137,20 +139,6 @@ public class ClientSession {
         double bpFactor = isBackPressured ? 0.1 : 1.0;
 
         double networkDelayFactor = 20 * Math.pow(2, (200.0d - networkDelay) / 30.0d);
-        /*
-        double delayFactor;
-        if (networkDelay < 10) {
-            delayFactor = 100;
-        } else if (networkDelay < 30) {
-            delayFactor = 70;
-        } else if (networkDelay < 70) {
-            delayFactor = 50;
-        } else if (networkDelay < 120) {
-            delayFactor = 30;
-        } else {
-            delayFactor = 1;
-        }
-        */
         return networkDelayFactor + " * " + bpFactor + " Estimated delay: " + networkDelay;
     }
 

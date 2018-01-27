@@ -20,7 +20,11 @@ import org.dsngroup.broke.broker.metadata.ClientSession;
 
 import java.util.ArrayList;
 
-public class LSMDSessionSelector implements ISessionSelector{
+/**
+ * The session selector based on latency-sensitive message dispatching (LSMD).
+ */
+public class LSMDSessionSelector implements ISessionSelector {
+
     @Override
     public ClientSession selectSession(ArrayList<ClientSession> sessionList) {
         double[] scoreArray = new double[sessionList.size()];
@@ -61,19 +65,6 @@ public class LSMDSessionSelector implements ISessionSelector{
         double bpFactor = isBackPressured ? 0.1 : 1.0;
 
         double networkDelayFactor = 20 * Math.pow(2, (200.0d - networkDelay) / 30.0d);
-        /*
-        if (networkDelay < 10) {
-            networkDelayFactor = 100;
-        } else if (networkDelay < 30) {
-            networkDelayFactor = 50;
-        } else if (networkDelay < 70) {
-            networkDelayFactor = 25;
-        } else if (networkDelay < 120) {
-            networkDelayFactor = 12;
-        } else {
-            networkDelayFactor = 1;
-        }
-        */
         return networkDelayFactor * bpFactor;
     }
 

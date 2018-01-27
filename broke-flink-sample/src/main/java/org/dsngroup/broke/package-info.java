@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * Flink-based consumer sample for Broke.
  */
 
 package org.dsngroup.broke;

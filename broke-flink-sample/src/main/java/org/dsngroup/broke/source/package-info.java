@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * Data source for Flink.
  */
 
 package org.dsngroup.broke.source;

@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with metadata.
+ * This package contains message dispatching utility functions.
  */
 
 package org.dsngroup.broke.broker.dispatch;

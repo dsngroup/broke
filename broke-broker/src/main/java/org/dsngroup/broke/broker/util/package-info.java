@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * This package contains utility functions for the broker.
  */
 
 package org.dsngroup.broke.broker.util;

@@ -29,12 +29,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Create multiple Broke clients.
+ */
 public class MultiClient {
 
     private static final Logger logger = LoggerFactory.getLogger(MultiClient.class);
 
-    public static void main(String args[]) {
-
+    /**
+     * Main function.
+     */
+    public static void main(String[] args) {
         try {
             String serverAddress = args[0];
             int serverPort = Integer.parseInt(args[1]);
@@ -115,11 +120,11 @@ public class MultiClient {
             try {
                 blockClient.connect(MqttQoS.AT_LEAST_ONCE, 0);
                 blockClient.setMessageCallbackHandler(new MessageCallbackHandler());
-                payload = "During the 2012–13 season, Curry set the NBA record for three-pointers made in a " +
-                        "regular season with 272. He surpassed that record in 2015 with 286, and again in 2016 with " +
-                        "402. During the 2013–14 season, he and teammate Klay Thompson were nicknamed the Splash " +
-                        "Brothers en route to setting the NBA record for combined three-pointers in a season with " +
-                        "484, a record they broke the following season (525) and again in the 2015–16 season (678).";
+                payload = "During the 2012–13 season, Curry set the NBA record for three-pointers made in a "
+                        + "regular season with 272. He surpassed that record in 2015 with 286, and again in 2016 with "
+                        + "402. During the 2013–14 season, he and teammate Klay Thompson were nicknamed the Splash "
+                        + "Brothers en route to setting the NBA record for combined three-pointers in a season with "
+                        + "484, a record they broke the following season (525) and again in the 2015–16 season (678).";
                 while (true) {
                     blockClient.publish(topic, MqttQoS.AT_LEAST_ONCE, 0, payload);
                     Thread.sleep(sleepInterval);

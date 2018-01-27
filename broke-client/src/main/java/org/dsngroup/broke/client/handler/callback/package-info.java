@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * Client-side interface of message callback and default message callbacks.
  */
 
 package org.dsngroup.broke.client.handler.callback;

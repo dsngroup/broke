@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * This package contains protocol processing logic for the handler.
  */
 
 package org.dsngroup.broke.broker.handler.processor;

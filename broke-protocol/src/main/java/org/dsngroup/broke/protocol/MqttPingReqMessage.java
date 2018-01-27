@@ -17,9 +17,9 @@
 package org.dsngroup.broke.protocol;
 
 /**
- * Extended MQTT PINGREQ message
+ * Extended MQTT PINGREQ message.
  * Additional message id was added in variable header
- * */
+ */
 public class MqttPingReqMessage extends MqttMessage {
 
     public MqttPingReqMessage(MqttFixedHeader mqttFixedHeader, MqttPingReqVariableHeader variableHeader) {

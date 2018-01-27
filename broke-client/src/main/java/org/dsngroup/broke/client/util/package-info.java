@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * Client-side utilities.
  */
 
 package org.dsngroup.broke.client.util;

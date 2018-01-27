@@ -45,6 +45,10 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
     private IMessageCallbackHandler messageCallbackHandler;
 
+    /**
+     * Setter for message callback handler.
+     * @param messageCallbackHandler Message callback handler.
+     */
     public void setMessageCallbackHandler(IMessageCallbackHandler messageCallbackHandler) {
         this.messageCallbackHandler = messageCallbackHandler;
         if(protocolProcessor != null) {
@@ -80,7 +84,7 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
                     protocolProcessor.processPingReq(ctx, (MqttPingReqMessage) mqttMessage);
                     break;
                 default:
-                    logger.error("invalid message: "+msg.toString());
+                    logger.error("invalid message: " + msg.toString());
                     break;
             }
 
@@ -93,7 +97,7 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.error("An exceptionCaught() event is fired: " + cause.getMessage());
     }
 
@@ -109,6 +113,10 @@ public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
         messageCallbackHandler.connectionLost(new ConnectLostException("CONNECTION_LOST"));
     }
 
+    /**
+     * Constructor.
+     * @param clientContext Client context.
+     */
     public MqttMessageHandler(ClientContext clientContext) {
         this.clientContext = clientContext;
         this.clientSession = clientContext.getClientSession();

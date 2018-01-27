@@ -18,6 +18,9 @@ package org.dsngroup.broke.protocol;
 
 import io.netty.util.internal.StringUtil;
 
+/**
+ * Variable header of PINGRESP.
+ */
 public class MqttPingRespVariableHeader {
 
     private final int packetId;
@@ -25,6 +28,13 @@ public class MqttPingRespVariableHeader {
     private final int consumptionRate;
     private final int queueCapacity;
 
+    /**
+     * Constructor.
+     * @param isBackPressured Back-pressure status.
+     * @param consumptionRate Current consumption rate.
+     * @param queueCapacity Current capacity of the queue.
+     * @param packetId Packet identifier.
+     */
     public MqttPingRespVariableHeader(boolean isBackPressured, int consumptionRate, int queueCapacity, int packetId) {
         this.isBackPressured = isBackPressured;
         this.packetId = packetId;

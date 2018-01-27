@@ -15,6 +15,6 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * Client-side message storage and its interface.
  */
 package org.dsngroup.broke.client.storage;

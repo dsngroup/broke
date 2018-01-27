@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility functions for handling MQTT messages.
+ */
 public class ProtocolProcessor {
 
     // Status of the Protocol Processor: Whether the client has sent the CONNECT message.
@@ -123,6 +126,8 @@ public class ProtocolProcessor {
                 case AT_LEAST_ONCE:
                     messagePublisher.processQos1Publish(ctx, serverContext, mqttPublishMessage);
                     break;
+                default:
+                    return;
             }
         } else {
             logger.error("[Protocol Processor] Not connected, cannot process publish");
@@ -193,6 +198,10 @@ public class ProtocolProcessor {
         return new MqttSubAckMessage(mqttFixedHeader, mqttMessageIdVariableHeader, mqttSubAckPayload);
     }
 
+    /**
+     * Process PINGRESP.
+     * @param mqttPingRespMessage PINGRESP message.
+     */
     public void processPingResp(MqttPingRespMessage mqttPingRespMessage) {
         int packetId = mqttPingRespMessage.variableHeader().packetId();
         boolean isBackPressured = mqttPingRespMessage.variableHeader().isBackPressured();

@@ -22,7 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class RRSessionSelector implements ISessionSelector{
+/**
+ * Session selector based on round-robin (RR).
+ */
+public class RRSessionSelector implements ISessionSelector {
 
     private static final Logger logger = LoggerFactory.getLogger(RRSessionSelector.class);
 

@@ -27,7 +27,10 @@ import org.dsngroup.broke.broker.ServerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
+/**
+ * Message handler for MqttMessage.
+ */
+public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
 

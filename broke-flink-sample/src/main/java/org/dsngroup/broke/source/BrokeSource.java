@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Source of the latency-sensitive broker for Flink.
+ */
 public class BrokeSource implements SourceFunction<String>, StoppableFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(BrokeSource.class);
@@ -58,7 +61,7 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
         @Override
         public void messageArrive(ByteBuf payload) {
             publishMessageQueue.putMessage(payload);
-            messageCounter ++;
+            messageCounter++;
         }
 
         @Override
@@ -72,7 +75,7 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while(true) {
+                    while (true) {
                         // TODO: debug
                         logger.info("Message per second: " + messageCounter + " Time: " + System.currentTimeMillis());
                         messageCounter = 0;
@@ -111,7 +114,7 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
                     } else {
                         ctx.collect(message.toString(StandardCharsets.UTF_8));
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     logger.error("Flink ctx.collect failed: " + e.getMessage());
                     System.exit(1);
                 } finally {
@@ -136,6 +139,9 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
         close();
     }
 
+    /**
+     * Close the source.
+     */
     public void close() {
         if (blockClient != null) {
             blockClient.disconnect();
@@ -146,6 +152,13 @@ public class BrokeSource implements SourceFunction<String>, StoppableFunction {
         System.exit(1);
     }
 
+    /**
+     * Constructor
+     * @param serverAddress Server address.
+     * @param serverPort Server port
+     * @param subscribeTopic Topic to subscribe.
+     * @param groupId The group ID this subscriber belongs to.
+     */
     public BrokeSource(String serverAddress, int serverPort, String subscribeTopic, int groupId) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;

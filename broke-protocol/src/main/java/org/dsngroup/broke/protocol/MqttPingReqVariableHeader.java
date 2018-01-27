@@ -18,6 +18,9 @@ package org.dsngroup.broke.protocol;
 
 import io.netty.util.internal.StringUtil;
 
+/**
+ * Variable header of PINGREQ.
+ */
 public final class MqttPingReqVariableHeader {
 
     private final int packetId;

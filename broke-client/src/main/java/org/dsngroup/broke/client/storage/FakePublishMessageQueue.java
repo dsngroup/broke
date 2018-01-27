@@ -68,8 +68,8 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
 
     @Override
     public synchronized void putMessage(ByteBuf message) {
-        count ++ ;
-        if(count == maxSize) {
+        count++;
+        if (count == maxSize) {
             isBackPressured = true;
             // Set the isBackPressured to false after 5 seconds.
             new BackPressureSetterThread(5000).start();

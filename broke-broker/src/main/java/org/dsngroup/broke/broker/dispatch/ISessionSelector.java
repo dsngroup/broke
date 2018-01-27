@@ -16,10 +16,13 @@
 
 package org.dsngroup.broke.broker.dispatch;
 
+import java.util.ArrayList;
 import org.dsngroup.broke.broker.metadata.ClientSession;
 
-import java.util.ArrayList;
 
+/**
+ * Interface of session selector.
+ */
 public interface ISessionSelector {
     ClientSession selectSession(ArrayList<ClientSession> sessionList);
 }

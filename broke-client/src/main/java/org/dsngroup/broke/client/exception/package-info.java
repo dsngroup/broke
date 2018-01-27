@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * Custom exceptions for client-side logic.
  */
 
 package org.dsngroup.broke.client.exception;
