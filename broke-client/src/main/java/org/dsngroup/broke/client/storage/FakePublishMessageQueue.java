@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,8 +68,8 @@ public class FakePublishMessageQueue implements IPublishMessageQueue {
 
     @Override
     public synchronized void putMessage(ByteBuf message) {
-        count ++ ;
-        if(count == maxSize) {
+        count++;
+        if (count == maxSize) {
             isBackPressured = true;
             // Set the isBackPressured to false after 5 seconds.
             new BackPressureSetterThread(5000).start();

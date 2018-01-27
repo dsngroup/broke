@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package org.dsngroup.broke.protocol;
 
 /**
- * Extended MQTT PINGREQ message
+ * Extended MQTT PINGREQ message.
  * Additional message id was added in variable header
- * */
+ */
 public class MqttPingReqMessage extends MqttMessage {
 
     public MqttPingReqMessage(MqttFixedHeader mqttFixedHeader, MqttPingReqVariableHeader variableHeader) {

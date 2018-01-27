@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,10 @@ import org.dsngroup.broke.broker.ServerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MqttMessageHandler extends ChannelInboundHandlerAdapter{
+/**
+ * Message handler for MqttMessage.
+ */
+public class MqttMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
 

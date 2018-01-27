@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package org.dsngroup.broke.broker.dispatch;
 
+import java.util.ArrayList;
 import org.dsngroup.broke.broker.metadata.ClientSession;
 
-import java.util.ArrayList;
 
+/**
+ * Interface of session selector.
+ */
 public interface ISessionSelector {
     ClientSession selectSession(ArrayList<ClientSession> sessionList);
 }

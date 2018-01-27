@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,19 @@ import org.dsngroup.broke.broker.metadata.ClientSession;
 
 import java.util.ArrayList;
 
-public class LSMDSessionSelector implements ISessionSelector{
+/**
+ * The session selector based on latency-sensitive message dispatching (LSMD).
+ */
+public class LSMDSessionSelector implements ISessionSelector {
+
     @Override
     public ClientSession selectSession(ArrayList<ClientSession> sessionList) {
         double[] scoreArray = new double[sessionList.size()];
         for (int i = 0; i < sessionList.size(); i++) {
-            scoreArray[i] = sessionList.get(i).getPublishScore();
+            boolean isBackPressured = sessionList.get(i).isBackPressured();
+            double networkDelay = sessionList.get(i).getAverageRTT();
+            double queuingDelay = sessionList.get(i).getEstimatedQueuingDelay();
+            scoreArray[i] = getPublishScore(isBackPressured, networkDelay, queuingDelay);
         }
 
         double sumScore = 0;
@@ -49,6 +56,16 @@ public class LSMDSessionSelector implements ISessionSelector{
         } else {
             return sessionList.get(selectedIdx);
         }
+    }
+
+    /**
+     * Getter for the current publish score.
+     */
+    private double getPublishScore(boolean isBackPressured, double networkDelay, double queuingDelay) {
+        double bpFactor = isBackPressured ? 0.1 : 1.0;
+
+        double networkDelayFactor = 20 * Math.pow(2, (200.0d - networkDelay) / 30.0d);
+        return networkDelayFactor * bpFactor;
     }
 
 }

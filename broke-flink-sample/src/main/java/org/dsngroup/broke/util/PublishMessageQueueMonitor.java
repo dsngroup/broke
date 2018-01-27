@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ public class PublishMessageQueueMonitor extends AbstractRichFunction implements 
 
     @Override
     public void run() {
-        while(true) {
+        while (true) {
             // TODO: debug
-            logger.info("BP status: " + publishMessageQueue.isBackPressured() +
-                    " capacity: " + publishMessageQueue.getCapacity() +
-                    " consumption rate: " + publishMessageQueue.getConsumptionRate() +
-                    " time: " + System.currentTimeMillis());
+            logger.info("BP status: " + publishMessageQueue.isBackPressured()
+                    + " capacity: " + publishMessageQueue.getCapacity()
+                    + " consumption rate: " + publishMessageQueue.getConsumptionRate()
+                    + " time: " + System.currentTimeMillis());
             try {
                 Thread.sleep(250);
             } catch (Exception e) {

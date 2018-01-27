@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class BlockClient {
 
     private PacketIdGenerator packetIdGenerator = new PacketIdGenerator();
 
-    private final static Logger logger = LoggerFactory.getLogger(BlockClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(BlockClient.class);
 
     private MqttMessageHandler mqttMessageHandler;
 
@@ -83,7 +83,7 @@ public class BlockClient {
     public void connect(MqttQoS qos, int criticalOption) throws Exception {
 
         // Connect only when the channel is active
-        if(targetServerChannel.isActive()) {
+        if (targetServerChannel.isActive()) {
 
             // Create CONNECT message
             MqttFixedHeader mqttFixedHeader =
@@ -105,7 +105,7 @@ public class BlockClient {
     }
 
     /**
-     * Send the PUBLISH message to server
+     * Send the PUBLISH message to server.
      * @param topic topic to publish
      * @param qos qos of transmission
      * @param criticalOption TODO: critical option mechanism
@@ -133,7 +133,7 @@ public class BlockClient {
     }
 
     /**
-     * Send the SUBSCRIBE message to server
+     * Send the SUBSCRIBE message to server.
      * @param topic The topic to subscribe.
      * @param qos QoS of transmission.
      * @param groupId The user-defined consumer group id for data parallel
@@ -171,7 +171,7 @@ public class BlockClient {
     }
 
     /**
-     * Setter for message callback handler
+     * Setter for message callback handler.
      * @param messageCallbackHandler user-defined message callback handler
      */
     public void setMessageCallbackHandler(IMessageCallbackHandler messageCallbackHandler) {
@@ -179,21 +179,21 @@ public class BlockClient {
     }
 
     /**
-     * The default constructor
+     * The default constructor.
      */
     public BlockClient() throws Exception {
         this("0.0.0.0", 8181);
     }
 
     /**
-     * The constructor without specifying clientId
+     * The constructor without specifying clientId.
      */
     public BlockClient(String targetBrokerAddress, int targetBrokerPort) throws Exception {
         this(targetBrokerAddress, targetBrokerPort, ClientIdGenerator.getClientId());
     }
 
     /**
-     * The constructor for creating a BlockClient
+     * The constructor for creating a BlockClient.
      * 1. Build a connection to client
      * 2. Send a CONNECT message to server.
      * @param targetBrokerAddress The address of broker server.

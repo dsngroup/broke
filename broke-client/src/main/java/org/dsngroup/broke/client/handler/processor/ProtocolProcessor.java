@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class ProtocolProcessor {
 
     private ClientSession clientSession;
 
-    private final static Logger logger = LoggerFactory.getLogger(ProtocolProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProtocolProcessor.class);
 
     private IMessageCallbackHandler messageCallbackHandler;
 
@@ -51,7 +51,7 @@ public class ProtocolProcessor {
     }
 
     /**
-     * Handle CONNACK
+     * Handle CONNACK.
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttConnAckMessage CONNACK message from broker
      */
@@ -66,7 +66,7 @@ public class ProtocolProcessor {
     }
 
     /**
-     * Handle PUBLISH and return a PUBACK
+     * Handle PUBLISH and return a PUBACK.
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPublishMessage PUBLISH message from broker
      */
@@ -87,7 +87,7 @@ public class ProtocolProcessor {
     }
 
     /**
-     * Handle PUBACK
+     * Handle PUBACK.
      * Remove the corresponding packet id in client session's unacked message queue
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPubAckMessage PUBACK message from broker
@@ -97,7 +97,7 @@ public class ProtocolProcessor {
     }
 
     /**
-     * Handle SUBACK
+     * Handle SUBACK.
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttSubAckMessage SUBACK message from broker
      */
@@ -107,7 +107,7 @@ public class ProtocolProcessor {
     }
 
     /**
-     * Handle PINGREQ
+     * Handle PINGREQ.
      * Respond with a PINGRESP back to broker server.
      * @param ctx {@see ChannelHandlerContext}
      * @param mqttPingReqMessage PINGREQ message from broker

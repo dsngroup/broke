@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Utility for message dispatching to consumer groups.
+ */
 public class MessageDispatcher {
 
     private ClientSessionPool clientSessionPool;
@@ -76,13 +79,13 @@ public class MessageDispatcher {
             ClientSession selectedSession = sessionSelector.selectSession(sessionList);
 
             // TODO: debug
-            printerCounter ++;
+            printerCounter++;
             if (printerCounter == 10000) {
                 logger.info("Number of possible consumers: " + sessionList.size());
                 for (ClientSession session : sessionList) {
-                    logger.info(session.getClientId() +
-                            ": score: " + session.getPublishScoreString() +
-                            " total publishes: " + session.getPublishCount());
+                    logger.info(session.getClientId()
+                            + ": score: " + session.getPublishScoreString()
+                            + " total publishes: " + session.getPublishCount());
                 }
                 logger.info("Selected session: " + selectedSession.getClientId());
                 printerCounter = 0;

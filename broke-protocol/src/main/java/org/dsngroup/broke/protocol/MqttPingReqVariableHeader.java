@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package org.dsngroup.broke.protocol;
 
 import io.netty.util.internal.StringUtil;
 
+/**
+ * Variable header of PINGREQ.
+ */
 public final class MqttPingReqVariableHeader {
 
     private final int packetId;

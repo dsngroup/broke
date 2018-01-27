@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@ import org.dsngroup.broke.protocol.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Session of a client.
+ */
 public class ClientSession {
 
     private boolean isActive;
@@ -103,6 +106,22 @@ public class ClientSession {
     }
 
     /**
+     * Getter for the back-pressure status.
+     * @return back-pressure status.
+     */
+    public boolean isBackPressured() {
+        return clientProber.isBackPressured();
+    }
+
+    /**
+     * Getter for estimated queuing delay.
+     * @return Estimated queuing delay.
+     */
+    public double getEstimatedQueuingDelay() {
+        return clientProber.getEstimatedQueuingDelay();
+    }
+
+    /**
      * Setter for client prober.
      */
     public void setClientProber(ClientProber clientProber) {
@@ -110,50 +129,17 @@ public class ClientSession {
     }
 
     /**
-     * Getter for the current publish score.
-     */
-    public double getPublishScore() {
-        double bpFactor = clientProber.isBackPressured() ? 0.1 : 1.0;
-        double estimatedNetworkDelay = clientProber.getRttAvg();
-        double estimatedQueuingDelay = clientProber.getEstimatedQueuingDelay();
-
-        double networkDelayFactor;
-        if (estimatedNetworkDelay < 10) {
-            networkDelayFactor = 100;
-        } else if (estimatedNetworkDelay < 30) {
-            networkDelayFactor = 50;
-        } else if (estimatedNetworkDelay < 70) {
-            networkDelayFactor = 25;
-        } else if (estimatedNetworkDelay < 120) {
-            networkDelayFactor = 12;
-        } else {
-            networkDelayFactor = 1;
-        }
-        return networkDelayFactor * bpFactor;
-    }
-
-    /**
      * Getter for the current publish score String for Debug.
-     * TODO: remove this
      */
     public String getPublishScoreString() {
-        double bpFactor = clientProber.isBackPressured() ? 0.1 : 1.0;
-        double estimatedNetworkDelay = clientProber.getRttAvg();
-        double estimatedQueuingDelay = clientProber.getEstimatedQueuingDelay();
+        boolean isBackPressured = isBackPressured();
+        double networkDelay = getAverageRTT();
+        double queuingDelay = getEstimatedQueuingDelay();
 
-        double delayFactor;
-        if (estimatedNetworkDelay < 10) {
-            delayFactor = 100;
-        } else if (estimatedNetworkDelay < 30) {
-            delayFactor = 70;
-        } else if (estimatedNetworkDelay < 70) {
-            delayFactor = 50;
-        } else if (estimatedNetworkDelay < 120) {
-            delayFactor = 30;
-        } else {
-            delayFactor = 1;
-        }
-        return delayFactor + " * " + bpFactor + " Estimated delay: " + estimatedNetworkDelay;
+        double bpFactor = isBackPressured ? 0.1 : 1.0;
+
+        double networkDelayFactor = 20 * Math.pow(2, (200.0d - networkDelay) / 30.0d);
+        return networkDelayFactor + " * " + bpFactor + " Estimated delay: " + networkDelay;
     }
 
     ClientSession(String clientId) {

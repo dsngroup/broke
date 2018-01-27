@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,21 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.util.concurrent.ScheduledFuture;
 import org.dsngroup.broke.broker.metadata.PingRequestPool;
 import org.dsngroup.broke.broker.metadata.RttStatistics;
-import org.dsngroup.broke.protocol.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dsngroup.broke.protocol.MqttFixedHeader;
+import org.dsngroup.broke.protocol.MqttMessageType;
+import org.dsngroup.broke.protocol.MqttPingReqMessage;
+import org.dsngroup.broke.protocol.MqttPingReqVariableHeader;
+import org.dsngroup.broke.protocol.MqttQoS;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Measure and keep RTT statistics, back-pressure status of the client.
+ */
 public class ClientProber {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientProber.class);
@@ -54,10 +62,18 @@ public class ClientProber {
         return rttStatistics.getRttAvg();
     }
 
+    /**
+     * Set the sending time of a PINGREQ.
+     * @param packetId packet identifier.
+     */
     private void setPingReq(int packetId) {
         pingRequestPool.setPingReq(packetId, System.nanoTime());
     }
 
+    /**
+     * Set the receiving time of the PINGRESP and update RTT statistics.
+     * @param packetId packet identifier.
+     */
     public void setPingResp(int packetId) {
         long sendTime = pingRequestPool.getPingReq(packetId);
         if (sendTime != -1) {
@@ -101,7 +117,7 @@ public class ClientProber {
      * Setter for isBackPressured.
      */
     public void setIsBackPressured(boolean isBackPressured) {
-        if (this.isBackPressured != isBackPressured ) {
+        if (this.isBackPressured != isBackPressured) {
             this.isBackPressured = isBackPressured;
             // TODO: debug
             logger.info("Back-pressure status toggled: " + isBackPressured);
@@ -127,13 +143,14 @@ public class ClientProber {
     }
 
     /**
-     * Called in the processConnect(). When the client makes the connection successfully, schedule the PING message.
+     * Schedule the periocid PINGREQ message.
+     * @param channel Channel.
      */
     public void schedulePingReq(Channel channel) {
         pingReqScheduleFuture = channel.eventLoop().scheduleAtFixedRate(
-                new Runnable(){
+                new Runnable() {
                     @Override
-                    public void run(){
+                    public void run() {
 
                         int packetId = pingReqPacketIdGenerator.getAndIncrement();
                         MqttFixedHeader mqttFixedHeader =
@@ -160,14 +177,19 @@ public class ClientProber {
                 }, 1000, 250, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Stop the periodic PINGREQ.
+     */
     public void cancelPingReq() {
-        // Stop the PINGREQ schedule
         // TODO: is the check necessary?
         if (pingReqScheduleFuture != null) {
             pingReqScheduleFuture.cancel(false);
         }
     }
 
+    /**
+     * Constructor.
+     */
     public ClientProber() {
         this.pingReqPacketIdGenerator = new AtomicInteger();
         this.pingReqPacketIdGenerator.getAndIncrement();

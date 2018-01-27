@@ -15,7 +15,7 @@
  */
 
 /**
- * This package used for dealing with channel, as a pipeline of processing.
+ * Utilities for Broke Flink sample.
  */
 
-package org.dsngroup.broke.broker.handler;
+package org.dsngroup.broke.util;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,9 @@ public class SamplePublish {
 
     private static final Logger logger = LoggerFactory.getLogger(SamplePublish.class);
 
-
+    /**
+     * Main function.
+     */
     public static void main(String[] args) {
 
         class MessageCallbackHandler implements IMessageCallbackHandler {
@@ -68,7 +70,7 @@ public class SamplePublish {
 
 
             Thread.sleep(10000);
-            while(true) {
+            while (true) {
                 blockClient.publish("Foo", MqttQoS.AT_LEAST_ONCE, 0, "Bar");
                 Thread.sleep(500);
             }

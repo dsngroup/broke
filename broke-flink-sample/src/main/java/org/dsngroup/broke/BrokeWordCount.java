@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,9 @@ public class BrokeWordCount {
 
     public static final Logger logger = LoggerFactory.getLogger(BrokeWordCount.class);
 
+    /**
+     * Main function for Flink-based streaming word count.
+     */
     public static void main(String[] args) {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -68,7 +71,7 @@ public class BrokeWordCount {
                 .flatMap(new FlatMapFunction<String, WordWithCount>() {
                     @Override
                     public void flatMap(String value, Collector<WordWithCount> out) throws Exception {
-                        for(String word: value.split("\\s")) {
+                        for (String word: value.split("\\s")) {
                             out.collect(new WordWithCount(word, 1L));
                         }
                     }
