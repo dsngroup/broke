@@ -1,4 +1,4 @@
-# Broke [![Build Status](https://travis-ci.org/allenlee820202/broke.svg?branch=master)](https://travis-ci.org/allenlee820202/broke)
+# Broke [![Build Status](https://travis-ci.org/dsngroup/broke.svg?branch=master)](https://travis-ci.org/dsngroup/broke)
 A Latency-Aware Broker
 
 ## Build
@@ -33,3 +33,6 @@ java -jar Server-jar-with-dependencies.jar
 ### Connect
 ### Publish
 ### Subscribe
+
+## License
+Apache License 2.0
