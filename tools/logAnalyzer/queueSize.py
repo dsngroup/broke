@@ -99,10 +99,10 @@ if __name__ == "__main__":
 
     logs = []
     legend_dict = {}
-    legend_dict['flink0'] = 'delay = 20ms'
-    legend_dict['flink1'] = 'delay = 20ms'
-    legend_dict['flink2'] = 'delay = 5ms'
-    latency_config = "20-20-5"
+    legend_dict['flink0'] = 'delay = 40ms'
+    legend_dict['flink1'] = 'delay = 40ms'
+    legend_dict['flink2'] = 'delay = 10ms'
+    latency_config = "40-40-10"
     for _, dirs, _ in os.walk(root_dir):
         for directory in dirs:
             if flink_dir_pattern.match(directory):
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     for log in logs:
         x, y = getPoints(log[1])
         plot = pl.plot(x, y, label=log[0])
-    pl.title('LSMD Queue Size')
+    pl.title('RR Queue Size')
     pl.xlabel('Time(ms)')
     pl.ylabel('Inbound Queue Size')
     art = []

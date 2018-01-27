@@ -78,6 +78,9 @@ def getPoints(lines):
     for line in lines:
         x.append(line[1])
         y.append(line[0])
+    # Truncate last 5 points if needed
+    x = x[0:-5]
+    y = y[0:-5]
     return x, y
 
 if __name__ == "__main__":
@@ -98,10 +101,10 @@ if __name__ == "__main__":
 
     logs = []
     legend_dict = {}
-    legend_dict['flink0'] = 'delay = 20ms'
-    legend_dict['flink1'] = 'delay = 20ms'
-    legend_dict['flink2'] = 'delay = 5ms'
-    latency_config = "20-20-5"
+    legend_dict['flink0'] = 'delay = 70ms'
+    legend_dict['flink1'] = 'delay = 40ms'
+    legend_dict['flink2'] = 'delay = 10ms'
+    latency_config = "40-40-10"
     for _, dirs, _ in os.walk(root_dir):
         for directory in dirs:
             if flink_dir_pattern.match(directory):
@@ -124,13 +127,22 @@ if __name__ == "__main__":
     # Plot
     for log in logs:
         x, y = getPoints(log[1])
+        y_sum = 0
+        y_count = 0
+        for i in range(0, len(y) - 1) : 
+            if y[i] != '0' :
+                y_sum += int(y[i])
+                y_count += 1
+        print log[0] + ': average throughput: ' + str(y_sum / y_count)
         plot = pl.plot(x, y, label=log[0])
-    pl.title('LSMD Throughput')
+    pl.title('RR Throughput')
     pl.xlabel('Time(ms)')
     pl.ylabel('Messages Per Second')
     art = []
     lgd = pl.legend(loc='center right', bbox_to_anchor=(1.4, 0.5))
     art.append(lgd)
+    '''
     pl.savefig('./results/' + log_filename.split(".")[0] + " " + latency_config\
              + " throughput", \
             additional_artists=art, bbox_inches = "tight")
+    '''

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 original authors and authors.
+ * Copyright (c) 2017-2018 Dependable Network and System Lab, National Taiwan University.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,9 @@ public class MultiClient {
             * 3 Flink consumers: 15 clients
             * Stable: 8 clients
             * LSMD stable: 12 clients 2ms
+            * LSMD small throughput: 6 clients 2ms
             */
-            int numOfClients = 12;
+            int numOfClients = 6;
 
             PublishClient[] publishClients = new PublishClient[numOfClients];
             SubscribeClient[] subscribeClients = new SubscribeClient[numOfClients];
