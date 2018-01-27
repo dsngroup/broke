@@ -1,6 +1,10 @@
 # Broke [![Build Status](https://travis-ci.org/dsngroup/broke.svg?branch=master)](https://travis-ci.org/dsngroup/broke)
 A Latency-Aware Broker
 
+## Prerequisites
+* [apache-maven-3.5.2](https://maven.apache.org/) or above
+* [Java 1.8.0_151](https://www.java.com) or above
+
 ## Build
 ```bash
 mvn package
