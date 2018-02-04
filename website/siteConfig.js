@@ -9,7 +9,7 @@
 const users = [
   {
     caption: 'User1',
-    image: '/broke/img/docusaurus.svg',
+    image: '/broke/docusaurus/img/docusaurus.svg',
     infoLink: 'https://www.facebook.com',
     pinned: true,
   },
@@ -18,8 +18,8 @@ const users = [
 const siteConfig = {
   title: 'Broke' /* title for your website */,
   tagline: 'A latency-sensitive broker',
-  url: 'https://dsngroup.github.io' /* your website url */,
-  baseUrl: '/broke/' /* base url for your project */,
+  url: 'https://allenlee820202.github.io' /* your website url */,
+  baseUrl: '/broke/docusaurus/' /* base url for your project */,
   projectName: 'broke',
   headerLinks: [
     {doc: 'connect', label: 'Doc'},
@@ -42,7 +42,7 @@ const siteConfig = {
     'Copyright © ' +
     new Date().getFullYear() +
     ' DSN Group',
-  organizationName: 'dsngroup', // or set an env variable ORGANIZATION_NAME
+  organizationName: 'allenlee820202', // or set an env variable ORGANIZATION_NAME
   projectName: 'broke', // or set an env variable PROJECT_NAME
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks
@@ -50,7 +50,7 @@ const siteConfig = {
   },
   scripts: ['https://buttons.github.io/buttons.js'],
   // You may provide arbitrary config keys to be used as needed by your template.
-  repoUrl: 'https://github.com/dsngroup/broke',
+  repoUrl: 'https://github.com/allenlee820202/broke',
 };
 
 module.exports = siteConfig;
