@@ -9,7 +9,7 @@
 const users = [
   {
     caption: 'User1',
-    image: '/test-site/img/docusaurus.svg',
+    image: '/broke/img/docusaurus.svg',
     infoLink: 'https://www.facebook.com',
     pinned: true,
   },
@@ -50,7 +50,7 @@ const siteConfig = {
   },
   scripts: ['https://buttons.github.io/buttons.js'],
   // You may provide arbitrary config keys to be used as needed by your template.
-  repoUrl: 'https://github.com/facebook/test-site',
+  repoUrl: 'https://github.com/dsngroup/broke',
 };
 
 module.exports = siteConfig;

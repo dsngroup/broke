@@ -6,12 +6,6 @@
     "tagline": "A latency-sensitive broker",
     "connect": "Connect",
     "Connect": "Connect",
-    "doc1": "Latin-ish",
-    "Example Page": "Example Page",
-    "doc2": "document number 2",
-    "doc3": "This is document number 3",
-    "doc4": "Other Document",
-    "doc5": "Fifth Document",
     "publish": "Publish",
     "Publish": "Publish",
     "subscribe": "Subscribe",
@@ -20,8 +14,7 @@
     "API": "API",
     "Help": "Help",
     "Blog": "Blog",
-    "Basic Operations": "Basic Operations",
-    "First Category": "First Category"
+    "Basic Operations": "Basic Operations"
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",
