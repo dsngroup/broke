@@ -11,8 +11,11 @@ A Latency-Aware Broker
 
 ## Build
 ```bash
+git clone https://github.com/dsngroup/broke
+cd broke
 mvn package
 ```
+
 ## Configure the Broke server
 The configuration file for the broker ```ServerContext.properties``` is located in ```/broke-broker/src/main/resources```
 Example of the ```ServerContext.properties```:
