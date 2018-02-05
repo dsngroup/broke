@@ -6,6 +6,8 @@
     "tagline": "A latency-sensitive broker",
     "connect": "Connect",
     "Connect": "Connect",
+    "introduction": "Introduction",
+    "Introduction": "Introduction",
     "publish": "Publish",
     "Publish": "Publish",
     "subscribe": "Subscribe",

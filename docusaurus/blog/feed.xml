@@ -2,21 +2,21 @@
 <rss version="2.0">
     <channel>
         <title>Broke Blog</title>
-        <link>https://allenlee820202.github.io/blog</link>
+        <link>https://dsngroup.github.io/blog</link>
         <description>The best place to stay up-to-date with the latest Broke news and events.</description>
         <lastBuildDate>Fri, 11 Mar 2016 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
             <title>Broke Blog</title>
-            <url>https://allenlee820202.github.ioimg/docusaurus.svg</url>
-            <link>https://allenlee820202.github.io/blog</link>
+            <url>https://dsngroup.github.ioimg/docusaurus.svg</url>
+            <link>https://dsngroup.github.io/blog</link>
         </image>
         <copyright>Copyright © 2018 DSN Group</copyright>
         <item>
             <title><![CDATA[Blog Title]]></title>
-            <link>https://allenlee820202.github.io/blog/2016/03/11/blog-post.html</link>
-            <guid>https://allenlee820202.github.io/blog/2016/03/11/blog-post.html</guid>
+            <link>https://dsngroup.github.io/blog/2016/03/11/blog-post.html</link>
+            <guid>https://dsngroup.github.io/blog/2016/03/11/blog-post.html</guid>
             <pubDate>Fri, 11 Mar 2016 06:00:00 GMT</pubDate>
             <description><![CDATA[
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque elementum dignissim ultricies. Fusce rhoncus ipsum tempor eros aliquam consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus elementum massa eget nulla aliquet sagittis. Proin odio tortor, vulputate ut odio in, ultrices ultricies augue. Cras ornare ultrices lorem malesuada iaculis. Etiam sit amet libero tempor, pulvinar mauris sed, sollicitudin sapien.
