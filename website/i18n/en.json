@@ -6,6 +6,10 @@
     "tagline": "A latency-sensitive broker",
     "connect": "Connect",
     "Connect": "Connect",
+    "deployment": "Deployment",
+    "Deployment": "Deployment",
+    "example": "Consumer Group Example",
+    "Consumer Group": "Consumer Group",
     "introduction": "Introduction",
     "Introduction": "Introduction",
     "publish": "Publish",
@@ -16,7 +20,8 @@
     "API": "API",
     "Help": "Help",
     "Blog": "Blog",
-    "Basic Operations": "Basic Operations"
+    "Basic Operations": "Basic Operations",
+    "Examples": "Examples"
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

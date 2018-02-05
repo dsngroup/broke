@@ -1,6 +1,7 @@
 {
   "docs": {
     "Introduction": ["introduction"],
-    "Basic Operations": ["connect", "publish", "subscribe"]
+    "Basic Operations": ["connect", "publish", "subscribe"],
+    "Examples": ["example"]
   }
 }
