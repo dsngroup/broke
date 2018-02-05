@@ -76,7 +76,6 @@ class HomeSplash extends React.Component {
     let language = this.props.language || '';
     return (
       <SplashContainer>
-        <Logo img_src={imgUrl('docusaurus.svg')} />
         <div className="inner">
           <ProjectTitle />
           <PromoSection>
@@ -99,7 +98,7 @@ const Block = props => (
 );
 
 const Features = props => (
-  <Block layout="fourColumn" background="white" align="center">
+  <Block background="white" align="center">
     {[
       {
         content: 'Dispatch workload to appropriate place.',
@@ -196,7 +195,6 @@ class Index extends React.Component {
       <div>
         <HomeSplash language={language} />
         <div className="mainContainer">
-        <Features/>
         </div>
       </div>
     );

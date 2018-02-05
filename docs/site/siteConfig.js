@@ -9,7 +9,6 @@
 const users = [
   {
     caption: 'dsngroup',
-    image: '/img/docusaurus.svg',
     infoLink: 'https://github.com/dsngroup',
     pinned: true,
   },
@@ -18,21 +17,17 @@ const users = [
 const siteConfig = {
   title: 'Broke' /* title for your website */,
   url: 'https://dsngroup.github.io/broke/docs/site/build/broke/' /* your website url */,
-  baseUrl: '' /* base url for your project */,
+  baseUrl: 'https://dsngroup.github.io/broke/docs/site/build/broke/' /* base url for your project */,
   organizationName: 'dsngroup',
   projectName: 'broke',
   headerLinks: [
     {doc: 'introduction', label: 'User Guide'},
   ],
   users,
-  /* path to images for header/footer */
-  headerIcon: 'img/docusaurus.svg',
-  footerIcon: 'img/docusaurus.svg',
-  favicon: 'img/favicon.png',
   /* colors for website */
   colors: {
-    primaryColor: '#2E8555',
-    secondaryColor: '#205C3B',
+    primaryColor: '#20455c',
+    secondaryColor: "#3e7ca3"
   },
   // This copyright info is used in /core/Footer.js and blog rss/atom feeds.
   copyright:
@@ -45,7 +40,7 @@ const siteConfig = {
   },
   scripts: ['https://buttons.github.io/buttons.js'],
   // You may provide arbitrary config keys to be used as needed by your template.
-  repoUrl: 'https://dsngroup.github.io/broke/docs/site/build/Broke/',
+  repoUrl: 'https://dsngroup.github.io/broke/docs/site/build/broke/',
 };
 
 module.exports = siteConfig;
