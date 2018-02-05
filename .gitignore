@@ -31,3 +31,6 @@ hs_err_pid*
 # Flink consumer logs
 tools/logs/*
 tools/logAnalyzer/results/*
+
+# Build of docusaurus website
+website/build/
