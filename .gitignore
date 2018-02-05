@@ -31,3 +31,5 @@ hs_err_pid*
 # Flink consumer logs
 tools/logs/*
 tools/logAnalyzer/results/*
+
+node_modules/

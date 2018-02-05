@@ -2,8 +2,8 @@
 A Latency-Aware Broker
 
 ## Online Resources
-* [Website](https://dsngroup.github.io/broke/docusaurus/docs/introduction.html)
-* [Javadoc](https://dsngroup.github.io/broke/javadoc/index.html)
+* [User Guide](https://dsngroup.github.io/broke/docs/site/build/broke/index.html)
+* [Javadoc](https://dsngroup.github.io/broke/docs/javadoc/index.html)
 
 ## Prerequisites
 * [apache-maven-3.5.2](https://maven.apache.org/) or above
