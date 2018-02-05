@@ -4,7 +4,7 @@ title: Connect
 sidebar_label: Connect
 ---
 
-## [BlockClient](https://dsngroup.github.io/broke/docs/org/dsngroup/broke/client/BlockClient.html)
+## [BlockClient](https://dsngroup.github.io/broke/javadoc/org/dsngroup/broke/client/BlockClient.html)
 
 ```BlockClient``` is the representation of a client to the broker. All client APIs are called from ```BlockClient```.
 Example: Initialization of a ```BlockClient```.

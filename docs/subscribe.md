@@ -6,7 +6,7 @@ sidebar_label: Subscribe
 
 After the client established the connection with the broker, the client can subscribe its interested topic.
 
-## [IMessageCallbackHandler](https://dsngroup.github.io/broke/docs/org/dsngroup/broke/client/handler/callback/IMessageCallbackHandler.html)
+## [IMessageCallbackHandler](https://dsngroup.github.io/broke/javadoc/org/dsngroup/broke/client/handler/callback/IMessageCallbackHandler.html)
 ```IMessageCallbackHandler``` is the interface for handling asynchronous events of ```blockClient```.
 
 There are two callback functions the client can override:
