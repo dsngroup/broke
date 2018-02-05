@@ -1,0 +1,55 @@
+<html lang="en"><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Subscribe · Broke</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta property="og:title" content="Subscribe · Broke"/><meta property="og:type" content="website"/><meta property="og:url" content="https://dsngroup.github.io/broke/docusaurus/index.html"/><meta property="og:description" content="After the client established the connection with the broker, the client can subscribe its interested topic."/><link rel="shortcut icon" href="/broke/docusaurus/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://dsngroup.github.io/blog/atom.xml" title="Broke Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://dsngroup.github.io/blog/feed.xml" title="Broke Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/broke/docusaurus/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/broke/docusaurus/"><img class="logo" src="/broke/docusaurus/img/docusaurus.svg"/><h2 class="headerTitle">Broke</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li><a href="/broke/docusaurus/docs/introduction.html" target="_self">Doc</a></li><li><a href="/broke/docusaurus/docs/connect.html" target="_self">API</a></li><li><a href="/broke/docusaurus/en/help.html" target="_self">Help</a></li><li><a href="/broke/docusaurus/blog" target="_self">Blog</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Basic Operations</span></h2></div><div class="navGroups"><div class="navGroup navGroupActive"><h3>Overview</h3><ul><li class="navListItem"><a class="navItem" href="/broke/docusaurus/docs/introduction.html">Introduction</a></li><li class="navListItem"><a class="navItem" href="/broke/docusaurus/docs/deployment.html">Deployment</a></li></ul></div><div class="navGroup navGroupActive"><h3>Basic Operations</h3><ul><li class="navListItem"><a class="navItem" href="/broke/docusaurus/docs/connect.html">Connect</a></li><li class="navListItem"><a class="navItem" href="/broke/docusaurus/docs/publish.html">Publish</a></li><li class="navListItem navListItemActive"><a class="navItem navItemActive" href="/broke/docusaurus/docs/subscribe.html">Subscribe</a></li></ul></div><div class="navGroup navGroupActive"><h3>Examples</h3><ul><li class="navListItem"><a class="navItem" href="/broke/docusaurus/docs/example.html">Consumer Group</a></li></ul></div></div></section></div><script>
+          var toggler = document.getElementById('navToggler');
+          var nav = document.getElementById('docsNav');
+          toggler.onclick = function() {
+            nav.classList.toggle('docsSliderActive');
+          };
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1>Subscribe</h1></header><article><div><span><p>After the client established the connection with the broker, the client can subscribe its interested topic.</p>
+<h2><a class="anchor" aria-hidden="true" name="imessagecallbackhandler-https-dsngroupgithubio-broke-javadoc-org-dsngroup-broke-client-handler-callback-imessagecallbackhandlerhtml"></a><a href="#imessagecallbackhandler-https-dsngroupgithubio-broke-javadoc-org-dsngroup-broke-client-handler-callback-imessagecallbackhandlerhtml" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://dsngroup.github.io/broke/javadoc/org/dsngroup/broke/client/handler/callback/IMessageCallbackHandler.html">IMessageCallbackHandler</a></h2>
+<p><code>IMessageCallbackHandler</code> is the interface for handling asynchronous events of <code>blockClient</code>.</p>
+<p>There are two callback functions the client can override:</p>
+<ul>
+<li><code>messageArrive</code>: The function for handling arrived messages from the broker. The messages was sent to the client because of the subscription.</li>
+<li><code>connectionLost</code>: The function for handling connection lost to the broker.</li>
+</ul>
+<p>Example implementation of the interface <code>IMessageCallbackHandler</code>:</p>
+<pre><code class="hljs css java"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MessageCallbackHandler</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">IMessageCallbackHandler</span> </span>{
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">messageArrive</span><span class="hljs-params">(ByteBuf payload)</span> </span>{
+        logger.info(payload.toString(StandardCharsets.UTF_8));
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">connectionLost</span><span class="hljs-params">(Throwable cause)</span> </span>{
+        logger.error(<span class="hljs-string">"Connection lost: "</span> + cause.getMessage());
+        System.exit(<span class="hljs-number">1</span>);
+    }
+
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" name="set-the-message-callback-handler-to-blockclient"></a><a href="#set-the-message-callback-handler-to-blockclient" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Set the message callback handler to <code>BlockClient</code></h2>
+<p>The message callback handler should be set to the instance of <code>BlockClient</code>.</p>
+<pre><code class="hljs css java"><span class="hljs-comment">// Initialization of the blockClient</span>
+<span class="hljs-comment">// Connect to the broker server</span>
+
+<span class="hljs-comment">// Set the message callback handler to the blockClient</span>
+blockClient.setMessageCallbackHandler(<span class="hljs-keyword">new</span> MessageCallbackHandler());
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" name="make-a-subscription-to-the-broker"></a><a href="#make-a-subscription-to-the-broker" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Make a subscription to the broker</h2>
+<p>Subscrbe to the broker by specifying:</p>
+<ul>
+<li><code>topic</code>: Interested topic.</li>
+<li><code>consumer group ID</code>: The consumer group this subscribe client belongs to.</li>
+</ul>
+<p>Example: Subscribe to topic &quot;Foo&quot; and specify the consumer group ID to &quot;555&quot;.</p>
+<pre><code class="hljs css java"><span class="hljs-comment">// Initialization of the blockClient</span>
+<span class="hljs-comment">// Connect to the broker server</span>
+<span class="hljs-comment">// Set the message callback handler.</span>
+
+<span class="hljs-comment">// Make a subscription.</span>
+String topic = <span class="hljs-string">"Foo"</span>;
+<span class="hljs-keyword">int</span> consumerGroup = <span class="hljs-number">555</span>;
+blockClient.subscribe(topic, MqttQoS.AT_LEAST_ONCE, <span class="hljs-number">0</span>, consumerGroup);
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="publish.html">← Publish</a><a class="docs-next button" href="example.html">Consumer Group Example →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/broke/docusaurus/" class="nav-home"><img src="/broke/docusaurus/img/docusaurus.svg" alt="Broke" width="66" height="58"/></a><div><h5>Docs</h5><a href="/broke/docusaurus/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/broke/docusaurus/docs/en/doc2.html">Guides (or other categories)</a><a href="/broke/docusaurus/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/broke/docusaurus/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank">Twitter</a></div><div><h5>More</h5><a href="/broke/docusaurus/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" href="https://github.com/dsngroup/broke" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/broke/docusaurus/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div></body></html>
