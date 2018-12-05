@@ -33,3 +33,8 @@ tools/logs/*
 tools/logAnalyzer/results/*
 
 node_modules/
+
+# Eclipse
+.classpath
+.project
+.settings/

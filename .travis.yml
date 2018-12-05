@@ -1,8 +1,19 @@
-language: java
+matrix:
+  include:
+    - language: java
+      jdk: oraclejdk8
 
-# Only 8 is suitable
-jdk:
-  - oraclejdk8
+    - language: node_js
+      node_js:
+        - '8'
+      branches:
+        only:
+          - master
+      script:
+        - git config --global user.name "${GH_NAME}"
+        - git config --global user.email "${GH_EMAIL}"
+        - echo "machine github.com login ${GH_NAME} password ${GH_TOKEN}" > ~/.netrc
+        - cd docs/site && npm install && GIT_USER="${GH_USER}" npm run publish-gh-pages
 
-# Default maven settings and testing is enough, currently.
-
+notifications:
+  email: false

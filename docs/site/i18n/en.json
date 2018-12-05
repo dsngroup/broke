@@ -3,22 +3,40 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "connect": "Connect",
-    "Connect": "Connect",
-    "deployment": "Deployment",
-    "Deployment": "Deployment",
-    "example": "Consumer Group Example",
-    "Consumer Group": "Consumer Group",
-    "introduction": "Introduction",
-    "Introduction": "Introduction",
-    "publish": "Publish",
-    "Publish": "Publish",
-    "subscribe": "Subscribe",
-    "Subscribe": "Subscribe",
-    "User Guide": "User Guide",
-    "Overview": "Overview",
-    "Getting Started": "Getting Started",
-    "Examples": "Examples"
+    "docs": {
+      "connect": {
+        "title": "Connect",
+        "sidebar_label": "Connect"
+      },
+      "deployment": {
+        "title": "Deployment",
+        "sidebar_label": "Deployment"
+      },
+      "example": {
+        "title": "Consumer Group Example",
+        "sidebar_label": "Consumer Group"
+      },
+      "introduction": {
+        "title": "Introduction",
+        "sidebar_label": "Introduction"
+      },
+      "publish": {
+        "title": "Publish",
+        "sidebar_label": "Publish"
+      },
+      "subscribe": {
+        "title": "Subscribe",
+        "sidebar_label": "Subscribe"
+      }
+    },
+    "links": {
+      "User Guide": "User Guide"
+    },
+    "categories": {
+      "Overview": "Overview",
+      "Getting Started": "Getting Started",
+      "Examples": "Examples"
+    }
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",
