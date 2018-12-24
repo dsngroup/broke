@@ -27,7 +27,7 @@ LSMD runs under a popular message brokering protocol called MQTT. We contribute 
 3. To make the broker aware of the computational latency of processing units, we implemented the watermark-based back-pressure[], a mechanism which indicates whether a processing unit is overloaded. With these extensions of MQTT, the latency-sensitive broker can detect the latency conditions of the processing units. The LSMD is able to dispatch workload to each consumer group based on the latency-related metrics.
 
 ### Consumer Group
-<img src="https://dsngroup.github.io/broke/img/consumergroup.png" alt="Drawing" style="width: 350px;"/>
+<img src="https://dsngroup.github.io/broke/docs/site/build/broke/img/consumergroup.png" alt="Drawing" style="width: 350px;"/>
 Consumers can be grouped into a consumer group for load balancing.
 
 The concept of the consumer group is motivated by [Kafka’s consumer group](https://kafka.apache.org/documentation/#intro_consumers) mechanism. The subscribe clients in the consumer group are processes that run the same task which can offload tasks from each other
@@ -35,7 +35,7 @@ The concept of the consumer group is motivated by [Kafka’s consumer group](htt
 In the publish/subscribe system, the consumers are subscribe clients and the workload are messages published from publish clients. The consumers in a consumer group subscribe to a same topic and shares a group ID. Once a publish message matches a subscription of a consumer group, the message is dispatched to one of the consumers in the consumer group. For example, when the publish client publishes a message of topic 1, the message will be forwarded to one of the consumers in consumer group 1 and 2, which subscribe topic 1.
 
 ### Overview of LSMD Algorithm
-<img src="https://dsngroup.github.io/broke/img/LSMD.png" alt="Drawing" style="width: 350px;"/>
+<img src="https://dsngroup.github.io/broke/docs/site/build/broke/img/LSMD.png" alt="Drawing" style="width: 350px;"/>
 
 LSMD selects the consumer in a consumer group based on the latency-related metrics:
 * Round-Trip Time (RTT) between the broker and the client.

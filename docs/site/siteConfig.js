@@ -17,7 +17,7 @@ const users = [
 const siteConfig = {
   title: 'Broke' /* title for your website */,
   url: 'https://dsngroup.github.io' /* your website url */,
-  baseUrl: '/broke/' /* base url for your project */,
+  baseUrl: '/broke/docs/site/build/broke/' /* base url for your project */,
   organizationName: 'dsngroup',
   projectName: 'broke',
   headerLinks: [
