@@ -1,8 +1,8 @@
 # Broke [![Build Status](https://travis-ci.org/dsngroup/broke.svg?branch=master)](https://travis-ci.org/dsngroup/broke)
-A Latency-Aware Broker
+The world’s first message broker that takes latency into account. It defines load balancing mechanism based on latency-related metrics.
 
 ## Online Resources
-* [User Guide](https://dsngroup.github.io/broke/docs/site/build/broke/index.html)
+* [User Guide](https://dsngroup.github.io/broke/index.html)
 * [Javadoc](https://dsngroup.github.io/broke/docs/javadoc/index.html)
 
 ## Prerequisites
